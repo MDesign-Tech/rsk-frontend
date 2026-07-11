@@ -194,7 +194,8 @@ export function AboutForm() {
                       <FormControl>
                         <Input
                           placeholder="tel:, mailto:, https://"
-                          {...field}
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />

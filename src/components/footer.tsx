@@ -1,20 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Phone, MapPin, LucideIcon } from "lucide-react";
-import { websiteService } from "@/services/website.service";
+import { useWebsiteStore } from "@/stores/website.store";
 
-const icons: Record<string, LucideIcon> = {
-  mail: Mail,
+const ICON_MAP: Record<string, LucideIcon> = {
+  email: Mail,
   phone: Phone,
+  address: MapPin,
+  location: MapPin,
   map: MapPin,
 };
 
+function getContactIcon(label: string): LucideIcon {
+  const key = label.toLowerCase();
+  return ICON_MAP[key] ?? MapPin;
+}
+
 const footerLinks = {
-  Services: [
-    { label: "Audit", href: "#our-services" },
-    { label: "Tax Advisory", href: "#our-services" },
-    { label: "Business Management", href: "#our-services" },
-  ],
   Company: [
     { label: "About Us", href: "#about-us" },
     { label: "Our Team", href: "#our-team" },
@@ -26,10 +30,12 @@ const footerLinks = {
   ],
 };
 
-export async function Footer() {
- const website = await websiteService.getWebsiteContent();
+export function Footer() {
+  const data = useWebsiteStore((state) => state.data);
 
-const about = website.about;
+  const about = data?.about;
+  const services = data?.services ?? [];
+
   return (
     <footer className="relative border-t border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
@@ -55,31 +61,49 @@ const about = website.about;
               Trusted partners in audit, tax advisory, and financial consulting.
             </p>
             <div className="space-y-2">
-                {about?.contactMethods?.map((item, index) => {
-                  const Icon =
-                    icons[item.label as keyof typeof icons] ?? MapPin;
+              {about?.contactMethods?.map((item, index) => {
+                const Icon = getContactIcon(item.label);
 
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-start gap-2 text-xs text-muted-foreground"
-                    >
-                      <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                return (
+                  <div
+                    key={index}
+                    className="flex items-start gap-2 text-xs text-muted-foreground"
+                  >
+                    <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
 
-                      {item.href ? (
-                        <a
-                          href={item.href}
-                          className="hover:text-foreground transition-colors"
-                        >
-                          {item.value}
-                        </a>
-                      ) : (
-                        <span>{item.value}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        className="hover:text-foreground transition-colors"
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <span>{item.value}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h4 className="text-xs font-medium tracking-wider uppercase text-muted-foreground mb-4">
+              Services
+            </h4>
+            <ul className="space-y-2">
+              {services.map((service) => (
+                <li key={service._id}>
+                  <a
+                    href="#our-services"
+                    className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {service.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Link columns */}
@@ -88,32 +112,18 @@ const about = website.about;
               <h4 className="text-xs font-medium tracking-wider uppercase text-muted-foreground mb-4">
                 {category}
               </h4>
-              <div className="space-y-2">
-                {about?.contactMethods?.map((item, index) => {
-                  const Icon =
-                    icons[item.label as keyof typeof icons] ?? MapPin;
-
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-start gap-2 text-xs text-muted-foreground"
+              <ul className="space-y-2">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-
-                      {item.href ? (
-                        <a
-                          href={item.href}
-                          className="hover:text-foreground transition-colors"
-                        >
-                          {item.value}
-                        </a>
-                      ) : (
-                        <span>{item.value}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

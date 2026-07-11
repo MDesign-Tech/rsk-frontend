@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useWebsiteStore } from "@/stores/website.store";
 
 
@@ -10,8 +11,11 @@ export function WebsiteError(){
     state=>state.error
    );
 
+ const pathname = usePathname();
 
- if(!error) return null;
+ // Don't show the generic website error on admin routes;
+ // the admin layout handles its own error display.
+ if(!error || pathname?.startsWith("/admin")) return null;
 
 
  return (

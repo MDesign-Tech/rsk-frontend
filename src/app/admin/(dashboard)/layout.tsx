@@ -3,7 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth.store";
+import { useWebsiteStore } from "@/stores/website.store";
 import { AdminShell } from "@/components/admin/admin-shell";
+import { AdminError } from "@/providers/AdminError";
 
 export default function DashboardLayout({
   children,
@@ -12,6 +14,7 @@ export default function DashboardLayout({
 }) {
   const { isAuthenticated, isLoading, initialized, checkAuth } = useAuthStore();
   const router = useRouter();
+  const websiteError = useWebsiteStore((state) => state.error);
 
   useEffect(() => {
     if (!initialized) checkAuth();
@@ -20,6 +23,10 @@ export default function DashboardLayout({
   useEffect(() => {
     if (initialized && !isAuthenticated) router.replace("/admin/login");
   }, [initialized, isAuthenticated, router]);
+
+  if (websiteError) {
+    return <AdminError />;
+  }
 
   return <AdminShell>{children}</AdminShell>;
 }
