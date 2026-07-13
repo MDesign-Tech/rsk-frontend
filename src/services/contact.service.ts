@@ -19,4 +19,12 @@ export const contactService = {
     api
       .delete<ApiResponse<Record<string, never>>>(`/contact/${id}`)
       .then((res) => res.data),
+
+  // Send an admin reply to a contact message.
+  reply: (id: string, reply: string) =>
+    api
+      .post<ApiResponse<{ message: ContactMessage }>>(`/contact/${id}/reply`, {
+        reply,
+      })
+      .then((res) => res.data),
 };

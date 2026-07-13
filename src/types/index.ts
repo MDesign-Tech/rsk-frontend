@@ -90,11 +90,16 @@ export interface TeamMember {
   updatedAt?: string;
 }
 
+export type ContactStatus = "pending" | "replied";
+
 export interface ContactMessage {
   _id: string;
   name: string;
   email: string;
   message: string;
+  status?: ContactStatus;
+  reply?: string;
+  replyAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }

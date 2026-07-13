@@ -9,6 +9,33 @@ export const loginSchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
+// Forgot password — only requires a valid email.
+export const forgotPasswordSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Please enter a valid email"),
+});
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+// Verify OTP — exactly 6 numeric digits.
+export const verifyOtpSchema = z.object({
+  otp: z
+    .string()
+    .min(1, "OTP is required")
+    .regex(/^\d{6}$/, "OTP must be exactly 6 digits"),
+});
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
+
+// Reset password — minimum length and confirmation match.
+export const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
 // ---------------------------------------------------------------------------
 // Hero
 // ---------------------------------------------------------------------------

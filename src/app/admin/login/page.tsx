@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/schemas";
@@ -103,6 +104,14 @@ export default function LoginPage() {
                 {form.formState.isSubmitting && <Spinner />}
                 Sign In
               </Button>
+              <div className="text-center text-sm">
+                <Link
+                  href="/admin/forgot-password"
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
             </form>
           </Form>
         </CardContent>
