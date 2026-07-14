@@ -4,7 +4,6 @@ import { Geist, Geist_Mono, PT_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
-import { WebsiteInitializer } from "@/providers/WebsiteInitializer"
 import { WebsiteProvider } from "@/providers/website-provider"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -39,10 +38,9 @@ export default function RootLayout({
     <html lang="en" className={`dark ${_ptMono.variable}`} data-scroll-behavior="smooth">
       <body className="font-sans antialiased min-h-screen">
         <WebsiteProvider>
-        <WebsiteInitializer/>
-        {children}
-        <Toaster />
-        <Analytics />
+          {children}
+          <Toaster />
+          <Analytics />
         </WebsiteProvider>
       </body>
     </html>
