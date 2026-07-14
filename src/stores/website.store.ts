@@ -54,13 +54,13 @@ export const useWebsiteStore = create<WebsiteStore>((set)=>({
 
     }catch(error:any){
 
+      // Continue with app even if backend is unavailable
+      console.log("[v0] Backend unavailable, initializing without data:", error.message);
+
       set({
 
-        error:
-          error.message ||
-          "Failed to load website",
-
-        initialized:true
+        initialized:true,
+        error: null
 
       });
 
