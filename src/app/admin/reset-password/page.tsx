@@ -57,14 +57,14 @@ export default function ResetPasswordPage() {
         otp,
         password: values.password,
       });
-      toast.success("Password reset successfully");
       router.push("/admin/login");
+      setIsSubmitting(false);
+      toast.success("Password reset successfully");
     } catch (err) {
+      setIsSubmitting(false);
       toast.error(
         err instanceof Error ? err.message : "Failed to reset password",
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

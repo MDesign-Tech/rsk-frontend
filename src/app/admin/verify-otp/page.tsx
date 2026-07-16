@@ -88,12 +88,12 @@ export default function VerifyOtpPage() {
     setIsResending(true);
     try {
       await authService.resendOTP({ email });
-      toast.success("A new OTP has been sent to your email");
       startCountdown();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to resend OTP");
-    } finally {
       setIsResending(false);
+      toast.success("A new OTP has been sent to your email");
+    } catch (err) {
+      setIsResending(false);
+      toast.error(err instanceof Error ? err.message : "Failed to resend OTP");
     }
   };
 

@@ -16,4 +16,11 @@ export const faqService = {
 
   remove: (id: string) =>
     api.delete<ApiResponse<Record<string, never>>>(`/faqs/${id}`).then((res) => res.data),
+
+  toggleVisibility: (id: string, visible: boolean) =>
+    api
+      .patch<ApiResponse<{ faq: FAQ }>>(`/faqs/${id}/visibility`, {
+        visible,
+      })
+      .then((res) => res.data),
 };

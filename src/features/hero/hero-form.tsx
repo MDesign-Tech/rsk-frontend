@@ -15,6 +15,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { FormCard } from "@/components/admin/form-card";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
@@ -31,7 +37,13 @@ export function HeroForm() {
 
   const form = useForm<HeroInput>({
     resolver: zodResolver(heroSchema),
-    defaultValues: { title: "", subtitle: "", trust: "" },
+    defaultValues: {
+      title: "",
+      subtitle: "",
+      trust: "",
+      subtitleVisible: true,
+      trustVisible: true,
+    },
   });
 
   useEffect(() => {
@@ -40,11 +52,17 @@ export function HeroForm() {
         const res = await heroService.get();
         const h = res.data.hero;
         setHero(h);
-        form.reset({ title: h.title, subtitle: h.subtitle, trust: h.trust });
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to load hero");
-      } finally {
+        form.reset({
+          title: h.title,
+          subtitle: h.subtitle,
+          trust: h.trust,
+          subtitleVisible: h.subtitleVisible ?? true,
+          trustVisible: h.trustVisible ?? true,
+        });
         setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        toast.error(err instanceof Error ? err.message : "Failed to load hero");
       }
     })();
   }, [form]);
@@ -54,6 +72,7 @@ export function HeroForm() {
     try {
       const res = await heroService.update(values);
       setHero(res.data.hero);
+       setIsSaving(false);
       toast.success("Hero content updated");
 
       if (imageFile) {
@@ -62,17 +81,40 @@ export function HeroForm() {
           const up = await heroService.uploadImage(imageFile);
           setHero(up.data.hero);
           setImageFile(null);
+          setIsUploading(false);
           toast.success("Background image updated");
         } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Image upload failed");
-        } finally {
           setIsUploading(false);
+          toast.error(err instanceof Error ? err.message : "Image upload failed");
         }
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Update failed");
-    } finally {
       setIsSaving(false);
+      toast.error(err instanceof Error ? err.message : "Update failed");
+    }
+  };
+
+  // Toggle the subtitle visibility via the dedicated PATCH endpoint.
+  const onToggleSubtitle = async (checked: boolean) => {
+    try {
+      const res = await heroService.toggleSubtitleVisibility(checked);
+      setHero(res.data.hero);
+      form.setValue("subtitleVisible", checked);
+      toast.success(checked ? "Subtitle shown" : "Subtitle hidden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+    }
+  };
+
+  // Toggle the trust text visibility via the dedicated PATCH endpoint.
+  const onToggleTrust = async (checked: boolean) => {
+    try {
+      const res = await heroService.toggleTrustVisibility(checked);
+      setHero(res.data.hero);
+      form.setValue("trustVisible", checked);
+      toast.success(checked ? "Trust text shown" : "Trust text hidden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
     }
   };
 
@@ -111,6 +153,28 @@ export function HeroForm() {
               </FormItem>
             )}
           />
+          <div className="flex items-center gap-3">
+            <FormField
+              control={form.control}
+              name="subtitleVisible"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-3 space-y-0">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Switch
+                        id={field.name}
+                        checked={field.value}
+                        onCheckedChange={onToggleSubtitle}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {field.value ? "Hide Subtitle" : "Show Subtitle"}
+                    </TooltipContent>
+                  </Tooltip>
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
             control={form.control}
             name="trust"
@@ -124,6 +188,30 @@ export function HeroForm() {
               </FormItem>
             )}
           />
+          <div className="flex items-center gap-3">
+            <FormField
+              control={form.control}
+              name="trustVisible"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-3 space-y-0">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Switch
+                        id={field.name}
+                        checked={field.value}
+                        onCheckedChange={onToggleTrust}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {field.value
+                        ? "Hide Trust Text"
+                        : "Show Trust Text"}
+                    </TooltipContent>
+                  </Tooltip>
+                </FormItem>
+              )}
+            />
+          </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Background Image</label>
             <ImageUpload

@@ -21,7 +21,6 @@ export const teamService = {
   remove: (id: string) =>
     api.delete<ApiResponse<Record<string, never>>>(`/team/${id}`).then((res) => res.data),
 
-  // Upload a team member image (multipart/form-data).
   uploadImage: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("image", file);
@@ -31,4 +30,11 @@ export const teamService = {
       })
       .then((res) => res.data);
   },
+
+  toggleVisibility: (id: string, visible: boolean) =>
+    api
+      .patch<ApiResponse<{ teamMember: TeamMember }>>(`/team/${id}/visibility`, {
+        visible,
+      })
+      .then((res) => res.data),
 };

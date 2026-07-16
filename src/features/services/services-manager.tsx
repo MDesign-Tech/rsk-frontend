@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { IconButton } from "@/components/admin/icon-button";
 import { serviceSchema, type ServiceInput } from "@/schemas";
 import { serviceService } from "@/services/service.service";
 import type { Service } from "@/types";
@@ -54,10 +55,10 @@ export function ServicesManager() {
     try {
       const res = await serviceService.getAll();
       setServices(res.data.services);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load services");
-    } finally {
       setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast.error(err instanceof Error ? err.message : "Failed to load services");
     }
   };
 
@@ -85,17 +86,18 @@ export function ServicesManager() {
         setServices((prev) =>
           prev.map((s) => (s._id === editing._id ? res.data.service : s))
         );
+        setDialogOpen(false);
         toast.success("Service updated");
       } else {
         const res = await serviceService.create(values);
         setServices((prev) => [res.data.service, ...prev]);
+        setDialogOpen(false);
         toast.success("Service created");
       }
-      setDialogOpen(false);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
       setIsSaving(false);
+    } catch (err) {
+      setIsSaving(false);
+      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -105,12 +107,25 @@ export function ServicesManager() {
     try {
       await serviceService.remove(deleteTarget._id);
       setServices((prev) => prev.filter((s) => s._id !== deleteTarget._id));
-      toast.success("Service deleted");
       setDeleteTarget(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Delete failed");
-    } finally {
       setIsDeleting(false);
+      toast.success("Service deleted");
+    } catch (err) {
+      setIsDeleting(false);
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    }
+  };
+
+  const toggleVisibility = async (service: Service) => {
+    const next = !service.visible;
+    try {
+      const res = await serviceService.toggleVisibility(service._id, next);
+      setServices((prev) =>
+        prev.map((s) => (s._id === service._id ? res.data.service : s))
+      );
+      toast.success(next ? "Service shown" : "Service hidden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
     }
   };
 
@@ -133,12 +148,24 @@ export function ServicesManager() {
       className: "text-right",
       render: (s) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => openEdit(s)}>
-            <Pencil /> Edit
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(s)}>
-            <Trash2 /> Delete
-          </Button>
+          <IconButton
+            variant="outline"
+            label={s.visible === false ? "Show service" : "Hide service"}
+            icon={s.visible === false ? <EyeOff /> : <Eye />}
+            onClick={() => toggleVisibility(s)}
+          />
+          <IconButton
+            variant="outline"
+            label="Edit service"
+            icon={<Pencil />}
+            onClick={() => openEdit(s)}
+          />
+          <IconButton
+            variant="destructive"
+            label="Delete service"
+            icon={<Trash2 />}
+            onClick={() => setDeleteTarget(s)}
+          />
         </div>
       ),
     },
@@ -152,9 +179,12 @@ export function ServicesManager() {
           onChange={setSearch}
           placeholder="Search services..."
         />
-        <Button onClick={openCreate}>
-          <Plus /> Add Service
-        </Button>
+        <IconButton
+          variant="default"
+          label="Add service"
+          icon={<Plus />}
+          onClick={openCreate}
+        />
       </div>
 
       {isLoading ? (

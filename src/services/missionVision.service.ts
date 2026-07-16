@@ -18,6 +18,15 @@ export const missionVisionService = {
     );
 
     return response.data;
+  },
+
+  async toggleVisibility(visible: boolean) {
+    const response = await api.patch<ApiResponse<MissionVision>>(
+      "/mission-vision/visibility",
+      { visible }
+    );
+
+    return response.data;
   }
 
 };

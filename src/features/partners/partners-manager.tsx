@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { IconButton } from "@/components/admin/icon-button";
 import { partnerSchema, type PartnerInput } from "@/schemas";
 import { partnerService } from "@/services/partner.service";
 import type { Partner } from "@/types";
@@ -54,10 +55,10 @@ export function PartnersManager() {
     try {
       const res = await partnerService.getAll();
       setPartners(res.data.partners);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load partners");
-    } finally {
       setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast.error(err instanceof Error ? err.message : "Failed to load partners");
     }
   };
 
@@ -85,17 +86,18 @@ export function PartnersManager() {
         setPartners((prev) =>
           prev.map((p) => (p._id === editing._id ? res.data.partner : p))
         );
+        setDialogOpen(false);
         toast.success("Partner updated");
       } else {
         const res = await partnerService.create(values);
         setPartners((prev) => [res.data.partner, ...prev]);
+        setDialogOpen(false);
         toast.success("Partner created");
       }
-      setDialogOpen(false);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
       setIsSaving(false);
+    } catch (err) {
+       setIsSaving(false);
+      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -105,12 +107,25 @@ export function PartnersManager() {
     try {
       await partnerService.remove(deleteTarget._id);
       setPartners((prev) => prev.filter((p) => p._id !== deleteTarget._id));
-      toast.success("Partner deleted");
       setDeleteTarget(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Delete failed");
-    } finally {
       setIsDeleting(false);
+      toast.success("Partner deleted");
+    } catch (err) {
+      setIsDeleting(false);
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    }
+  };
+
+  const toggleVisibility = async (partner: Partner) => {
+    const next = !partner.visible;
+    try {
+      const res = await partnerService.toggleVisibility(partner._id, next);
+      setPartners((prev) =>
+        prev.map((p) => (p._id === partner._id ? res.data.partner : p))
+      );
+      toast.success(next ? "Partner shown" : "Partner hidden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
     }
   };
 
@@ -133,12 +148,24 @@ export function PartnersManager() {
       className: "text-right",
       render: (p) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => openEdit(p)}>
-            <Pencil /> Edit
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(p)}>
-            <Trash2 /> Delete
-          </Button>
+          <IconButton
+            variant="outline"
+            label={p.visible === false ? "Show partner" : "Hide partner"}
+            icon={p.visible === false ? <EyeOff /> : <Eye />}
+            onClick={() => toggleVisibility(p)}
+          />
+          <IconButton
+            variant="outline"
+            label="Edit partner"
+            icon={<Pencil />}
+            onClick={() => openEdit(p)}
+          />
+          <IconButton
+            variant="destructive"
+            label="Delete partner"
+            icon={<Trash2 />}
+            onClick={() => setDeleteTarget(p)}
+          />
         </div>
       ),
     },
@@ -152,9 +179,12 @@ export function PartnersManager() {
           onChange={setSearch}
           placeholder="Search partners..."
         />
-        <Button onClick={openCreate}>
-          <Plus /> Add Partner
-        </Button>
+        <IconButton
+          variant="default"
+          label="Add partner"
+          icon={<Plus />}
+          onClick={openCreate}
+        />
       </div>
 
       {isLoading ? (

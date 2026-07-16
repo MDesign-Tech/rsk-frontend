@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,9 +27,32 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function LoginPage() {
+// Maps the `?reason=` query param (set by middleware / the auth gate) to a
+// human-readable message shown AFTER the redirect lands on the login page.
+const REASON_MESSAGES: Record<string, { title: string; description: string }> = {
+  unauthorized: {
+    title: "Session required",
+    description: "Your session expired or you are not signed in. Please log in to continue.",
+  },
+  logout: {
+    title: "Logged out",
+    description: "You have been signed out. Sign in again to continue.",
+  },
+};
+
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    const reason = searchParams.get("reason");
+    if (reason && REASON_MESSAGES[reason]) {
+      const { title, description } = REASON_MESSAGES[reason];
+      router.replace("/admin/login");
+      toast.error(title, { description });
+    }
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) router.replace("/admin");
@@ -43,8 +66,8 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginInput) => {
     try {
       await login(values.email, values.password);
-      toast.success("Login successful");
       router.push("/admin");
+      toast.success("Login successful");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Login failed");
     }
@@ -117,5 +140,14 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// `useSearchParams` must be wrapped in Suspense for static rendering.
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
   );
 }

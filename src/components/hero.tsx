@@ -29,8 +29,12 @@ export function Hero() {
             className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-display text-balance mb-6 leading-[1.1]"
           >
             <span className="text-gradient-lime">{hero.title}</span>
-            <br />
-            <span className="text-foreground">{hero.subtitle}</span>
+            {hero.subtitleVisible !== false && (
+              <>
+                <br />
+                <span className="text-foreground">{hero.subtitle}</span>
+              </>
+            )}
           </motion.h1>
 
           <motion.p
@@ -56,16 +60,18 @@ export function Hero() {
             <span>◇</span>
           </motion.div>
 
-          <motion.div
-            initial={shouldReduceMotion ? {} : fadeUp.initial}
-            animate={fadeUp.animate}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mb-6"
-          >
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-              <span className="text-gradient-lime">{hero.trust}</span>
-            </p>
-          </motion.div>
+          {hero.trustVisible !== false && (
+            <motion.div
+              initial={shouldReduceMotion ? {} : fadeUp.initial}
+              animate={fadeUp.animate}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="mb-6"
+            >
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+                <span className="text-gradient-lime">{hero.trust}</span>
+              </p>
+            </motion.div>
+          )}
 
           <motion.div
             initial={shouldReduceMotion ? {} : fadeUp.initial}

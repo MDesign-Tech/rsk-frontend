@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Eye, Trash2, Reply } from "lucide-react";
+import { Eye, Trash2, Reply, EyeOff } from "lucide-react";
 import { contactService } from "@/services/contact.service";
 import type { ContactMessage, ContactStatus } from "@/types";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/admin/icon-button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -62,12 +63,12 @@ export function ContactManager() {
     try {
       const res = await contactService.getAll();
       setMessages(res.data.messages);
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       toast.error(
         err instanceof Error ? err.message : "Failed to load messages",
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -81,18 +82,31 @@ export function ContactManager() {
     try {
       await contactService.remove(deleteTarget._id);
       setMessages((prev) => prev.filter((m) => m._id !== deleteTarget._id));
-      toast.success("Message deleted");
       setDeleteTarget(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Delete failed");
-    } finally {
       setIsDeleting(false);
-    }
+      toast.success("Message deleted");
+    } catch (err) {
+      setIsDeleting(false);
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    } 
   };
 
   const openReply = (message: ContactMessage) => {
     setReplyTarget(message);
     setReplyText(message.reply ?? "");
+  };
+
+  const toggleVisibility = async (message: ContactMessage) => {
+    const next = !message.visible;
+    try {
+      const res = await contactService.toggleVisibility(message._id, next);
+      setMessages((prev) =>
+        prev.map((m) => (m._id === message._id ? res.data.message : m))
+      );
+      toast.success(next ? "Message shown" : "Message hidden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+    }
   };
 
   const sendReply = async () => {
@@ -108,14 +122,15 @@ export function ContactManager() {
       setMessages((prev) =>
         prev.map((m) => (m._id === updated._id ? updated : m)),
       );
-      toast.success("Reply sent");
+      
       setReplyTarget(null);
       setReplyText("");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to send reply");
-    } finally {
       setIsReplying(false);
-    }
+      toast.success("Reply sent");
+    } catch (err) {
+      setIsReplying(false);
+      toast.error(err instanceof Error ? err.message : "Failed to send reply");
+    } 
   };
 
   const filtered = messages.filter(
@@ -167,23 +182,30 @@ export function ContactManager() {
       className: "text-right",
       render: (m) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setViewTarget(m)}>
-            <Eye /> View
-          </Button>
-          <Button
+          <IconButton
+            variant="outline"
+            label={m.visible === false ? "Show message" : "Hide message"}
+            icon={m.visible === false ? <EyeOff /> : <Eye />}
+            onClick={() => toggleVisibility(m)}
+          />
+          <IconButton
+            variant="outline"
+            label="View message"
+            icon={<Eye />}
+            onClick={() => setViewTarget(m)}
+          />
+          <IconButton
             variant="secondary"
-            size="sm"
+            label="Reply to message"
+            icon={<Reply />}
             onClick={() => openReply(m)}
-          >
-            <Reply /> Reply
-          </Button>
-          <Button
+          />
+          <IconButton
             variant="destructive"
-            size="sm"
+            label="Delete message"
+            icon={<Trash2 />}
             onClick={() => setDeleteTarget(m)}
-          >
-            <Trash2 /> Delete
-          </Button>
+          />
         </div>
       ),
     },

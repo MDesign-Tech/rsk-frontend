@@ -26,12 +26,15 @@ export interface HeroContent {
   subtitle: string;
   trust: string;
   bgImage?: string | null;
+  subtitleVisible?: boolean;
+  trustVisible?: boolean;
 }
 
 export interface Service {
   _id: string;
   title: string;
   description: string;
+  visible?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -40,20 +43,16 @@ export interface AboutStat {
   _id?: string;
   number: string;
   label: string;
+  visible: boolean;
 }
 
 export interface AboutUs {
-
- _id:string;
-
- title:string;
-
- description:string;
-
- stats:AboutStat[];
-
- contactMethods:ContactMethod[];
-
+  _id: string;
+  title: string;
+  description: string;
+  visible?: boolean;
+  stats: AboutStat[];
+  contactMethods: ContactMethod[];
 }
 
 export interface MissionVision {
@@ -62,12 +61,14 @@ export interface MissionVision {
   missionDescription: string;
   visionTitle: string;
   visionDescription: string;
+  visible?: boolean;
 }
 
 export interface Partner {
   _id: string;
   name: string;
   text: string;
+  visible?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -76,6 +77,7 @@ export interface FAQ {
   _id: string;
   question: string;
   answer: string;
+  visible?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -86,6 +88,7 @@ export interface TeamMember {
   image?: string | null;
   title: string;
   bio?: string;
+  visible?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -100,22 +103,16 @@ export interface ContactMessage {
   status?: ContactStatus;
   reply?: string;
   replyAt?: string;
+  visible?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface ContactMethod {
-  label:string;
-  value:string;
-  href?:string | null;
-}
-
-export interface AboutUs {
- _id:string;
- title:string;
- description:string;
- stats:AboutStat[];
- contactMethods:ContactMethod[];
+  label: string;
+  value: string;
+  href?: string | null;
+  visible: boolean;
 }
 
 // Generic API envelope returned by the backend.

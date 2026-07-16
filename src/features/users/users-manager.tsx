@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import { IconButton } from "@/components/admin/icon-button";
 import { userSchema, type UserInput } from "@/schemas";
 import { userService } from "@/services/user.service";
 import type { User } from "@/types";
@@ -56,10 +57,10 @@ export function UsersManager() {
     try {
       const res = await userService.getAll();
       setUsers(res.data.users);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load users");
-    } finally {
       setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast.error(err instanceof Error ? err.message : "Failed to load users");
     }
   };
 
@@ -106,6 +107,7 @@ export function UsersManager() {
         setUsers((prev) =>
           prev.map((u) => (u._id === editing._id ? res.data.user : u))
         );
+        setDialogOpen(false);
         toast.success("User updated");
       } else {
         const res = await userService.create({
@@ -116,13 +118,13 @@ export function UsersManager() {
           role: "admin" as const,
         });
         setUsers((prev) => [res.data.user, ...prev]);
+        setDialogOpen(false);
         toast.success("User created");
       }
-      setDialogOpen(false);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
       setIsSaving(false);
+    } catch (err) {
+      setIsSaving(false);
+      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -132,12 +134,12 @@ export function UsersManager() {
     try {
       await userService.remove(deleteTarget._id);
       setUsers((prev) => prev.filter((u) => u._id !== deleteTarget._id));
-      toast.success("User deleted");
       setDeleteTarget(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Delete failed");
-    } finally {
       setIsDeleting(false);
+      toast.success("User deleted");
+    } catch (err) {
+      setIsDeleting(false);
+      toast.error(err instanceof Error ? err.message : "Delete failed");
     }
   };
 
@@ -157,13 +159,19 @@ export function UsersManager() {
       className: "text-right",
       render: (u) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => openEdit(u)}>
-            <Pencil /> Edit
-          </Button>
+          <IconButton
+            variant="outline"
+            label="Edit user"
+            icon={<Pencil />}
+            onClick={() => openEdit(u)}
+          />
           {u._id !== currentUser?._id && (
-            <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(u)}>
-              <Trash2 /> Delete
-            </Button>
+            <IconButton
+              variant="destructive"
+              label="Delete user"
+              icon={<Trash2 />}
+              onClick={() => setDeleteTarget(u)}
+            />
           )}
         </div>
       ),
@@ -174,9 +182,12 @@ export function UsersManager() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SearchInput value={search} onChange={setSearch} placeholder="Search users..." />
-        <Button onClick={openCreate}>
-          <Plus /> Add User
-        </Button>
+        <IconButton
+          variant="default"
+          label="Add user"
+          icon={<Plus />}
+          onClick={openCreate}
+        />
       </div>
 
       {isLoading ? (

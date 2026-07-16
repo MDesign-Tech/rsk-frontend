@@ -27,4 +27,13 @@ export const contactService = {
         reply,
       })
       .then((res) => res.data),
+
+  // Toggle the public visibility of a contact message.
+  toggleVisibility: (id: string, visible: boolean) =>
+    api
+      .patch<ApiResponse<{ message: ContactMessage }>>(
+        `/contact/${id}/visibility`,
+        { visible }
+      )
+      .then((res) => res.data),
 };

@@ -1,3 +1,5 @@
+"use client";
+
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
 import { OurServices } from "@/components/our-services";
@@ -14,9 +16,13 @@ import { Pricing } from "@/components/pricing";
 import { FAQ } from "@/components/faq";
 import { FinalCTA } from "@/components/final-cta";
 import { Footer } from "@/components/footer";
+import { useWebsiteStore } from "@/stores/website.store";
+import { getImageUrl } from "@/lib/image";
 
 export default function Home() {
-  
+  const hero = useWebsiteStore((state) => state.data?.hero);
+  const bgImage = getImageUrl(hero?.bgImage) || "/hero-corner.png";
+
   return (
     <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
       <div
@@ -24,7 +30,7 @@ export default function Home() {
         style={{
           maskImage:
             "radial-gradient(ellipse 50% 50% at 100% 0%, rgb(0 0 0 / 0.75), transparent)",
-          backgroundImage: "url('/hero-corner.png')",
+          backgroundImage: `url('${bgImage}')`,
           backgroundSize: "cover",
           backgroundPosition: "right top",
         }}

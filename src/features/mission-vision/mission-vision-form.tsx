@@ -16,6 +16,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { FormCard } from "@/components/admin/form-card";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { SubmitButton } from "@/components/admin/submit-button";
@@ -32,6 +38,7 @@ export function MissionVisionForm() {
       missionDescription: "",
       visionTitle: "",
       visionDescription: "",
+      visible: true,
     },
   });
 
@@ -51,14 +58,14 @@ export function MissionVisionForm() {
         missionDescription: mv.missionDescription ?? "",
         visionTitle: mv.visionTitle ?? "",
         visionDescription: mv.visionDescription ?? "",
+        visible: mv.visible ?? true,
       });
-
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       toast.error(
         err instanceof Error ? err.message : "Failed to load"
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -69,11 +76,11 @@ export function MissionVisionForm() {
     setIsSaving(true);
     try {
       await missionVisionService.update(values);
+      setIsSaving(false);
       toast.success("Mission & Vision updated");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Update failed");
-    } finally {
       setIsSaving(false);
+      toast.error(err instanceof Error ? err.message : "Update failed");
     }
   };
 
@@ -92,7 +99,34 @@ export function MissionVisionForm() {
               name="missionTitle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mission Title</FormLabel>
+                  <div className="flex items-center justify-between gap-4">
+                    <FormLabel>Mission Title</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="visible"
+                      render={({ field: visField }) => (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">
+                                {visField.value ? "Visible" : "Hidden"}
+                              </span>
+                              <Switch
+                                id="mission-vision-visible"
+                                checked={visField.value}
+                                onCheckedChange={visField.onChange}
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {visField.value
+                              ? "Hide this section from the website"
+                              : "Show this section on the website"}
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    />
+                  </div>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

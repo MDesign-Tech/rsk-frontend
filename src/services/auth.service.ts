@@ -15,7 +15,6 @@ export const authService = {
       .get<ApiResponse<{ user: AuthUser }>>("/auth/me")
       .then((res) => res.data),
 
-  // Request a password reset OTP for the given email.
   forgotPassword: (data: { email: string }) =>
     api
       .post<ApiResponse<Record<string, never>>>("/auth/forgot-password", data)

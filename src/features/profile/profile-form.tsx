@@ -66,11 +66,11 @@ export function ProfileForm() {
       };
       setUser(updated);
       form.reset({ ...payload, password: "" });
+      setIsSaving(false);
       toast.success("Profile updated");
     } catch (err) {
+       setIsSaving(false);
       toast.error(err instanceof Error ? err.message : "Update failed");
-    } finally {
-      setIsSaving(false);
     }
   };
 

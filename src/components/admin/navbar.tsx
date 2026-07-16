@@ -16,8 +16,8 @@ export function Navbar() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success("Logged out successfully");
       router.push("/admin/login");
+      toast.success("Logged out successfully");
     } catch {
       toast.error("Logout failed. Please try again.");
     }

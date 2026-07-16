@@ -1,19 +1,25 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { X } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { FormMessage } from "@/components/ui/form";
+import { IconButton } from "@/components/admin/icon-button";
 import type { AboutInput } from "@/schemas";
 
 interface StatInputProps {
   index: number;
+  visible?: boolean;
+  onToggle: (visible: boolean) => void;
   onRemove: () => void;
 }
 
-// A single stat row (number + label) used inside the About Us form field array.
-export function StatInput({ index, onRemove }: StatInputProps) {
+export function StatInput({
+  index,
+  visible = true,
+  onToggle,
+  onRemove,
+}: StatInputProps) {
   const {
     register,
     formState: { errors },
@@ -22,32 +28,33 @@ export function StatInput({ index, onRemove }: StatInputProps) {
   const statError = errors.stats?.[index];
 
   return (
-    <div className="space-y-2 rounded-lg border p-3">
-      <div className="flex items-end gap-2">
-        <div className="flex-1 space-y-1.5">
-          <label className="text-sm font-medium">Number</label>
-          <Input placeholder="e.g. 500+" {...register(`stats.${index}.number` as const)} />
-        </div>
-        <div className="flex-1 space-y-1.5">
-          <label className="text-sm font-medium">Label</label>
-          <Input placeholder="e.g. Clients" {...register(`stats.${index}.label` as const)} />
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={onRemove}
-          aria-label="Remove stat"
-        >
-          <X />
-        </Button>
+    <div className="grid grid-cols-[1fr_1fr_auto_auto] items-start gap-3">
+      <div className="space-y-1">
+        <Input placeholder="e.g. 500+" {...register(`stats.${index}.number` as const)} />
+        {statError?.number && (
+          <FormMessage>{statError.number.message}</FormMessage>
+        )}
       </div>
-      {statError?.number && (
-        <FormMessage>{statError.number.message}</FormMessage>
-      )}
-      {statError?.label && (
-        <FormMessage>{statError.label.message}</FormMessage>
-      )}
+      <div className="space-y-1">
+        <Input placeholder="e.g. Clients" {...register(`stats.${index}.label` as const)} />
+        {statError?.label && (
+          <FormMessage>{statError.label.message}</FormMessage>
+        )}
+      </div>
+      <IconButton
+        variant="outline"
+        label={visible === false ? "Show stat" : "Hide stat"}
+        icon={visible === false ? <EyeOff /> : <Eye />}
+        className="mt-0.5"
+        onClick={() => onToggle(!visible)}
+      />
+      <IconButton
+        variant="outline"
+        label="Remove stat"
+        icon={<X />}
+        className="mt-0.5"
+        onClick={onRemove}
+      />
     </div>
   );
 }

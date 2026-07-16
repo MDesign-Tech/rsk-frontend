@@ -5,12 +5,17 @@ export const heroService = {
   get: () =>
     api.get<ApiResponse<{ hero: HeroContent }>>("/hero").then((res) => res.data),
 
-  update: (data: { title: string; subtitle: string; trust: string }) =>
+  update: (data: {
+    title: string;
+    subtitle: string;
+    trust: string;
+    subtitleVisible: boolean;
+    trustVisible: boolean;
+  }) =>
     api
       .put<ApiResponse<{ hero: HeroContent }>>("/hero", data)
       .then((res) => res.data),
 
-  // Upload the hero background image (multipart/form-data).
   uploadImage: (file: File) => {
     const formData = new FormData();
     formData.append("image", file);
@@ -20,4 +25,20 @@ export const heroService = {
       })
       .then((res) => res.data);
   },
+
+  // Toggle the hero subtitle visibility.
+  toggleSubtitleVisibility: (visible: boolean) =>
+    api
+      .patch<ApiResponse<{ hero: HeroContent }>>("/hero/subtitle/visibility", {
+        visible,
+      })
+      .then((res) => res.data),
+
+  // Toggle the hero trust text visibility.
+  toggleTrustVisibility: (visible: boolean) =>
+    api
+      .patch<ApiResponse<{ hero: HeroContent }>>("/hero/trust/visibility", {
+        visible,
+      })
+      .then((res) => res.data),
 };

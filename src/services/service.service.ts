@@ -20,4 +20,11 @@ export const serviceService = {
 
   remove: (id: string) =>
     api.delete<ApiResponse<Record<string, never>>>(`/services/${id}`).then((res) => res.data),
+
+  toggleVisibility: (id: string, visible: boolean) =>
+    api
+      .patch<ApiResponse<{ service: Service }>>(`/services/${id}/visibility`, {
+        visible,
+      })
+      .then((res) => res.data),
 };

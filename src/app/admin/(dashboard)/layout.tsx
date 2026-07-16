@@ -2,30 +2,36 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth.store";
-import { useWebsiteStore } from "@/stores/website.store";
 import { AdminShell } from "@/components/admin/admin-shell";
-import { AdminError } from "@/providers/AdminError";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading, initialized, checkAuth } = useAuthStore();
   const router = useRouter();
-  const websiteError = useWebsiteStore((state) => state.error);
+  const { initialized, isAuthenticated, checkAuth, isLoading } = useAuthStore();
 
   useEffect(() => {
     if (!initialized) checkAuth();
   }, [initialized, checkAuth]);
 
+
   useEffect(() => {
-    if (initialized && !isAuthenticated) router.replace("/admin/login");
+    if (initialized && !isAuthenticated) {
+      router.replace("/admin/login?reason=unauthorized");
+    }
   }, [initialized, isAuthenticated, router]);
 
-  if (websiteError) {
-    return <AdminError />;
+ 
+  if (isLoading || !initialized || !isAuthenticated) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+        <Loader2 className="size-10 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return <AdminShell>{children}</AdminShell>;

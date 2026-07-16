@@ -43,16 +43,16 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     try {
       await authService.forgotPassword({ email: values.email });
-      toast.success("OTP sent to your email");
       router.push(
         `/admin/verify-otp?email=${encodeURIComponent(values.email)}`,
       );
+      setIsSubmitting(false);
+      toast.success("OTP sent to your email");
     } catch (err) {
+      setIsSubmitting(false);
       toast.error(
         err instanceof Error ? err.message : "Failed to send OTP",
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

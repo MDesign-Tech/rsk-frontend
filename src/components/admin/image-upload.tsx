@@ -37,12 +37,6 @@ export function ImageUpload({
     }
   };
 
-  const handleRemove = () => {
-    setPreview(null);
-    onChange(null);
-    if (inputRef.current) inputRef.current.value = "";
-  };
-
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center gap-4">
@@ -78,17 +72,6 @@ export function ImageUpload({
             {isUploading ? <Spinner /> : <Upload />}
             {preview ? "Change" : "Upload"}
           </Button>
-          {currentUrl && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleRemove}
-              disabled={isUploading}
-            >
-              <X /> Remove
-            </Button>
-          )}
         </div>
       </div>
     </div>

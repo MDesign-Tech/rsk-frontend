@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { IconButton } from "@/components/admin/icon-button";
 import { teamMemberSchema, type TeamMemberInput } from "@/schemas";
 import { teamService } from "@/services/team.service";
 import type { TeamMember } from "@/types";
@@ -58,10 +59,10 @@ export function TeamManager() {
     try {
       const res = await teamService.getAll();
       setMembers(res.data.teamMembers);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load team");
-    } finally {
       setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast.error(err instanceof Error ? err.message : "Failed to load team");
     }
   };
 
@@ -108,19 +109,18 @@ export function TeamManager() {
           setMembers((prev) =>
             prev.map((m) => (m._id === saved._id ? up.data.teamMember : m))
           );
+          setIsUploading(false);
           toast.success("Image uploaded");
         } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Image upload failed");
-        } finally {
           setIsUploading(false);
-        }
+          toast.error(err instanceof Error ? err.message : "Image upload failed");
+        } 
       }
-
+setIsSaving(false);
       setDialogOpen(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
       setIsSaving(false);
+      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -130,12 +130,25 @@ export function TeamManager() {
     try {
       await teamService.remove(deleteTarget._id);
       setMembers((prev) => prev.filter((m) => m._id !== deleteTarget._id));
-      toast.success("Team member deleted");
       setDeleteTarget(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Delete failed");
-    } finally {
       setIsDeleting(false);
+      toast.success("Team member deleted");
+    } catch (err) {
+      setIsDeleting(false);
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    } 
+  };
+
+  const toggleVisibility = async (member: TeamMember) => {
+    const next = !member.visible;
+    try {
+      const res = await teamService.toggleVisibility(member._id, next);
+      setMembers((prev) =>
+        prev.map((m) => (m._id === member._id ? res.data.teamMember : m))
+      );
+      toast.success(next ? "Team member shown" : "Team member hidden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
     }
   };
 
@@ -168,12 +181,24 @@ export function TeamManager() {
       className: "text-right",
       render: (m) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => openEdit(m)}>
-            <Pencil /> Edit
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(m)}>
-            <Trash2 /> Delete
-          </Button>
+          <IconButton
+            variant="outline"
+            label={m.visible === false ? "Show team member" : "Hide team member"}
+            icon={m.visible === false ? <EyeOff /> : <Eye />}
+            onClick={() => toggleVisibility(m)}
+          />
+          <IconButton
+            variant="outline"
+            label="Edit team member"
+            icon={<Pencil />}
+            onClick={() => openEdit(m)}
+          />
+          <IconButton
+            variant="destructive"
+            label="Delete team member"
+            icon={<Trash2 />}
+            onClick={() => setDeleteTarget(m)}
+          />
         </div>
       ),
     },
@@ -183,9 +208,12 @@ export function TeamManager() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SearchInput value={search} onChange={setSearch} placeholder="Search team..." />
-        <Button onClick={openCreate}>
-          <Plus /> Add Member
-        </Button>
+        <IconButton
+          variant="default"
+          label="Add team member"
+          icon={<Plus />}
+          onClick={openCreate}
+        />
       </div>
 
       {isLoading ? (

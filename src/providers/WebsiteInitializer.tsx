@@ -8,7 +8,6 @@ export function WebsiteInitializer(){
 
  useInitializeWebsite();
 
-
  return (
   <>
     <WebsiteLoader />

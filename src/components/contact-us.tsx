@@ -29,17 +29,17 @@ export function ContactUs() {
     setIsSubmitting(true);
     try {
       await contactService.create(formData);
+      setIsSubmitting(false);
       toast.success("Message sent! We'll get back to you soon.");
       // Reset form
       setFormData({ name: "", email: "", message: "" });
     } catch (err) {
+      setIsSubmitting(false);
       toast.error(
         err instanceof Error
           ? err.message
           : "Failed to send message. Please try again.",
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

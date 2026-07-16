@@ -43,6 +43,8 @@ export const heroSchema = z.object({
   title: z.string().min(1, "Title is required"),
   subtitle: z.string().min(1, "Subtitle is required"),
   trust: z.string().min(1, "Trust text is required"),
+  subtitleVisible: z.boolean().default(true),
+  trustVisible: z.boolean().default(true),
 });
 export type HeroInput = z.infer<typeof heroSchema>;
 
@@ -62,6 +64,7 @@ export type ServiceInput = z.infer<typeof serviceSchema>;
 export const aboutStatSchema = z.object({
   number: z.string().min(1, "Number is required"),
   label: z.string().min(1, "Label is required"),
+  visible: z.boolean().optional().default(true),
 });
 
 export type AboutStatInput = z.infer<typeof aboutStatSchema>;
@@ -71,6 +74,7 @@ export const contactMethodSchema = z.object({
   label: z.string().min(1, "Label is required"),
   value: z.string().min(1, "Value is required"),
   href: z.string().optional().nullable(),
+  visible: z.boolean().optional().default(true),
 });
 
 export type ContactMethodInput = z.infer<typeof contactMethodSchema>;
@@ -80,6 +84,8 @@ export const aboutSchema = z.object({
   title: z.string().min(1, "Title is required"),
 
   description: z.string().min(1, "Description is required"),
+
+  visible: z.boolean().default(true),
 
   stats: z.array(aboutStatSchema).default([]),
 
@@ -96,6 +102,7 @@ export const missionVisionSchema = z.object({
   missionDescription: z.string().min(1, "Mission description is required"),
   visionTitle: z.string().min(1, "Vision title is required"),
   visionDescription: z.string().min(1, "Vision description is required"),
+  visible: z.boolean().default(true),
 });
 export type MissionVisionInput = z.infer<typeof missionVisionSchema>;
 

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { IconButton } from "@/components/admin/icon-button";
 import { faqSchema, type FaqInput } from "@/schemas";
 import { faqService } from "@/services/faq.service";
 import type { FAQ } from "@/types";
@@ -54,10 +55,10 @@ export function FaqsManager() {
     try {
       const res = await faqService.getAll();
       setFaqs(res.data.faqs);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load FAQs");
-    } finally {
       setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast.error(err instanceof Error ? err.message : "Failed to load FAQs");
     }
   };
 
@@ -93,10 +94,9 @@ export function FaqsManager() {
       }
       setDialogOpen(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
       setIsSaving(false);
-    }
+      toast.error(err instanceof Error ? err.message : "Save failed");
+    } 
   };
 
   const confirmDelete = async () => {
@@ -105,12 +105,25 @@ export function FaqsManager() {
     try {
       await faqService.remove(deleteTarget._id);
       setFaqs((prev) => prev.filter((f) => f._id !== deleteTarget._id));
-      toast.success("FAQ deleted");
       setDeleteTarget(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Delete failed");
-    } finally {
       setIsDeleting(false);
+      toast.success("FAQ deleted");
+    } catch (err) {
+      setIsDeleting(false);
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    }
+  };
+
+  const toggleVisibility = async (faq: FAQ) => {
+    const next = !faq.visible;
+    try {
+      const res = await faqService.toggleVisibility(faq._id, next);
+      setFaqs((prev) =>
+        prev.map((f) => (f._id === faq._id ? res.data.faq : f))
+      );
+      toast.success(next ? "FAQ shown" : "FAQ hidden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
     }
   };
 
@@ -137,12 +150,24 @@ export function FaqsManager() {
       className: "text-right",
       render: (f) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => openEdit(f)}>
-            <Pencil /> Edit
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(f)}>
-            <Trash2 /> Delete
-          </Button>
+          <IconButton
+            variant="outline"
+            label={f.visible === false ? "Show FAQ" : "Hide FAQ"}
+            icon={f.visible === false ? <EyeOff /> : <Eye />}
+            onClick={() => toggleVisibility(f)}
+          />
+          <IconButton
+            variant="outline"
+            label="Edit FAQ"
+            icon={<Pencil />}
+            onClick={() => openEdit(f)}
+          />
+          <IconButton
+            variant="destructive"
+            label="Delete FAQ"
+            icon={<Trash2 />}
+            onClick={() => setDeleteTarget(f)}
+          />
         </div>
       ),
     },
@@ -152,9 +177,12 @@ export function FaqsManager() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SearchInput value={search} onChange={setSearch} placeholder="Search FAQs..." />
-        <Button onClick={openCreate}>
-          <Plus /> Add FAQ
-        </Button>
+        <IconButton
+          variant="default"
+          label="Add FAQ"
+          icon={<Plus />}
+          onClick={openCreate}
+        />
       </div>
 
       {isLoading ? (

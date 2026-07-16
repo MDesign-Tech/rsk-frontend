@@ -39,12 +39,12 @@ export function DashboardView() {
         { title: "Total FAQs", value: f.data.faqs.length, icon: HelpCircle },
         { title: "Total Contact Messages", value: c.data.messages.length, icon: Mail },
       ]);
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       setError(err instanceof Error ? err.message : "Failed to load dashboard");
       toast.error("Failed to load dashboard data");
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   useEffect(() => {
