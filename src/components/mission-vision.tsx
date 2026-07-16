@@ -7,7 +7,7 @@ import { useWebsiteStore } from "@/stores/website.store";
 export function MissionVision() {
   const mv = useWebsiteStore((state) => state.data?.missionVision);
 
-  if (!mv) return null;
+  if (!mv || mv.visible === false) return null;
 
   return (
     <section

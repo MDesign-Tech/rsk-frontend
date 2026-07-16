@@ -16,12 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { IconButton } from "@/components/admin/icon-button";
 import { FormCard } from "@/components/admin/form-card";
 import { StatInput } from "@/components/admin/stat-input";
@@ -41,6 +35,14 @@ export function AboutForm() {
       visible: true,
       stats: [],
       contactMethods: [],
+      socialMedia: {
+        facebook: { href: null, visible: true },
+        instagram: { href: null, visible: true },
+        whatsapp: { href: null, visible: true },
+        x: { href: null, visible: true },
+        linkedin: { href: null, visible: true },
+        youtube: { href: null, visible: true },
+      },
     },
   });
 
@@ -69,6 +71,14 @@ export function AboutForm() {
           visible: a.visible ?? true,
           stats: a.stats ?? [],
           contactMethods: a.contactMethods ?? [],
+          socialMedia: a.socialMedia ?? {
+            facebook: { href: null, visible: true },
+            instagram: { href: null, visible: true },
+            whatsapp: { href: null, visible: true },
+            x: { href: null, visible: true },
+            linkedin: { href: null, visible: true },
+            youtube: { href: null, visible: true },
+          },
         });
         setIsLoading(false);
       } catch (err) {
@@ -90,9 +100,6 @@ export function AboutForm() {
     }
   };
 
-  // Toggle the visibility of an individual stat by index.
-  // The backend has no per-item PATCH endpoint, so we update the form state
-  // locally and persist it through the main "Save Changes" submit.
   const toggleStatVisibility = (index: number, visible: boolean) => {
     const stats = form.getValues("stats");
     const next = stats.map((s, i) => (i === index ? { ...s, visible } : s));
@@ -111,45 +118,24 @@ export function AboutForm() {
   if (isLoading) return <LoadingSpinner label="Loading..." />;
 
   return (
-    <FormCard
-      title="About Us"
-      description="Update the about section and statistics."
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="title"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormCard
+          title="About Us"
+          description="Update the about section and statistics."
+          footer={
+            <div className="flex justify-end">
+              <SubmitButton isLoading={isSaving}>Save Changes</SubmitButton>
+            </div>
+          }
+        >
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="title"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center justify-between gap-4">
-                  <FormLabel>Title</FormLabel>
-                  <FormField
-                    control={form.control}
-                    name="visible"
-                    render={({ field: visField }) => (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">
-                              {visField.value ? "Visible" : "Hidden"}
-                            </span>
-                            <Switch
-                              id="about-visible"
-                              checked={visField.value}
-                              onCheckedChange={visField.onChange}
-                            />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {visField.value
-                            ? "Hide this section from the website"
-                            : "Show this section on the website"}
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  />
-                </div>
+                <FormLabel>Title</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -313,11 +299,70 @@ export function AboutForm() {
               </div>
             )}
           </div>
-          <div className="flex justify-end">
-            <SubmitButton isLoading={isSaving}>Save Changes</SubmitButton>
+          {/* Social Media */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Social Media</label>
+            <div className="space-y-2">
+              {(
+                [
+                  "facebook",
+                  "instagram",
+                  "whatsapp",
+                  "x",
+                  "linkedin",
+                  "youtube",
+                ] as const
+              ).map((platform) => (
+                <div
+                  key={platform}
+                  className="grid grid-cols-[1fr_auto_auto] items-start gap-3"
+                >
+                  <FormField
+                    control={form.control}
+                    name={`socialMedia.${platform}.href`}
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormControl>
+                          <Input
+                            placeholder={`${platform} URL`}
+                            {...field}
+                            value={field.value ?? ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <IconButton
+                    variant="outline"
+                    label={
+                      form.watch(`socialMedia.${platform}.visible`) === false
+                        ? `Show ${platform}`
+                        : `Hide ${platform}`
+                    }
+                    icon={
+                      form.watch(`socialMedia.${platform}.visible`) === false ? (
+                        <EyeOff />
+                      ) : (
+                        <Eye />
+                      )
+                    }
+                    className="mt-0.5"
+                    onClick={() =>
+                      form.setValue(
+                        `socialMedia.${platform}.visible`,
+                        !(form.watch(`socialMedia.${platform}.visible`) ?? true),
+                        { shouldDirty: true }
+                      )
+                    }
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </form>
-      </Form>
-    </FormCard>
+          </div>
+        </FormCard>
+      </form>
+    </Form>
   );
 }

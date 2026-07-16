@@ -8,18 +8,28 @@ export const partnerService = {
   get: (id: string) =>
     api.get<ApiResponse<{ partner: Partner }>>(`/partners/${id}`).then((res) => res.data),
 
-  create: (data: { name: string; text: string }) =>
+  create: (data: { name: string; visible: boolean }) =>
     api
       .post<ApiResponse<{ partner: Partner }>>("/partners", data)
       .then((res) => res.data),
 
-  update: (id: string, data: { name: string; text: string }) =>
+  update: (id: string, data: { name: string; visible: boolean }) =>
     api
       .put<ApiResponse<{ partner: Partner }>>(`/partners/${id}`, data)
       .then((res) => res.data),
 
   remove: (id: string) =>
     api.delete<ApiResponse<Record<string, never>>>(`/partners/${id}`).then((res) => res.data),
+
+  uploadImage: (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    return api
+      .post<ApiResponse<{ partner: Partner }>>(`/partners/${id}/upload`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => res.data);
+  },
 
   toggleVisibility: (id: string, visible: boolean) =>
     api

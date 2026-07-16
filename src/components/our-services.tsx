@@ -47,7 +47,10 @@ export function OurServices() {
     (state) => state.data?.services
   );
 
-  if (!services || services.length === 0) {
+  // Filter only visible services
+  const visibleServices = services?.filter((s) => s.visible !== false) ?? [];
+
+  if (!visibleServices || visibleServices.length === 0) {
     return null;
   }
 
@@ -83,7 +86,7 @@ export function OurServices() {
           viewport={{ once: true }}
         >
 
-          {services.map((service, index) => {
+          {visibleServices.map((service, index) => {
 
             const Icon =
               SERVICE_ICONS[index % SERVICE_ICONS.length];
@@ -110,7 +113,6 @@ export function OurServices() {
 
               </motion.div>
             );
-
           })}
 
         </motion.div>

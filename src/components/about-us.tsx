@@ -22,7 +22,12 @@ export function AboutUs() {
     return null;
   }
 
-  const stats: AboutStat[] = about.stats ?? [];
+  // Filter only visible stats
+  const stats: AboutStat[] = about.stats?.filter((s) => s.visible !== false) ?? [];
+
+  if (stats.length === 0) {
+    return null;
+  }
 
   return (
     <section id="about-us" className="relative py-20 px-4 sm:px-6 lg:px-8">

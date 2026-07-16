@@ -8,9 +8,9 @@ import { IconButton } from "@/components/admin/icon-button";
 import { partnerSchema, type PartnerInput } from "@/schemas";
 import { partnerService } from "@/services/partner.service";
 import type { Partner } from "@/types";
+import { getImageUrl } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -32,6 +32,7 @@ import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { toast } from "sonner";
 
@@ -42,12 +43,14 @@ export function PartnersManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Partner | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Partner | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const form = useForm<PartnerInput>({
     resolver: zodResolver(partnerSchema),
-    defaultValues: { name: "", text: "" },
+    defaultValues: { name: "" },
   });
 
   const load = async () => {
@@ -68,35 +71,55 @@ export function PartnersManager() {
 
   const openCreate = () => {
     setEditing(null);
-    form.reset({ name: "", text: "" });
+    setImageFile(null);
+    form.reset({ name: "" });
     setDialogOpen(true);
   };
 
   const openEdit = (partner: Partner) => {
     setEditing(partner);
-    form.reset({ name: partner.name, text: partner.text });
+    setImageFile(null);
+    form.reset({ name: partner.name });
     setDialogOpen(true);
   };
 
   const onSubmit = async (values: PartnerInput) => {
     setIsSaving(true);
     try {
+      let saved: Partner;
       if (editing) {
         const res = await partnerService.update(editing._id, values);
+        saved = res.data.partner;
         setPartners((prev) =>
-          prev.map((p) => (p._id === editing._id ? res.data.partner : p))
+          prev.map((p) => (p._id === editing._id ? saved : p))
         );
-        setDialogOpen(false);
         toast.success("Partner updated");
       } else {
         const res = await partnerService.create(values);
-        setPartners((prev) => [res.data.partner, ...prev]);
-        setDialogOpen(false);
+        saved = res.data.partner;
+        setPartners((prev) => [saved, ...prev]);
         toast.success("Partner created");
       }
+
+      if (imageFile) {
+        setIsUploading(true);
+        try {
+          const up = await partnerService.uploadImage(saved._id, imageFile);
+          setPartners((prev) =>
+            prev.map((p) => (p._id === saved._id ? up.data.partner : p))
+          );
+          setIsUploading(false);
+          toast.success("Image uploaded");
+        } catch (err) {
+          setIsUploading(false);
+          toast.error(err instanceof Error ? err.message : "Image upload failed");
+        }
+      }
+
       setIsSaving(false);
+      setDialogOpen(false);
     } catch (err) {
-       setIsSaving(false);
+      setIsSaving(false);
       toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
@@ -129,18 +152,25 @@ export function PartnersManager() {
     }
   };
 
-  const filtered = partners.filter(
-    (p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.text.toLowerCase().includes(search.toLowerCase())
+  const filtered = partners.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const columns: Column<Partner>[] = [
-    { key: "name", header: "Name" },
     {
-      key: "text",
-      header: "Text",
-      render: (p) => <span className="line-clamp-1">{p.text}</span>,
+      key: "name",
+      header: "Partner",
+      render: (p) => (
+        <div className="flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={getImageUrl(p.image) ?? "/placeholder-logo.svg"}
+            alt={p.name}
+            className="size-9 rounded object-contain bg-muted"
+          />
+          <span className="font-medium">{p.name}</span>
+        </div>
+      ),
     },
     {
       key: "actions",
@@ -199,7 +229,14 @@ export function PartnersManager() {
           }
         />
       ) : (
-        <DataTable columns={columns} data={filtered} keyField="_id" />
+        <DataTable
+          columns={columns}
+          data={filtered}
+          keyField="_id"
+          getRowClassName={(p) =>
+            p.visible === false ? "bg-muted/50 opacity-70" : ""
+          }
+        />
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -227,19 +264,18 @@ export function PartnersManager() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="text"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Text</FormLabel>
-                    <FormControl>
-                      <Textarea rows={4} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Logo</label>
+                <ImageUpload
+                  value={editing?.image ?? null}
+                  onChange={setImageFile}
+                  isUploading={isUploading}
+                  label="Partner logo"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Select a new image and save to update the logo.
+                </p>
+              </div>
               <DialogFooter>
                 <Button
                   type="button"

@@ -29,6 +29,7 @@ interface DataTableProps<T> {
   emptyDescription?: string;
   emptyIcon?: ReactNode;
   onRowClick?: (row: T) => void;
+  getRowClassName?: (row: T) => string;
 }
 
 export function DataTable<T>({
@@ -40,6 +41,7 @@ export function DataTable<T>({
   emptyDescription,
   emptyIcon,
   onRowClick,
+  getRowClassName,
 }: DataTableProps<T>) {
   if (isLoading) return <LoadingSpinner label="Loading..." />;
 
@@ -70,7 +72,10 @@ export function DataTable<T>({
             <TableRow
               key={String(row[keyField])}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={cn(onRowClick && "cursor-pointer")}
+              className={cn(
+                onRowClick && "cursor-pointer",
+                getRowClassName?.(row)
+              )}
             >
               {columns.map((col) => (
                 <TableCell key={col.key} className={col.className}>

@@ -13,7 +13,10 @@ export function FAQ() {
   const shouldReduceMotion = useReducedMotion();
   const faqs = useWebsiteStore((state) => state.data?.faqs);
 
-  if (!faqs?.length) return null;
+  // Filter only visible FAQs
+  const visibleFaqs = faqs?.filter((f) => f.visible !== false) ?? [];
+
+  if (!visibleFaqs.length) return null;
 
   return (
     <section className="relative py-24 lg:py-32 border-t border-border">
@@ -40,7 +43,7 @@ export function FAQ() {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
+            {visibleFaqs.map((faq, index) => (
               <AccordionItem
                 key={faq._id || index}
                 value={`item-${index}`}

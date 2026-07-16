@@ -21,20 +21,22 @@ import { getImageUrl } from "@/lib/image";
 
 export default function Home() {
   const hero = useWebsiteStore((state) => state.data?.hero);
-  const bgImage = getImageUrl(hero?.bgImage) || "/hero-corner.png";
+  const bgImage = getImageUrl(hero?.bgImage);
 
   return (
     <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
-      <div
-        className="absolute top-0 right-0 w-[1500px] h-[1500px] -z-10 pointer-events-none"
-        style={{
-          maskImage:
-            "radial-gradient(ellipse 50% 50% at 100% 0%, rgb(0 0 0 / 0.75), transparent)",
-          backgroundImage: `url('${bgImage}')`,
-          backgroundSize: "cover",
-          backgroundPosition: "right top",
-        }}
-      />
+      {bgImage && (
+        <div
+          className="absolute top-0 right-0 w-[1500px] h-[1500px] -z-10 pointer-events-none"
+          style={{
+            maskImage:
+              "radial-gradient(ellipse 50% 50% at 100% 0%, rgb(0 0 0 / 0.75), transparent)",
+            backgroundImage: `url('${bgImage}')`,
+            backgroundSize: "cover",
+            backgroundPosition: "right top",
+          }}
+        />
+      )}
 
       <Navbar />
 

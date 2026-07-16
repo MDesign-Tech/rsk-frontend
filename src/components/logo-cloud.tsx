@@ -2,13 +2,17 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useWebsiteStore } from "@/stores/website.store";
+import { getImageUrl } from "@/lib/image";
 
 export function LogoCloud() {
   const shouldReduceMotion = useReducedMotion();
 
   const partners = useWebsiteStore((state) => state.data?.partners);
 
-  if (!partners || partners.length === 0) return null;
+  // Filter only visible partners
+  const visiblePartners = partners?.filter((p) => p.visible !== false) ?? [];
+
+  if (!visiblePartners || visiblePartners.length === 0) return null;
 
   return (
     <section
@@ -32,7 +36,7 @@ export function LogoCloud() {
         </motion.div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-          {partners.map((partner, index) => (
+          {visiblePartners.map((partner, index) => (
             <motion.div
               key={partner._id || index}
               initial={
@@ -46,10 +50,22 @@ export function LogoCloud() {
                 duration: 0.4,
                 delay: index * 0.1,
               }}
-              className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+              className="text-muted-foreground/50 hover:text-muted-foreground transition-colors flex flex-col items-center gap-2"
             >
-              <span className="text-lg font-semibold tracking-tight">
-                {partner.text}
+              {partner.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={getImageUrl(partner.image)}
+                  alt={partner.name}
+                  className="h-8 w-auto object-contain"
+                />
+              ) : (
+                <span className="text-lg font-semibold tracking-tight">
+                  {partner.name}
+                </span>
+              )}
+              <span className="text-sm font-medium text-foreground/80">
+                {partner.name}
               </span>
             </motion.div>
           ))}

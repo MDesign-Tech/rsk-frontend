@@ -22,7 +22,8 @@ export function ContactUs() {
 
   const about = useWebsiteStore((state) => state.data?.about);
 
-  const contactMethods = about?.contactMethods ?? [];
+  const contactMethods =
+    about?.contactMethods?.filter((method) => method.visible !== false) ?? [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

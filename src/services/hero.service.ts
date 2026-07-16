@@ -25,20 +25,4 @@ export const heroService = {
       })
       .then((res) => res.data);
   },
-
-  // Toggle the hero subtitle visibility.
-  toggleSubtitleVisibility: (visible: boolean) =>
-    api
-      .patch<ApiResponse<{ hero: HeroContent }>>("/hero/subtitle/visibility", {
-        visible,
-      })
-      .then((res) => res.data),
-
-  // Toggle the hero trust text visibility.
-  toggleTrustVisibility: (visible: boolean) =>
-    api
-      .patch<ApiResponse<{ hero: HeroContent }>>("/hero/trust/visibility", {
-        visible,
-      })
-      .then((res) => res.data),
 };

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
 import {
@@ -15,12 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { IconButton } from "@/components/admin/icon-button";
 import { FormCard } from "@/components/admin/form-card";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
@@ -94,28 +90,14 @@ export function HeroForm() {
     }
   };
 
-  // Toggle the subtitle visibility via the dedicated PATCH endpoint.
-  const onToggleSubtitle = async (checked: boolean) => {
-    try {
-      const res = await heroService.toggleSubtitleVisibility(checked);
-      setHero(res.data.hero);
-      form.setValue("subtitleVisible", checked);
-      toast.success(checked ? "Subtitle shown" : "Subtitle hidden");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
-    }
+  // Toggle the subtitle visibility locally; persisted on Save Changes.
+  const toggleSubtitleVisibility = (visible: boolean) => {
+    form.setValue("subtitleVisible", visible, { shouldDirty: true });
   };
 
-  // Toggle the trust text visibility via the dedicated PATCH endpoint.
-  const onToggleTrust = async (checked: boolean) => {
-    try {
-      const res = await heroService.toggleTrustVisibility(checked);
-      setHero(res.data.hero);
-      form.setValue("trustVisible", checked);
-      toast.success(checked ? "Trust text shown" : "Trust text hidden");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
-    }
+  // Toggle the trust text visibility locally; persisted on Save Changes.
+  const toggleTrustVisibility = (visible: boolean) => {
+    form.setValue("trustVisible", visible, { shouldDirty: true });
   };
 
   if (isLoading) return <LoadingSpinner label="Loading hero..." />;
@@ -146,72 +128,74 @@ export function HeroForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Subtitle</FormLabel>
-                <FormControl>
-                  <Textarea rows={3} {...field} />
-                </FormControl>
+                <div className="flex items-start gap-2">
+                  <FormControl>
+                    <Textarea rows={3} {...field} />
+                  </FormControl>
+                  <IconButton
+                    type="button"
+                    variant="outline"
+                    label={
+                      form.watch("subtitleVisible") === false
+                        ? "Show Subtitle"
+                        : "Hide Subtitle"
+                    }
+                    icon={
+                      form.watch("subtitleVisible") === false ? (
+                        <EyeOff />
+                      ) : (
+                        <Eye />
+                      )
+                    }
+                    onClick={() =>
+                      toggleSubtitleVisibility(
+                        form.watch("subtitleVisible") === false
+                      )
+                    }
+                    className="mt-0.5 shrink-0"
+                  />
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="flex items-center gap-3">
-            <FormField
-              control={form.control}
-              name="subtitleVisible"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-3 space-y-0">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Switch
-                        id={field.name}
-                        checked={field.value}
-                        onCheckedChange={onToggleSubtitle}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {field.value ? "Hide Subtitle" : "Show Subtitle"}
-                    </TooltipContent>
-                  </Tooltip>
-                </FormItem>
-              )}
-            />
-          </div>
           <FormField
             control={form.control}
             name="trust"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Trust Text</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <div className="flex items-start gap-2">
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <IconButton
+                    type="button"
+                    variant="outline"
+                    label={
+                      form.watch("trustVisible") === false
+                        ? "Show Trust Text"
+                        : "Hide Trust Text"
+                    }
+                    icon={
+                      form.watch("trustVisible") === false ? (
+                        <EyeOff />
+                      ) : (
+                        <Eye />
+                      )
+                    }
+                    onClick={() =>
+                      toggleTrustVisibility(
+                        form.watch("trustVisible") === false
+                      )
+                    }
+                    className="mt-0.5 shrink-0"
+                  />
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="flex items-center gap-3">
-            <FormField
-              control={form.control}
-              name="trustVisible"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-3 space-y-0">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Switch
-                        id={field.name}
-                        checked={field.value}
-                        onCheckedChange={onToggleTrust}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {field.value
-                        ? "Hide Trust Text"
-                        : "Show Trust Text"}
-                    </TooltipContent>
-                  </Tooltip>
-                </FormItem>
-              )}
-            />
-          </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Background Image</label>
             <ImageUpload

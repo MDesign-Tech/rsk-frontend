@@ -58,6 +58,28 @@ export const serviceSchema = z.object({
 export type ServiceInput = z.infer<typeof serviceSchema>;
 
 // ---------------------------------------------------------------------------
+// Social Media
+// ---------------------------------------------------------------------------
+
+export const socialLinkSchema = z.object({
+  href: z.string().optional().nullable().default(null),
+  visible: z.boolean().optional().default(true),
+});
+
+export type SocialLinkInput = z.infer<typeof socialLinkSchema>;
+
+export const socialMediaSchema = z.object({
+  facebook: socialLinkSchema.default({}),
+  instagram: socialLinkSchema.default({}),
+  whatsapp: socialLinkSchema.default({}),
+  x: socialLinkSchema.default({}),
+  linkedin: socialLinkSchema.default({}),
+  youtube: socialLinkSchema.default({}),
+});
+
+export type SocialMediaInput = z.infer<typeof socialMediaSchema>;
+
+// ---------------------------------------------------------------------------
 // About Us
 // ---------------------------------------------------------------------------
 
@@ -90,6 +112,8 @@ export const aboutSchema = z.object({
   stats: z.array(aboutStatSchema).default([]),
 
   contactMethods: z.array(contactMethodSchema).default([]),
+
+  socialMedia: socialMediaSchema.default({}),
 });
 
 
@@ -111,7 +135,7 @@ export type MissionVisionInput = z.infer<typeof missionVisionSchema>;
 // ---------------------------------------------------------------------------
 export const partnerSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  text: z.string().min(1, "Text is required"),
+  visible: z.boolean().default(true),
 });
 export type PartnerInput = z.infer<typeof partnerSchema>;
 

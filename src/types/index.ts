@@ -46,6 +46,20 @@ export interface AboutStat {
   visible: boolean;
 }
 
+export interface SocialLink {
+  href?: string | null;
+  visible?: boolean;
+}
+
+export interface SocialMedia {
+  facebook?: SocialLink;
+  instagram?: SocialLink;
+  whatsapp?: SocialLink;
+  x?: SocialLink;
+  linkedin?: SocialLink;
+  youtube?: SocialLink;
+}
+
 export interface AboutUs {
   _id: string;
   title: string;
@@ -53,6 +67,7 @@ export interface AboutUs {
   visible?: boolean;
   stats: AboutStat[];
   contactMethods: ContactMethod[];
+  socialMedia?: SocialMedia;
 }
 
 export interface MissionVision {
@@ -67,7 +82,7 @@ export interface MissionVision {
 export interface Partner {
   _id: string;
   name: string;
-  text: string;
+  image?: string | null;
   visible?: boolean;
   createdAt?: string;
   updatedAt?: string;

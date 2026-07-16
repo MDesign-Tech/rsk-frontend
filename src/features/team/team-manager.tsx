@@ -116,7 +116,7 @@ export function TeamManager() {
           toast.error(err instanceof Error ? err.message : "Image upload failed");
         } 
       }
-setIsSaving(false);
+    setIsSaving(false);
       setDialogOpen(false);
     } catch (err) {
       setIsSaving(false);
