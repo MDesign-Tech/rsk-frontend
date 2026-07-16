@@ -30,7 +30,18 @@ export function AboutUs() {
   }
 
   return (
-    <section id="about-us" className="relative py-20 px-4 sm:px-6 lg:px-8">
+    <section
+      id="about-us"
+      className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8"
+    >
+      <div
+        className="absolute inset-0 -z-10 bg-cover bg-center"
+        style={{
+          backgroundImage: 'url("/images/5.jpeg")',
+        }}
+      />
+      <div className="absolute inset-0 -z-10 bg-slate-950/70" />
+
       <div className="max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
@@ -49,13 +60,11 @@ export function AboutUs() {
               once: true,
             }}
           >
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-display mb-6">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-display mb-6 text-white">
               {about.title}
             </h2>
 
-            <p className="text-lg text-muted-foreground mb-6">
-              {about.description}
-            </p>
+            <p className="text-lg text-slate-200 mb-6">{about.description}</p>
           </motion.div>
 
           <motion.div
@@ -81,7 +90,7 @@ export function AboutUs() {
               return (
                 <motion.div
                   key={stat._id || index}
-                  className="p-6 rounded-xl border border-border bg-card/50 backdrop-blur text-center"
+                  className="p-6 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-center shadow-lg shadow-slate-950/20"
                   whileHover={{
                     y: -5,
                   }}
@@ -91,15 +100,15 @@ export function AboutUs() {
                   }}
                 >
                   <Icon
-                    className="w-8 h-8 text-primary mx-auto mb-3"
+                    className="w-8 h-8 text-blue-300 mx-auto mb-3"
                     aria-hidden="true"
                   />
 
-                  <div className="text-3xl font-bold mb-1">{stat.number}</div>
-
-                  <div className="text-sm text-muted-foreground">
-                    {stat.label}
+                  <div className="text-3xl font-bold mb-1 text-white">
+                    {stat.number}
                   </div>
+
+                  <div className="text-sm text-slate-200">{stat.label}</div>
                 </motion.div>
               );
             })}

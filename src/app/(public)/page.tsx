@@ -24,7 +24,10 @@ export default function Home() {
   const bgImage = getImageUrl(hero?.bgImage);
 
   return (
-    <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
+    <main
+      id="home"
+      className="relative z-0 min-h-screen bg-background overflow-x-hidden"
+    >
       {bgImage && (
         <div
           className="absolute top-0 right-0 w-[1500px] h-[1500px] -z-10 pointer-events-none"
