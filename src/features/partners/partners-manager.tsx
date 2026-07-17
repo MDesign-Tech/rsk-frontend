@@ -8,7 +8,6 @@ import { IconButton } from "@/components/admin/icon-button";
 import { partnerSchema, type PartnerInput } from "@/schemas";
 import { partnerService } from "@/services/partner.service";
 import type { Partner } from "@/types";
-import { getImageUrl } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -164,7 +163,7 @@ export function PartnersManager() {
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={getImageUrl(p.image) ?? "/placeholder-logo.svg"}
+            src={p.image ?? "/placeholder-logo.svg"}
             alt={p.name}
             className="size-9 rounded object-contain bg-muted"
           />

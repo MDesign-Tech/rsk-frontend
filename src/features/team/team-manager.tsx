@@ -8,7 +8,6 @@ import { IconButton } from "@/components/admin/icon-button";
 import { teamMemberSchema, type TeamMemberInput } from "@/schemas";
 import { teamService } from "@/services/team.service";
 import type { TeamMember } from "@/types";
-import { getImageUrl } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -166,7 +165,7 @@ export function TeamManager() {
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={getImageUrl(m.image) ?? "/placeholder-user.jpg"}
+            src={m.image ?? "/placeholder-user.jpg"}
             alt={m.name}
             className="size-9 rounded-full object-cover"
           />

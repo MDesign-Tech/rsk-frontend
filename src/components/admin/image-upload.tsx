@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { getImageUrl } from "@/lib/image";
 import { cn } from "@/lib/utils";
 
 interface ImageUploadProps {
@@ -27,7 +26,7 @@ export function ImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const currentUrl = preview ?? getImageUrl(value) ?? null;
+  const currentUrl = preview ?? value ?? null;
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;

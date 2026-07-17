@@ -17,11 +17,10 @@ import { FAQ } from "@/components/faq";
 import { FinalCTA } from "@/components/final-cta";
 import { Footer } from "@/components/footer";
 import { useWebsiteStore } from "@/stores/website.store";
-import { getImageUrl } from "@/lib/image";
 
 export default function Home() {
   const hero = useWebsiteStore((state) => state.data?.hero);
-  const bgImage = getImageUrl(hero?.bgImage);
+  const bgImage = hero?.bgImage;
 
   return (
     <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">

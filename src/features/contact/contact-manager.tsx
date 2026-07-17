@@ -184,12 +184,6 @@ export function ContactManager() {
         <div className="flex justify-end gap-2">
           <IconButton
             variant="outline"
-            label={m.visible === false ? "Show message" : "Hide message"}
-            icon={m.visible === false ? <EyeOff /> : <Eye />}
-            onClick={() => toggleVisibility(m)}
-          />
-          <IconButton
-            variant="outline"
             label="View message"
             icon={<Eye />}
             onClick={() => setViewTarget(m)}

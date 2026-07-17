@@ -5,14 +5,10 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "/api";
 
-// Absolute backend URL used for SERVER-side fetches (middleware) and for
-// building absolute image URLs. Must be a full URL because the server cannot
-// use a relative path.
+// Absolute backend URL used for SERVER-side fetches (middleware).
 export const SERVER_API_URL =
   process.env.NEXT_PUBLIC_SERVER_API_URL ||
   "https://rsk-backend-api.vercel.app/api";
-
-export const SERVER_BASE_URL = SERVER_API_URL.replace(/\/api\/?$/, "");
 
 // Navigation items for the admin sidebar.
 export interface NavItem {

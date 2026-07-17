@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useWebsiteStore } from "@/stores/website.store";
-import { getImageUrl } from "@/lib/image";
 
 export function LogoCloud() {
   const shouldReduceMotion = useReducedMotion();
@@ -55,7 +54,7 @@ export function LogoCloud() {
               {partner.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={getImageUrl(partner.image)}
+                  src={partner.image}
                   alt={partner.name}
                   className="h-8 w-auto object-contain"
                 />

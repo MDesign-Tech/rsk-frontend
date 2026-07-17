@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { User } from "lucide-react";
 import { useTheme } from "next-themes";
-import { getImageUrl } from "@/lib/image";
 import { useWebsiteStore } from "@/stores/website.store";
 import { useEffect, useState } from "react";
 
@@ -65,7 +64,7 @@ export function OurTeam() {
 
           {visibleMembers.map((member, index) => {
 
-            const hasImage = member.image && getImageUrl(member.image);
+            const hasImage = member.image;
 
             return (
               <motion.div
