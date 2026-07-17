@@ -43,7 +43,8 @@ export async function proxyToBackend(
       : request.body,
   cache: "no-store",
   redirect: "manual",
-});
+  duplex: "half",
+} as RequestInit & { duplex: "half" });
 
   const responseHeaders = new Headers();
 
