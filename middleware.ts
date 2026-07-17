@@ -21,6 +21,9 @@ function isPublicPath(pathname: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  console.log("Header Cookie:", request.headers.get("cookie"));
+console.log("Request cookies:", request.cookies.getAll());
+
   // Only protect the admin area.
   if (!pathname.startsWith("/admin")) {
     return NextResponse.next();
