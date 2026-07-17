@@ -10,7 +10,6 @@ import { partnerService } from "@/services/partner.service";
 import type { ApiResponse, Partner } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -50,7 +49,7 @@ export function PartnersManager() {
 
   const form = useForm<PartnerInput>({
     resolver: zodResolver(partnerSchema),
-    defaultValues: { name: "", website: "", description: "", visible: true },
+    defaultValues: { name: "", visible: true },
   });
 
   const load = async () => {
@@ -72,7 +71,7 @@ export function PartnersManager() {
   const openCreate = () => {
     setEditing(null);
     setImageFile(null);
-    form.reset({ name: "", website: "", description: "", visible: true });
+    form.reset({ name: "", visible: true });
     setDialogOpen(true);
   };
 
@@ -81,8 +80,6 @@ export function PartnersManager() {
     setImageFile(null);
     form.reset({
       name: partner.name,
-      website: partner.website,
-      description: partner.description,
       visible: partner.visible ?? true,
     });
     setDialogOpen(true);
@@ -92,8 +89,6 @@ export function PartnersManager() {
     setIsSaving(true);
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("website", values.website);
-    formData.append("description", values.description);
     if (imageFile) {
       formData.append("image", imageFile);
     }
@@ -256,32 +251,6 @@ export function PartnersManager() {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="website"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Website</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea rows={3} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

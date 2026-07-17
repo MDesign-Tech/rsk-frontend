@@ -37,8 +37,9 @@ export function HeroForm() {
     defaultValues: {
       title: "",
       subtitle: "",
-      description: "",
+      trust: "",
       subtitleVisible: true,
+      trustVisible: true,
     },
   });
 
@@ -51,8 +52,9 @@ export function HeroForm() {
         form.reset({
           title: h.title,
           subtitle: h.subtitle,
-          description: h.description,
+          trust: h.trust,
           subtitleVisible: h.subtitleVisible ?? true,
+          trustVisible: h.trustVisible ?? true,
         });
         setIsLoading(false);
       } catch (err) {
@@ -67,7 +69,7 @@ export function HeroForm() {
     const formData = new FormData();
     formData.append("title", values.title);
     formData.append("subtitle", values.subtitle);
-    formData.append("description", values.description);
+    formData.append("trust", values.trust);
     if (imageFile) {
       formData.append("image", imageFile);
     }
@@ -87,6 +89,11 @@ export function HeroForm() {
   // Toggle the subtitle visibility locally; persisted on Save Changes.
   const toggleSubtitleVisibility = (visible: boolean) => {
     form.setValue("subtitleVisible", visible, { shouldDirty: true });
+  };
+
+  // Toggle the trust text visibility locally; persisted on Save Changes.
+  const toggleTrustVisibility = (visible: boolean) => {
+    form.setValue("trustVisible", visible, { shouldDirty: true });
   };
 
   if (isLoading) return <LoadingSpinner label="Loading hero..." />;
@@ -150,13 +157,37 @@ export function HeroForm() {
           />
           <FormField
             control={form.control}
-            name="description"
+            name="trust"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea rows={4} {...field} />
-                </FormControl>
+                <FormLabel>Trust Text</FormLabel>
+                <div className="flex items-start gap-2">
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <IconButton
+                    type="button"
+                    variant="outline"
+                    label={
+                      form.watch("trustVisible") === false
+                        ? "Show Trust Text"
+                        : "Hide Trust Text"
+                    }
+                    icon={
+                      form.watch("trustVisible") === false ? (
+                        <EyeOff />
+                      ) : (
+                        <Eye />
+                      )
+                    }
+                    onClick={() =>
+                      toggleTrustVisibility(
+                        form.watch("trustVisible") === false
+                      )
+                    }
+                    className="mt-0.5 shrink-0"
+                  />
+                </div>
                 <FormMessage />
               </FormItem>
             )}

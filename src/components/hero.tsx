@@ -60,16 +60,18 @@ export function Hero() {
             <span>◇</span>
           </motion.div>
 
-          <motion.div
-            initial={shouldReduceMotion ? {} : fadeUp.initial}
-            animate={fadeUp.animate}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mb-6"
-          >
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-              <span className="text-gradient-lime">{hero.description}</span>
-            </p>
-          </motion.div>
+          {hero.trustVisible !== false && (
+            <motion.div
+              initial={shouldReduceMotion ? {} : fadeUp.initial}
+              animate={fadeUp.animate}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="mb-6"
+            >
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+                <span className="text-gradient-lime">{hero.trust}</span>
+              </p>
+            </motion.div>
+          )}
 
           <motion.div
             initial={shouldReduceMotion ? {} : fadeUp.initial}
