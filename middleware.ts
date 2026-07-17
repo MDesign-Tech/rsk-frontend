@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SERVER_API_URL } from "@/lib/constants";
 
 // Paths that do NOT require authentication.
 const PUBLIC_PATHS = [
@@ -19,9 +18,6 @@ function isPublicPath(pathname: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  console.log("Header Cookie:", request.headers.get("cookie"));
-console.log("Request cookies:", request.cookies.getAll());
-
   // Only protect the admin area.
   if (!pathname.startsWith("/admin")) {
     return NextResponse.next();
@@ -32,8 +28,12 @@ console.log("Request cookies:", request.cookies.getAll());
     return NextResponse.next();
   }
 
+  // Hit /me through the SAME origin (the /api proxy). This keeps the auth
+  // cookie first-party so it is forwarded correctly by the browser/server.
+  const meUrl = new URL("/api/auth/me", request.url);
+
   try {
-    const response = await fetch(`${SERVER_API_URL}/auth/me`, {
+    const response = await fetch(meUrl.toString(), {
       headers: {
         Cookie: request.headers.get("cookie") || "",
       },
