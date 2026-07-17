@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import { WebsiteInitializer } from "@/providers/WebsiteInitializer";
 import { WebsiteProvider } from "@/providers/website-provider";
+import { Footer } from "@/components/footer";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -51,6 +52,7 @@ export default function RootLayout({
           <WebsiteProvider>
             <WebsiteInitializer />
             {children}
+            <Footer />
             <Toaster />
             <Analytics />
           </WebsiteProvider>

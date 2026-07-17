@@ -80,7 +80,11 @@ export function TeamManager() {
   const openEdit = (member: TeamMember) => {
     setEditing(member);
     setImageFile(null);
-    form.reset({ name: member.name, title: member.title, bio: member.bio ?? "" });
+    form.reset({
+      name: member.name,
+      title: member.title,
+      bio: member.bio ?? "",
+    });
     setDialogOpen(true);
   };
 
@@ -92,7 +96,7 @@ export function TeamManager() {
         const res = await teamService.update(editing._id, values);
         saved = res.data.teamMember;
         setMembers((prev) =>
-          prev.map((m) => (m._id === editing._id ? saved : m))
+          prev.map((m) => (m._id === editing._id ? saved : m)),
         );
         toast.success("Team member updated");
       } else {
@@ -107,16 +111,18 @@ export function TeamManager() {
         try {
           const up = await teamService.uploadImage(saved._id, imageFile);
           setMembers((prev) =>
-            prev.map((m) => (m._id === saved._id ? up.data.teamMember : m))
+            prev.map((m) => (m._id === saved._id ? up.data.teamMember : m)),
           );
           setIsUploading(false);
           toast.success("Image uploaded");
         } catch (err) {
           setIsUploading(false);
-          toast.error(err instanceof Error ? err.message : "Image upload failed");
-        } 
+          toast.error(
+            err instanceof Error ? err.message : "Image upload failed",
+          );
+        }
       }
-    setIsSaving(false);
+      setIsSaving(false);
       setDialogOpen(false);
     } catch (err) {
       setIsSaving(false);
@@ -136,7 +142,7 @@ export function TeamManager() {
     } catch (err) {
       setIsDeleting(false);
       toast.error(err instanceof Error ? err.message : "Delete failed");
-    } 
+    }
   };
 
   const toggleVisibility = async (member: TeamMember) => {
@@ -144,18 +150,20 @@ export function TeamManager() {
     try {
       const res = await teamService.toggleVisibility(member._id, next);
       setMembers((prev) =>
-        prev.map((m) => (m._id === member._id ? res.data.teamMember : m))
+        prev.map((m) => (m._id === member._id ? res.data.teamMember : m)),
       );
       toast.success(next ? "Team member shown" : "Team member hidden");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update visibility",
+      );
     }
   };
 
   const filtered = members.filter(
     (m) =>
       m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.title.toLowerCase().includes(search.toLowerCase())
+      m.title.toLowerCase().includes(search.toLowerCase()),
   );
 
   const columns: Column<TeamMember>[] = [
@@ -166,7 +174,7 @@ export function TeamManager() {
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={getImageUrl(m.image) ?? "/placeholder-user.jpg"}
+            src={getImageUrl(m.image) ?? "/professional-man-headshot.png"}
             alt={m.name}
             className="size-9 rounded-full object-cover"
           />
@@ -183,7 +191,9 @@ export function TeamManager() {
         <div className="flex justify-end gap-2">
           <IconButton
             variant="outline"
-            label={m.visible === false ? "Show team member" : "Hide team member"}
+            label={
+              m.visible === false ? "Show team member" : "Hide team member"
+            }
             icon={m.visible === false ? <EyeOff /> : <Eye />}
             onClick={() => toggleVisibility(m)}
           />
@@ -207,7 +217,11 @@ export function TeamManager() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search team..." />
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search team..."
+        />
         <IconButton
           variant="default"
           label="Add team member"

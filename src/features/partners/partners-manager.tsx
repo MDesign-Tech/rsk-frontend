@@ -61,7 +61,9 @@ export function PartnersManager() {
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
-      toast.error(err instanceof Error ? err.message : "Failed to load partners");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to load partners",
+      );
     }
   };
 
@@ -91,7 +93,7 @@ export function PartnersManager() {
         const res = await partnerService.update(editing._id, values);
         saved = res.data.partner;
         setPartners((prev) =>
-          prev.map((p) => (p._id === editing._id ? saved : p))
+          prev.map((p) => (p._id === editing._id ? saved : p)),
         );
         toast.success("Partner updated");
       } else {
@@ -106,13 +108,15 @@ export function PartnersManager() {
         try {
           const up = await partnerService.uploadImage(saved._id, imageFile);
           setPartners((prev) =>
-            prev.map((p) => (p._id === saved._id ? up.data.partner : p))
+            prev.map((p) => (p._id === saved._id ? up.data.partner : p)),
           );
           setIsUploading(false);
           toast.success("Image uploaded");
         } catch (err) {
           setIsUploading(false);
-          toast.error(err instanceof Error ? err.message : "Image upload failed");
+          toast.error(
+            err instanceof Error ? err.message : "Image upload failed",
+          );
         }
       }
 
@@ -144,16 +148,18 @@ export function PartnersManager() {
     try {
       const res = await partnerService.toggleVisibility(partner._id, next);
       setPartners((prev) =>
-        prev.map((p) => (p._id === partner._id ? res.data.partner : p))
+        prev.map((p) => (p._id === partner._id ? res.data.partner : p)),
       );
       toast.success(next ? "Partner shown" : "Partner hidden");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update visibility",
+      );
     }
   };
 
   const filtered = partners.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
+    p.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const columns: Column<Partner>[] = [
@@ -164,7 +170,7 @@ export function PartnersManager() {
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={getImageUrl(p.image) ?? "/placeholder-logo.svg"}
+            src={getImageUrl(p.image) ?? "/images/8.jpg"}
             alt={p.name}
             className="size-9 rounded object-contain bg-muted"
           />
@@ -242,7 +248,9 @@ export function PartnersManager() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit Partner" : "Add Partner"}</DialogTitle>
+            <DialogTitle>
+              {editing ? "Edit Partner" : "Add Partner"}
+            </DialogTitle>
             <DialogDescription>
               {editing
                 ? "Update the details of this partner."

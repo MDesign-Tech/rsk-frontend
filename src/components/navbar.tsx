@@ -12,17 +12,23 @@ import { useTheme } from "next-themes";
 const navLinks = [
   { href: "#home", label: "Home", isHash: true },
   { href: "#our-services", label: "Our Services", isHash: true },
-  { href: "#about-us", label: "About Us", isHash: true },
 ];
 
-const mediaLinks = [
-  { href: "/media/blog", label: "Blog" },
-  { href: "/media/gallery", label: "Gallery" },
+const blogLinks = [
+  { href: "/blog/news", label: "News" },
+  { href: "/blog/opportunities", label: "Opportunities" },
+];
+
+const aboutLinks = [
+  { href: "/about/who", label: "Who are we" },
+  { href: "/about/partners", label: "Our partners" },
+  { href: "/about/team", label: "Our team" },
 ];
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mediaMenuOpen, setMediaMenuOpen] = useState(false);
+  const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
   const [activeHref, setActiveHref] = useState("#home");
   const router = useRouter();
   const pathname = usePathname();
@@ -44,8 +50,10 @@ export function Navbar() {
   useEffect(() => {
     if (pathname === "/") {
       setActiveHref("#home");
-    } else if (pathname.startsWith("/media")) {
-      setActiveHref("/media");
+    } else if (pathname.startsWith("/blog")) {
+      setActiveHref("/blog");
+    } else if (pathname.startsWith("/about")) {
+      setActiveHref("/about");
     } else if (pathname === "/membership") {
       setActiveHref("/membership");
     } else if (pathname === "/contact") {
@@ -60,6 +68,7 @@ export function Navbar() {
   const navigateToHome = () => {
     setMobileMenuOpen(false);
     setMediaMenuOpen(false);
+    setAboutMenuOpen(false);
 
     if (window.location.pathname === "/") {
       const homeSection = document.getElementById("home");
@@ -100,7 +109,8 @@ export function Navbar() {
   const isActiveLink = (href: string) => {
     if (href === "#home") return activeHref === "#home" && pathname === "/";
     if (href === "/membership") return activeHref === "/membership";
-    if (href === "/media") return pathname.startsWith("/media");
+    if (href === "/blog") return pathname.startsWith("/blog");
+    if (href === "/about") return pathname.startsWith("/about");
     return activeHref === href;
   };
 
@@ -151,9 +161,9 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setMediaMenuOpen((prev) => !prev)}
-                className={`flex items-center gap-1 text-sm transition-colors ${isActiveLink("/media") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex items-center gap-1 text-sm transition-colors ${isActiveLink("/blog") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
               >
-                Media
+                Blog
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${mediaMenuOpen ? "rotate-180" : ""}`}
                 />
@@ -165,15 +175,53 @@ export function Navbar() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full mt-3 w-40 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg"
+                    className="absolute left-0 top-full mt-3 w-44 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg"
                   >
-                    {mediaLinks.map((link) => (
+                    {blogLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => {
                           setActiveHref(link.href);
                           setMediaMenuOpen(false);
+                        }}
+                        className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAboutMenuOpen((prev) => !prev)}
+                className={`flex items-center gap-1 text-sm transition-colors ${isActiveLink("/about") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                About
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${aboutMenuOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              <AnimatePresence>
+                {aboutMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full mt-3 w-56 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg"
+                  >
+                    {aboutLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => {
+                          setActiveHref(link.href);
+                          setAboutMenuOpen(false);
                         }}
                         className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}
                       >
@@ -300,22 +348,51 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={() => setMediaMenuOpen((prev) => !prev)}
-                  className={`flex w-full items-center justify-between px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/media") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`flex w-full items-center justify-between px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/blog") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  <span>Media</span>
+                  <span>Blog</span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${mediaMenuOpen ? "rotate-180" : ""}`}
                   />
                 </button>
                 {mediaMenuOpen && (
                   <div className="ml-2 space-y-1 px-2 py-2">
-                    {mediaLinks.map((link) => (
+                    {blogLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => {
                           setActiveHref(link.href);
                           setMediaMenuOpen(false);
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setAboutMenuOpen((prev) => !prev)}
+                  className={`flex w-full items-center justify-between px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/about") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <span>About</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${aboutMenuOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {aboutMenuOpen && (
+                  <div className="ml-2 space-y-1 px-2 py-2">
+                    {aboutLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => {
+                          setActiveHref(link.href);
+                          setAboutMenuOpen(false);
                           setMobileMenuOpen(false);
                         }}
                         className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}

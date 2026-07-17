@@ -15,7 +15,6 @@ import { Testimonials } from "@/components/testimonials";
 import { Pricing } from "@/components/pricing";
 import { FAQ } from "@/components/faq";
 import { FinalCTA } from "@/components/final-cta";
-import { Footer } from "@/components/footer";
 import { useWebsiteStore } from "@/stores/website.store";
 import { getImageUrl } from "@/lib/image";
 
@@ -57,7 +56,6 @@ export default function Home() {
       {/* <Pricing /> */}
       <FAQ />
       <FinalCTA />
-      <Footer />
     </main>
   );
 }
