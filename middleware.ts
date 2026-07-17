@@ -25,47 +25,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const cookie = request.headers.get("cookie");
+  // BFF: the auth cookie is first-party (set on the frontend domain by the
+  // /api/auth/* route handlers). Middleware only checks for its existence;
+  // JWT validation remains the Express backend's responsibility. We do NOT
+  // call Express from middleware (that caused the cookie to be lost before).
+  const token = request.cookies.get("token");
 
-  console.log("Middleware cookie:", cookie);
-
-  if (!cookie) {
+  if (!token) {
     const loginUrl = new URL("/admin/login", request.url);
     loginUrl.searchParams.set("reason", "unauthorized");
 
     return NextResponse.redirect(loginUrl);
   }
 
-  try {
-    const response = await fetch(
-      new URL("/api/auth/me", request.url),
-      {
-        headers: {
-          Cookie: cookie,
-        },
-        cache: "no-store",
-      }
-    );
-
-    console.log("Auth status:", response.status);
-
-    if (!response.ok) {
-      const loginUrl = new URL("/admin/login", request.url);
-      loginUrl.searchParams.set("reason", "unauthorized");
-
-      return NextResponse.redirect(loginUrl);
-    }
-
-    return NextResponse.next();
-
-  } catch (error) {
-    console.error("Middleware auth error:", error);
-
-    const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("reason", "unauthorized");
-
-    return NextResponse.redirect(loginUrl);
-  }
+  return NextResponse.next();
 }
 
 export const config = {

@@ -1,10 +1,11 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/lib/constants";
 
-// Reusable Axios instance for the RSK backend.
-// withCredentials enables the HttpOnly auth cookie to be sent on every request.
+// BFF: the browser only ever talks to the Next.js frontend (/api/*).
+// Route handlers in src/app/api/* forward requests to the Express backend.
+// withCredentials enables the HttpOnly auth cookie to be sent on every request
+// and lets the browser store the cookie on the FRONTEND domain (first-party).
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: "/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
   timeout: 30000,
