@@ -8,27 +8,18 @@ export const partnerService = {
   get: (id: string) =>
     api.get<ApiResponse<{ partner: Partner }>>(`/partners/${id}`).then((res) => res.data),
 
-  create: (data: { name: string; visible: boolean }) =>
+  create: (formData: FormData) =>
     api
-      .post<ApiResponse<{ partner: Partner }>>("/partners", data)
+      .post<ApiResponse<{ partner: Partner }>>("/partners", formData)
       .then((res) => res.data),
 
-  update: (id: string, data: { name: string; visible: boolean }) =>
+  update: (id: string, formData: FormData) =>
     api
-      .put<ApiResponse<{ partner: Partner }>>(`/partners/${id}`, data)
+      .put<ApiResponse<{ partner: Partner }>>(`/partners/${id}`, formData)
       .then((res) => res.data),
 
   remove: (id: string) =>
     api.delete<ApiResponse<Record<string, never>>>(`/partners/${id}`).then((res) => res.data),
-
-  uploadImage: (id: string, file: File) => {
-    const formData = new FormData();
-    formData.append("image", file);
-    // Let axios/browser set the multipart boundary automatically.
-    return api
-      .post<ApiResponse<{ partner: Partner }>>(`/partners/${id}/upload`, formData)
-      .then((res) => res.data);
-  },
 
   toggleVisibility: (id: string, visible: boolean) =>
     api

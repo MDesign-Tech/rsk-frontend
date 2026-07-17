@@ -7,9 +7,10 @@ import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { partnerSchema, type PartnerInput } from "@/schemas";
 import { partnerService } from "@/services/partner.service";
-import type { Partner } from "@/types";
+import type { ApiResponse, Partner } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -33,7 +34,7 @@ import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { saveWithImage } from "@/lib/image-save";
+import { saveResource } from "@/lib/image-save";
 import { toast } from "sonner";
 
 export function PartnersManager() {
@@ -49,7 +50,7 @@ export function PartnersManager() {
 
   const form = useForm<PartnerInput>({
     resolver: zodResolver(partnerSchema),
-    defaultValues: { name: "" },
+    defaultValues: { name: "", website: "", description: "", visible: true },
   });
 
   const load = async () => {
@@ -71,33 +72,39 @@ export function PartnersManager() {
   const openCreate = () => {
     setEditing(null);
     setImageFile(null);
-    form.reset({ name: "" });
+    form.reset({ name: "", website: "", description: "", visible: true });
     setDialogOpen(true);
   };
 
   const openEdit = (partner: Partner) => {
     setEditing(partner);
     setImageFile(null);
-    form.reset({ name: partner.name });
+    form.reset({
+      name: partner.name,
+      website: partner.website,
+      description: partner.description,
+      visible: partner.visible ?? true,
+    });
     setDialogOpen(true);
   };
 
   const onSubmit = async (values: PartnerInput) => {
     setIsSaving(true);
-    let savedId: string | undefined = editing?._id;
-    const result = await saveWithImage<
-      Awaited<ReturnType<typeof partnerService.update>>,
-      Partner
-    >({
-      imageFile,
-      saveContent: async () => {
-        const res = editing
-          ? await partnerService.update(editing._id, values)
-          : await partnerService.create(values);
-        savedId = res.data.partner._id;
-        return res;
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("website", values.website);
+    formData.append("description", values.description);
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const result = await saveResource<ApiResponse<{ partner: Partner }>, Partner>({
+      save: async (): Promise<ApiResponse<{ partner: Partner }>> => {
+        if (editing) {
+          return partnerService.update(editing._id, formData);
+        }
+        return partnerService.create(formData);
       },
-      uploadImage: (file) => partnerService.uploadImage(savedId as string, file),
       getEntity: (res) => res.data.partner,
       successMessage: editing
         ? "Partner updated successfully."
@@ -249,6 +256,32 @@ export function PartnersManager() {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Website</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea rows={3} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

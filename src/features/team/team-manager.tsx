@@ -7,7 +7,7 @@ import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { teamMemberSchema, type TeamMemberInput } from "@/schemas";
 import { teamService } from "@/services/team.service";
-import type { TeamMember } from "@/types";
+import type { ApiResponse, TeamMember } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,7 +34,7 @@ import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { saveWithImage } from "@/lib/image-save";
+import { saveResource } from "@/lib/image-save";
 import { toast } from "sonner";
 
 export function TeamManager() {
@@ -85,20 +85,21 @@ export function TeamManager() {
 
   const onSubmit = async (values: TeamMemberInput) => {
     setIsSaving(true);
-    let savedId: string | undefined = editing?._id;
-    const result = await saveWithImage<
-      Awaited<ReturnType<typeof teamService.update>>,
-      TeamMember
-    >({
-      imageFile,
-      saveContent: async () => {
-        const res = editing
-          ? await teamService.update(editing._id, values)
-          : await teamService.create(values);
-        savedId = res.data.teamMember._id;
-        return res;
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("title", values.title);
+    formData.append("bio", values.bio);
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const result = await saveResource<ApiResponse<{ teamMember: TeamMember }>, TeamMember>({
+      save: async (): Promise<ApiResponse<{ teamMember: TeamMember }>> => {
+        if (editing) {
+          return teamService.update(editing._id, formData);
+        }
+        return teamService.create(formData);
       },
-      uploadImage: (file) => teamService.uploadImage(savedId as string, file),
       getEntity: (res) => res.data.teamMember,
       successMessage: editing
         ? "Team member updated successfully."

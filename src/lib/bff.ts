@@ -10,18 +10,6 @@ const SERVER_API_URL =
 // Name of the HttpOnly auth cookie set by the Express backend.
 const AUTH_COOKIE_NAME = "token";
 
-/**
- * Shared BFF proxy used by every /api route handler.
- *
- * Responsibilities:
- *  - Forward the incoming browser request (method, body, query, headers) to the
- *    Express backend using an absolute URL.
- *  - Forward the browser's auth cookie to Express so it can validate the JWT.
- *  - Re-issue the backend's `Set-Cookie` on the FRONTEND domain so the browser
- *    stores it first-party (this is what fixes the cross-domain cookie problem
- *    in production).
- *  - On logout, clear the frontend cookie.
- */
 export async function proxyToBackend(
   request: NextRequest,
   path: string
@@ -102,11 +90,6 @@ export async function proxyToBackend(
   return response;
 }
 
-/**
- * Minimal Set-Cookie parser. We only need the name, value and maxAge of the
- * auth cookie; the backend controls HttpOnly/Secure/SameSite which we re-apply
- * explicitly on the frontend domain.
- */
 function parseSetCookie(header: string): {
   name: string;
   value: string;

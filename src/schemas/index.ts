@@ -42,9 +42,8 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export const heroSchema = z.object({
   title: z.string().min(1, "Title is required"),
   subtitle: z.string().min(1, "Subtitle is required"),
-  trust: z.string().min(1, "Trust text is required"),
+  description: z.string().min(1, "Description is required"),
   subtitleVisible: z.boolean().default(true),
-  trustVisible: z.boolean().default(true),
 });
 export type HeroInput = z.infer<typeof heroSchema>;
 
@@ -135,6 +134,8 @@ export type MissionVisionInput = z.infer<typeof missionVisionSchema>;
 // ---------------------------------------------------------------------------
 export const partnerSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  website: z.string().min(1, "Website is required"),
+  description: z.string().min(1, "Description is required"),
   visible: z.boolean().default(true),
 });
 export type PartnerInput = z.infer<typeof partnerSchema>;

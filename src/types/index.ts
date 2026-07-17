@@ -24,10 +24,9 @@ export interface HeroContent {
   _id: string;
   title: string;
   subtitle: string;
-  trust: string;
+  description: string;
   bgImage?: string | null;
   subtitleVisible?: boolean;
-  trustVisible?: boolean;
 }
 
 export interface Service {
@@ -82,6 +81,8 @@ export interface MissionVision {
 export interface Partner {
   _id: string;
   name: string;
+  website: string;
+  description: string;
   image?: string | null;
   visible?: boolean;
   createdAt?: string;
