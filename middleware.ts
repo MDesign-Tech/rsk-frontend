@@ -39,6 +39,8 @@ export async function middleware(request: NextRequest) {
       },
     });
 
+    console.log(response)
+
     if (!response.ok) {
       const loginUrl = new URL("/admin/login", request.url);
       // Signal the login page to show the "Not authorized" toast after redirect.
