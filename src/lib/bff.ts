@@ -2,12 +2,10 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 // Absolute backend URL used for SERVER-side fetches from the BFF route handlers.
-// Must be a full URL because the server cannot use a relative path.
 const SERVER_API_URL =
   process.env.NEXT_PUBLIC_SERVER_API_URL ||
   "https://rsk-backend-api.vercel.app/api";
 
-// Name of the HttpOnly auth cookie set by the Express backend.
 const AUTH_COOKIE_NAME = "token";
 
 export async function proxyToBackend(
@@ -16,47 +14,55 @@ export async function proxyToBackend(
 ): Promise<NextResponse> {
   const cookieStore = await cookies();
 
-  // Build the absolute backend URL, preserving the query string.
+  // Build backend URL.
   const target = new URL(
     `${SERVER_API_URL.replace(/\/$/, "")}/${path}`
   );
   target.search = request.nextUrl.search;
 
-  // Forward the browser's auth cookie to Express (it validates the JWT).
-  const incomingCookies = request.headers.get("cookie") ?? "";
+  // Clone incoming headers.
+  const headers = new Headers(request.headers);
+
+  // Remove headers that should not be forwarded.
+  headers.delete("host");
+  headers.delete("connection");
+  headers.delete("content-length");
+
+  // Forward auth cookie if present.
+  const incomingCookies = request.headers.get("cookie");
+  if (incomingCookies) {
+    headers.set("cookie", incomingCookies);
+  }
 
   const backendResponse = await fetch(target.toString(), {
-    method: request.method,
-    headers: {
-      "Content-Type":
-        request.headers.get("content-type") || "application/json",
-      // Only forward the cookie header; strip other browser headers that may
-      // confuse the backend (host, origin, etc.).
-      ...(incomingCookies ? { Cookie: incomingCookies } : {}),
-    },
-    body:
-      request.method === "GET" || request.method === "HEAD"
-        ? undefined
-        : await request.text(),
-    cache: "no-store",
-    redirect: "manual",
-  });
+  method: request.method,
+  headers,
+  body:
+    request.method === "GET" || request.method === "HEAD"
+      ? undefined
+      : request.body,
+  cache: "no-store",
+  redirect: "manual",
+});
 
-  // Build the response we send back to the browser.
-  const responseBody = await backendResponse.text();
-  const response = new NextResponse(responseBody, {
+  const responseHeaders = new Headers();
+
+  const contentType = backendResponse.headers.get("content-type");
+  if (contentType) {
+    responseHeaders.set("content-type", contentType);
+  }
+
+  const response = new NextResponse(backendResponse.body, {
     status: backendResponse.status,
-    headers: {
-      "Content-Type":
-        backendResponse.headers.get("content-type") || "application/json",
-    },
+    headers: responseHeaders,
   });
 
-  // Re-issue the backend's Set-Cookie on the FRONTEND domain so the browser
-  // stores it first-party. This is the key fix for the production cookie bug.
+  // Forward auth cookie from backend to frontend domain.
   const setCookie = backendResponse.headers.get("set-cookie");
+
   if (setCookie) {
     const parsed = parseSetCookie(setCookie);
+
     if (parsed.name === AUTH_COOKIE_NAME) {
       response.cookies.set(parsed.name, parsed.value, {
         httpOnly: true,
@@ -68,15 +74,13 @@ export async function proxyToBackend(
     }
   }
 
-  // If the backend cleared the cookie (logout), clear it on the frontend too.
+  // Handle logout.
   if (
     backendResponse.status === 200 &&
     !setCookie &&
     cookieStore.get(AUTH_COOKIE_NAME)
   ) {
-    // Logout path: backend may not return a Set-Cookie; clear explicitly.
-    const isLogout = path.endsWith("/logout");
-    if (isLogout) {
+    if (path.endsWith("/logout")) {
       response.cookies.set(AUTH_COOKIE_NAME, "", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -95,17 +99,26 @@ function parseSetCookie(header: string): {
   value: string;
   maxAge?: number;
 } {
-  // Header looks like: token=abc; Max-Age=...; Path=/; HttpOnly; ...
   const [pair, ...attrs] = header.split(";").map((s) => s.trim());
+
   const eq = pair.indexOf("=");
+
   const name = pair.slice(0, eq);
   const value = pair.slice(eq + 1);
+
   let maxAge: number | undefined;
+
   for (const attr of attrs) {
-    const [k, v] = attr.split("=");
-    if (k.toLowerCase() === "max-age") {
-      maxAge = Number(v);
+    const [key, val] = attr.split("=");
+
+    if (key.toLowerCase() === "max-age") {
+      maxAge = Number(val);
     }
   }
-  return { name, value, maxAge };
+
+  return {
+    name,
+    value,
+    maxAge,
+  };
 }
