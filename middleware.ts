@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { SERVER_API_URL } from "@/lib/constants";
 
 // Paths that do NOT require authentication.
 const PUBLIC_PATHS = [
@@ -9,9 +10,6 @@ const PUBLIC_PATHS = [
   "/admin/reset-password",
 ];
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`)
@@ -20,9 +18,6 @@ function isPublicPath(pathname: string) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  console.log("Header Cookie:", request.headers.get("cookie"));
-console.log("Request cookies:", request.cookies.getAll());
 
   // Only protect the admin area.
   if (!pathname.startsWith("/admin")) {
@@ -35,7 +30,7 @@ console.log("Request cookies:", request.cookies.getAll());
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    const response = await fetch(`${SERVER_API_URL}/auth/me`, {
       headers: {
         Cookie: request.headers.get("cookie") || "",
       },

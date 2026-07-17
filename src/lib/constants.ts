@@ -1,8 +1,18 @@
 
+// Browser-facing API base. Relative "/api" so requests go through the Next.js
+// rewrite proxy (see next.config.mjs). This makes the auth cookie first-party
+// (set on the frontend domain) so middleware can read it.
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  process.env.NEXT_PUBLIC_API_URL || "/api";
 
-export const SERVER_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
+// Absolute backend URL used for SERVER-side fetches (middleware) and for
+// building absolute image URLs. Must be a full URL because the server cannot
+// use a relative path.
+export const SERVER_API_URL =
+  process.env.NEXT_PUBLIC_SERVER_API_URL ||
+  "https://rsk-backend-api.vercel.app/api";
+
+export const SERVER_BASE_URL = SERVER_API_URL.replace(/\/api\/?$/, "");
 
 // Navigation items for the admin sidebar.
 export interface NavItem {
