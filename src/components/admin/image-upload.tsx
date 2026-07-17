@@ -1,9 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 interface ImageUploadProps {
@@ -11,7 +10,8 @@ interface ImageUploadProps {
   value?: string | null;
   // Called with the selected File, or null when removed.
   onChange: (file: File | null) => void;
-  isUploading?: boolean;
+  // Disabled while the parent form is saving.
+  disabled?: boolean;
   label?: string;
   className?: string;
 }
@@ -19,7 +19,7 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
-  isUploading,
+  disabled,
   label = "Image",
   className,
 }: ImageUploadProps) {
@@ -60,16 +60,17 @@ export function ImageUpload({
             accept="image/*"
             className="hidden"
             onChange={handleFile}
+            disabled={disabled}
           />
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => inputRef.current?.click()}
-            disabled={isUploading}
+            disabled={disabled}
           >
-            {isUploading ? <Spinner /> : <Upload />}
-            {preview ? "Change" : "Upload"}
+            <Upload />
+            {preview ? "Change" : "Select"}
           </Button>
         </div>
       </div>

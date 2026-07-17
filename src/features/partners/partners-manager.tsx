@@ -33,6 +33,7 @@ import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { saveWithImage } from "@/lib/image-save";
 import { toast } from "sonner";
 
 export function PartnersManager() {
@@ -43,7 +44,6 @@ export function PartnersManager() {
   const [editing, setEditing] = useState<Partner | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Partner | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -84,42 +84,33 @@ export function PartnersManager() {
 
   const onSubmit = async (values: PartnerInput) => {
     setIsSaving(true);
-    try {
-      let saved: Partner;
-      if (editing) {
-        const res = await partnerService.update(editing._id, values);
-        saved = res.data.partner;
-        setPartners((prev) =>
-          prev.map((p) => (p._id === editing._id ? saved : p))
-        );
-        toast.success("Partner updated");
-      } else {
-        const res = await partnerService.create(values);
-        saved = res.data.partner;
-        setPartners((prev) => [saved, ...prev]);
-        toast.success("Partner created");
-      }
-
-      if (imageFile) {
-        setIsUploading(true);
-        try {
-          const up = await partnerService.uploadImage(saved._id, imageFile);
-          setPartners((prev) =>
-            prev.map((p) => (p._id === saved._id ? up.data.partner : p))
-          );
-          setIsUploading(false);
-          toast.success("Image uploaded");
-        } catch (err) {
-          setIsUploading(false);
-          toast.error(err instanceof Error ? err.message : "Image upload failed");
-        }
-      }
-
-      setIsSaving(false);
+    let savedId: string | undefined = editing?._id;
+    const result = await saveWithImage<
+      Awaited<ReturnType<typeof partnerService.update>>,
+      Partner
+    >({
+      imageFile,
+      saveContent: async () => {
+        const res = editing
+          ? await partnerService.update(editing._id, values)
+          : await partnerService.create(values);
+        savedId = res.data.partner._id;
+        return res;
+      },
+      uploadImage: (file) => partnerService.uploadImage(savedId as string, file),
+      getEntity: (res) => res.data.partner,
+      successMessage: editing
+        ? "Partner updated successfully."
+        : "Partner created successfully.",
+    });
+    setIsSaving(false);
+    if (result) {
+      setPartners((prev) =>
+        prev.map((p) => (p._id === result._id ? result : p))
+      );
+      if (!editing) setPartners((prev) => [result, ...prev]);
+      setImageFile(null);
       setDialogOpen(false);
-    } catch (err) {
-      setIsSaving(false);
-      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -268,7 +259,7 @@ export function PartnersManager() {
                 <ImageUpload
                   value={editing?.image ?? null}
                   onChange={setImageFile}
-                  isUploading={isUploading}
+                  disabled={isSaving}
                   label="Partner logo"
                 />
                 <p className="text-sm text-muted-foreground">
@@ -280,6 +271,7 @@ export function PartnersManager() {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
+                  disabled={isSaving}
                 >
                   Cancel
                 </Button>

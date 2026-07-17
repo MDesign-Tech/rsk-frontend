@@ -19,10 +19,13 @@ export const heroService = {
   uploadImage: (file: File) => {
     const formData = new FormData();
     formData.append("image", file);
+    // Do NOT set an explicit Content-Type header here. When sending FormData,
+    // axios/browser must set `multipart/form-data` WITH the generated boundary
+    // (e.g. `multipart/form-data; boundary=----WebKit...`). Forcing
+    // `multipart/form-data` without a boundary causes the backend to fail
+    // parsing the body and return a 500.
     return api
-      .post<ApiResponse<{ hero: HeroContent }>>("/hero/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+      .post<ApiResponse<{ hero: HeroContent }>>("/hero/upload", formData)
       .then((res) => res.data);
   },
 };

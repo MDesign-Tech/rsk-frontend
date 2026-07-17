@@ -34,6 +34,7 @@ import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { saveWithImage } from "@/lib/image-save";
 import { toast } from "sonner";
 
 export function TeamManager() {
@@ -44,7 +45,6 @@ export function TeamManager() {
   const [editing, setEditing] = useState<TeamMember | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<TeamMember | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -85,41 +85,33 @@ export function TeamManager() {
 
   const onSubmit = async (values: TeamMemberInput) => {
     setIsSaving(true);
-    try {
-      let saved: TeamMember;
-      if (editing) {
-        const res = await teamService.update(editing._id, values);
-        saved = res.data.teamMember;
-        setMembers((prev) =>
-          prev.map((m) => (m._id === editing._id ? saved : m))
-        );
-        toast.success("Team member updated");
-      } else {
-        const res = await teamService.create(values);
-        saved = res.data.teamMember;
-        setMembers((prev) => [saved, ...prev]);
-        toast.success("Team member created");
-      }
-
-      if (imageFile) {
-        setIsUploading(true);
-        try {
-          const up = await teamService.uploadImage(saved._id, imageFile);
-          setMembers((prev) =>
-            prev.map((m) => (m._id === saved._id ? up.data.teamMember : m))
-          );
-          setIsUploading(false);
-          toast.success("Image uploaded");
-        } catch (err) {
-          setIsUploading(false);
-          toast.error(err instanceof Error ? err.message : "Image upload failed");
-        } 
-      }
+    let savedId: string | undefined = editing?._id;
+    const result = await saveWithImage<
+      Awaited<ReturnType<typeof teamService.update>>,
+      TeamMember
+    >({
+      imageFile,
+      saveContent: async () => {
+        const res = editing
+          ? await teamService.update(editing._id, values)
+          : await teamService.create(values);
+        savedId = res.data.teamMember._id;
+        return res;
+      },
+      uploadImage: (file) => teamService.uploadImage(savedId as string, file),
+      getEntity: (res) => res.data.teamMember,
+      successMessage: editing
+        ? "Team member updated successfully."
+        : "Team member created successfully.",
+    });
     setIsSaving(false);
+    if (result) {
+      setMembers((prev) =>
+        prev.map((m) => (m._id === result._id ? result : m))
+      );
+      if (!editing) setMembers((prev) => [result, ...prev]);
+      setImageFile(null);
       setDialogOpen(false);
-    } catch (err) {
-      setIsSaving(false);
-      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -288,7 +280,7 @@ export function TeamManager() {
                 <ImageUpload
                   value={editing?.image ?? null}
                   onChange={setImageFile}
-                  isUploading={isUploading}
+                  disabled={isSaving}
                   label="Team member photo"
                 />
                 <p className="text-sm text-muted-foreground">
@@ -300,10 +292,11 @@ export function TeamManager() {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
+                  disabled={isSaving}
                 >
                   Cancel
                 </Button>
-                <SubmitButton isLoading={isSaving || isUploading}>
+                <SubmitButton isLoading={isSaving}>
                   {editing ? "Save Changes" : "Create"}
                 </SubmitButton>
               </DialogFooter>

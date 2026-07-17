@@ -24,10 +24,9 @@ export const partnerService = {
   uploadImage: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("image", file);
+    // Let axios/browser set the multipart boundary automatically.
     return api
-      .post<ApiResponse<{ partner: Partner }>>(`/partners/${id}/upload`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+      .post<ApiResponse<{ partner: Partner }>>(`/partners/${id}/upload`, formData)
       .then((res) => res.data);
   },
 

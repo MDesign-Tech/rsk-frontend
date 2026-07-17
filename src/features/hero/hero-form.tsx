@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
+import { saveWithImage } from "@/lib/image-save";
 import {
   Form,
   FormControl,
@@ -29,7 +30,6 @@ export function HeroForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<HeroInput>({
     resolver: zodResolver(heroSchema),
@@ -65,28 +65,20 @@ export function HeroForm() {
 
   const onSubmit = async (values: HeroInput) => {
     setIsSaving(true);
-    try {
-      const res = await heroService.update(values);
-      setHero(res.data.hero);
-       setIsSaving(false);
-      toast.success("Hero content updated");
-
-      if (imageFile) {
-        setIsUploading(true);
-        try {
-          const up = await heroService.uploadImage(imageFile);
-          setHero(up.data.hero);
-          setImageFile(null);
-          setIsUploading(false);
-          toast.success("Background image updated");
-        } catch (err) {
-          setIsUploading(false);
-          toast.error(err instanceof Error ? err.message : "Image upload failed");
-        }
-      }
-    } catch (err) {
-      setIsSaving(false);
-      toast.error(err instanceof Error ? err.message : "Update failed");
+    const result = await saveWithImage<
+      Awaited<ReturnType<typeof heroService.update>>,
+      HeroContent
+    >({
+      imageFile,
+      saveContent: () => heroService.update(values),
+      uploadImage: (file) => heroService.uploadImage(file),
+      getEntity: (res) => res.data.hero,
+      successMessage: "Hero updated successfully.",
+    });
+    setIsSaving(false);
+    if (result) {
+      setHero(result);
+      setImageFile(null);
     }
   };
 
@@ -201,14 +193,14 @@ export function HeroForm() {
             <ImageUpload
               value={hero?.bgImage ?? null}
               onChange={setImageFile}
-              isUploading={isUploading}
+              disabled={isSaving}
             />
             <p className="text-sm text-muted-foreground">
               Select a new image and save to update the background.
             </p>
           </div>
           <div className="flex justify-end">
-            <SubmitButton isLoading={isSaving || isUploading}>
+            <SubmitButton isLoading={isSaving}>
               Save Changes
             </SubmitButton>
           </div>
