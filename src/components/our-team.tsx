@@ -70,7 +70,9 @@ export function OurTeam() {
                 viewport={{ once: true }}
                 className="group"
               >
-                <div className="relative mb-4 overflow-hidden rounded-lg aspect-[4/5] w-full max-w-[300px]">
+
+                <div className="relative mb-4 overflow-hidden rounded-lg aspect-[3/4] w-full max-w-[300px]">
+
                   {hasImage ? (
                     <Image
                       src={hasImage}
