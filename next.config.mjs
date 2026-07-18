@@ -5,6 +5,12 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
   },
   // NOTE: /api/* traffic is now handled by Next.js Route Handlers under
   // src/app/api/* (the BFF layer). They forward requests to the Express

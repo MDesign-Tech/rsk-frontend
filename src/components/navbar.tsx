@@ -3,21 +3,37 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun } from "lucide-react";
+import { Menu, X, Moon, Sun, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
 
 const navLinks = [
   { href: "#home", label: "Home", isHash: true },
   { href: "#our-services", label: "Our Services", isHash: true },
-  { href: "#about-us", label: "About Us", isHash: true },
+];
+
+const blogLinks = [
+  { href: "/blog/news", label: "News" },
+  { href: "/blog/opportunities", label: "Opportunities" },
+];
+
+const aboutLinks = [
+  { href: "/about/who", label: "Who are we" },
+  { href: "/about/partners", label: "Our partners" },
+  { href: "/about/team", label: "Our team" },
 ];
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const [mediaMenuOpen, setMediaMenuOpen] = useState(false);
+  const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
+  const [activeHref, setActiveHref] = useState("#home");
   const router = useRouter();
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -25,29 +41,34 @@ export function Navbar() {
     } else {
       document.body.style.overflow = "";
     }
+
     return () => {
       document.body.style.overflow = "";
     };
   }, [mobileMenuOpen]);
 
   useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setIsDark(isDarkMode);
-  }, []);
+    if (pathname === "/") {
+      setActiveHref("#home");
+    } else if (pathname.startsWith("/blog")) {
+      setActiveHref("/blog");
+    } else if (pathname.startsWith("/about")) {
+      setActiveHref("/about");
+    } else if (pathname === "/membership") {
+      setActiveHref("/membership");
+    } else if (pathname === "/contact") {
+      setActiveHref("/contact");
+    }
+  }, [pathname]);
 
   const toggleTheme = () => {
-    const htmlElement = document.documentElement;
-    if (htmlElement.classList.contains("dark")) {
-      htmlElement.classList.remove("dark");
-      setIsDark(false);
-    } else {
-      htmlElement.classList.add("dark");
-      setIsDark(true);
-    }
+    setTheme(isDark ? "light" : "dark");
   };
 
   const navigateToHome = () => {
     setMobileMenuOpen(false);
+    setMediaMenuOpen(false);
+    setAboutMenuOpen(false);
 
     if (window.location.pathname === "/") {
       const homeSection = document.getElementById("home");
@@ -64,6 +85,9 @@ export function Navbar() {
 
   const handleNavClick = (href: string) => {
     setMobileMenuOpen(false);
+    setMediaMenuOpen(false);
+    setActiveHref(href);
+
     if (href === "#home") {
       navigateToHome();
       return;
@@ -76,7 +100,18 @@ export function Navbar() {
       } else {
         router.push("/" + href);
       }
+      return;
     }
+
+    router.push(href);
+  };
+
+  const isActiveLink = (href: string) => {
+    if (href === "#home") return activeHref === "#home" && pathname === "/";
+    if (href === "/membership") return activeHref === "/membership";
+    if (href === "/blog") return pathname.startsWith("/blog");
+    if (href === "/about") return pathname.startsWith("/about");
+    return activeHref === href;
   };
 
   return (
@@ -85,7 +120,7 @@ export function Navbar() {
         className="mx-auto max-w-6xl px-2 sm:px-4 lg:px-8 py-4"
         aria-label="Main navigation"
       >
-        <div className="flex h-14 items-center justify-between bg-background/60 backdrop-blur-xl border border-border/50 rounded-full px-4 sm:px-6">
+        <div className="flex h-14 items-center justify-between bg-background/70 backdrop-blur-xl border border-border/50 rounded-full px-4 sm:px-6 shadow-sm">
           <Link
             href="/"
             className="flex items-center gap-3"
@@ -104,27 +139,109 @@ export function Navbar() {
               priority
             />
             <span
-              className="font-[family-name:var(--font-pt-mono)] font-bold text-sm sm:text-base text-foreground hidden sm:inline"
+              className="font-(family-name:--font-pt-mono) font-bold text-sm sm:text-base text-foreground hidden sm:inline"
               style={{ letterSpacing: "-0.05em" }}
             >
               RSK
             </span>
           </Link>
 
-          {/* Desktop Navigation - hidden below lg */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-none border-none p-0"
+                className={`text-sm transition-colors cursor-pointer bg-none border-none p-0 ${isActiveLink(link.href) ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {link.label}
               </button>
             ))}
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMediaMenuOpen((prev) => !prev)}
+                className={`flex items-center gap-1 text-sm transition-colors ${isActiveLink("/blog") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Blog
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${mediaMenuOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              <AnimatePresence>
+                {mediaMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full mt-3 w-44 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg"
+                  >
+                    {blogLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => {
+                          setActiveHref(link.href);
+                          setMediaMenuOpen(false);
+                        }}
+                        className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAboutMenuOpen((prev) => !prev)}
+                className={`flex items-center gap-1 text-sm transition-colors ${isActiveLink("/about") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                About
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${aboutMenuOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              <AnimatePresence>
+                {aboutMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full mt-3 w-56 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg"
+                  >
+                    {aboutLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => {
+                          setActiveHref(link.href);
+                          setAboutMenuOpen(false);
+                        }}
+                        className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <Link
+              href="/membership"
+              onClick={() => setActiveHref("/membership")}
+              className={`text-sm transition-colors ${isActiveLink("/membership") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Membership
+            </Link>
           </div>
 
-          {/* Desktop Buttons - hidden below lg */}
           <div className="hidden lg:flex items-center gap-3">
             <Button asChild size="sm" rounded="full">
               <Link href="/contact">Contact Us</Link>
@@ -142,7 +259,6 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* Mobile Menu Button - visible below lg */}
           <button
             type="button"
             className="lg:hidden p-2 text-muted-foreground hover:text-foreground"
@@ -159,7 +275,6 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Menu - visible below lg */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
@@ -190,7 +305,7 @@ export function Navbar() {
                     className="w-14 h-auto"
                   />
                   <span
-                    className="font-[family-name:var(--font-pt-mono)] font-bold text-sm text-foreground"
+                    className="font-(family-name:--font-pt-mono) font-bold text-sm text-foreground"
                     style={{ letterSpacing: "-0.05em" }}
                   >
                     RSK
@@ -224,11 +339,80 @@ export function Navbar() {
                   <button
                     key={link.href}
                     onClick={() => handleNavClick(link.href)}
-                    className="block w-full text-left px-4 py-3 text-base text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-foreground/10 bg-none border-none cursor-pointer"
+                    className={`block w-full text-left px-4 py-3 text-base transition-colors rounded-lg bg-none border-none cursor-pointer ${isActiveLink(link.href) ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {link.label}
                   </button>
                 ))}
+
+                <button
+                  type="button"
+                  onClick={() => setMediaMenuOpen((prev) => !prev)}
+                  className={`flex w-full items-center justify-between px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/blog") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <span>Blog</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${mediaMenuOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {mediaMenuOpen && (
+                  <div className="ml-2 space-y-1 px-2 py-2">
+                    {blogLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => {
+                          setActiveHref(link.href);
+                          setMediaMenuOpen(false);
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setAboutMenuOpen((prev) => !prev)}
+                  className={`flex w-full items-center justify-between px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/about") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <span>About</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${aboutMenuOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {aboutMenuOpen && (
+                  <div className="ml-2 space-y-1 px-2 py-2">
+                    {aboutLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => {
+                          setActiveHref(link.href);
+                          setAboutMenuOpen(false);
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActiveLink(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-foreground/10 hover:text-foreground"}`}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <Link
+                  href="/membership"
+                  onClick={() => {
+                    setActiveHref("/membership");
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`block w-full px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/membership") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Membership
+                </Link>
               </div>
 
               <div className="px-6 py-4 border-t border-border/50 bg-background flex flex-col gap-3">
