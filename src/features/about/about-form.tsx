@@ -185,6 +185,7 @@ export function AboutForm() {
                     visible={form.watch(`stats.${i}.visible`) ?? true}
                     onToggle={(visible) => toggleStatVisibility(i, visible)}
                     onRemove={() => remove(i)}
+                    disabled={isSaving}
                   />
                 ))}
               </div>
@@ -286,6 +287,7 @@ export function AboutForm() {
                           !(form.watch(`contactMethods.${index}.visible`) ?? true)
                         )
                       }
+                      disabled={isSaving}
                     />
                     <IconButton
                       variant="outline"
@@ -355,6 +357,7 @@ export function AboutForm() {
                         { shouldDirty: true }
                       )
                     }
+                    disabled={isSaving}
                   />
                 </div>
               ))}

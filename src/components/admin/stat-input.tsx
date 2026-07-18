@@ -12,6 +12,7 @@ interface StatInputProps {
   visible?: boolean;
   onToggle: (visible: boolean) => void;
   onRemove: () => void;
+  disabled?: boolean;
 }
 
 export function StatInput({
@@ -19,6 +20,7 @@ export function StatInput({
   visible = true,
   onToggle,
   onRemove,
+  disabled,
 }: StatInputProps) {
   const {
     register,
@@ -47,6 +49,7 @@ export function StatInput({
         icon={visible === false ? <EyeOff /> : <Eye />}
         className="mt-0.5"
         onClick={() => onToggle(!visible)}
+        disabled={disabled}
       />
       <IconButton
         variant="outline"

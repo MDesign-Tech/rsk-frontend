@@ -44,6 +44,7 @@ export function FaqsManager() {
   const [isSaving, setIsSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<FAQ | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const form = useForm<FaqInput>({
     resolver: zodResolver(faqSchema),
@@ -115,15 +116,17 @@ export function FaqsManager() {
   };
 
   const toggleVisibility = async (faq: FAQ) => {
-    const next = !faq.visible;
+    setTogglingId(faq._id);
     try {
-      const res = await faqService.toggleVisibility(faq._id, next);
+      const res = await faqService.toggleVisibility(faq._id, !faq.visible);
       setFaqs((prev) =>
         prev.map((f) => (f._id === faq._id ? res.data.faq : f))
       );
-      toast.success(next ? "FAQ shown" : "FAQ hidden");
+      toast.success(res.data.faq.visible ? "FAQ shown" : "FAQ hidden");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -155,6 +158,7 @@ export function FaqsManager() {
             label={f.visible === false ? "Show FAQ" : "Hide FAQ"}
             icon={f.visible === false ? <EyeOff /> : <Eye />}
             onClick={() => toggleVisibility(f)}
+            disabled={togglingId === f._id}
           />
           <IconButton
             variant="outline"

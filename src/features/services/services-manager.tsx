@@ -44,6 +44,7 @@ export function ServicesManager() {
   const [isSaving, setIsSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const form = useForm<ServiceInput>({
     resolver: zodResolver(serviceSchema),
@@ -117,15 +118,17 @@ export function ServicesManager() {
   };
 
   const toggleVisibility = async (service: Service) => {
-    const next = !service.visible;
+    setTogglingId(service._id);
     try {
-      const res = await serviceService.toggleVisibility(service._id, next);
+      const res = await serviceService.toggleVisibility(service._id, !service.visible);
       setServices((prev) =>
         prev.map((s) => (s._id === service._id ? res.data.service : s))
       );
-      toast.success(next ? "Service shown" : "Service hidden");
+      toast.success(res.data.service.visible ? "Service shown" : "Service hidden");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -153,6 +156,7 @@ export function ServicesManager() {
             label={s.visible === false ? "Show service" : "Hide service"}
             icon={s.visible === false ? <EyeOff /> : <Eye />}
             onClick={() => toggleVisibility(s)}
+            disabled={togglingId === s._id}
           />
           <IconButton
             variant="outline"

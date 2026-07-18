@@ -41,6 +41,8 @@ export function TeamManager() {
             onEditSection={t.openEditSection}
             onDeleteSection={t.setDeleteSectionTarget}
             onToggleSection={t.toggleSection}
+            togglingMemberId={t.togglingMemberId}
+            togglingSectionId={t.togglingSectionId}
           />
         ))
       )}

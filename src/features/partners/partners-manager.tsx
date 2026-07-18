@@ -46,6 +46,7 @@ export function PartnersManager() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Partner | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const form = useForm<PartnerInput>({
     resolver: zodResolver(partnerSchema),
@@ -132,15 +133,17 @@ export function PartnersManager() {
   };
 
   const toggleVisibility = async (partner: Partner) => {
-    const next = !partner.visible;
+    setTogglingId(partner._id);
     try {
-      const res = await partnerService.toggleVisibility(partner._id, next);
+      const res = await partnerService.toggleVisibility(partner._id, !partner.visible);
       setPartners((prev) =>
         prev.map((p) => (p._id === partner._id ? res.data.partner : p))
       );
-      toast.success(next ? "Partner shown" : "Partner hidden");
+      toast.success(res.data.partner.visible ? "Partner shown" : "Partner hidden");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -175,6 +178,7 @@ export function PartnersManager() {
             label={p.visible === false ? "Show partner" : "Hide partner"}
             icon={p.visible === false ? <EyeOff /> : <Eye />}
             onClick={() => toggleVisibility(p)}
+            disabled={togglingId === p._id}
           />
           <IconButton
             variant="outline"

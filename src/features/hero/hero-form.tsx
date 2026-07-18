@@ -149,6 +149,7 @@ export function HeroForm() {
                       )
                     }
                     className="mt-0.5 shrink-0"
+                    disabled={isSaving}
                   />
                 </div>
                 <FormMessage />
@@ -186,6 +187,7 @@ export function HeroForm() {
                       )
                     }
                     className="mt-0.5 shrink-0"
+                    disabled={isSaving}
                   />
                 </div>
                 <FormMessage />

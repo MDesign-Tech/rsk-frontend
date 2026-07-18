@@ -15,6 +15,8 @@ export function SectionCard({
   onEditSection,
   onDeleteSection,
   onToggleSection,
+  togglingMemberId,
+  togglingSectionId,
 }: {
   section: TeamSection;
   members: TeamMember[];
@@ -25,6 +27,8 @@ export function SectionCard({
   onEditSection: (s: TeamSection) => void;
   onDeleteSection: (s: TeamSection) => void;
   onToggleSection: (s: TeamSection) => void;
+  togglingMemberId?: string | null;
+  togglingSectionId?: string | null;
 }) {
   const columns: Column<TeamMember>[] = [
     {
@@ -45,7 +49,7 @@ export function SectionCard({
       className: "text-right",
       render: (m) => (
         <div className="flex justify-end gap-2">
-          <IconButton variant="outline" label={m.visible === false ? "Show team member" : "Hide team member"} icon={m.visible === false ? <EyeOff /> : <Eye />} onClick={() => onToggleMember(m)} />
+          <IconButton variant="outline" label={m.visible === false ? "Show team member" : "Hide team member"} icon={m.visible === false ? <EyeOff /> : <Eye />} onClick={() => onToggleMember(m)} disabled={togglingMemberId === m._id} />
           <IconButton variant="outline" label="Edit team member" icon={<Pencil />} onClick={() => onEditMember(m)} />
           <IconButton variant="destructive" label="Delete team member" icon={<Trash2 />} onClick={() => onDeleteMember(m)} />
         </div>
@@ -61,7 +65,7 @@ export function SectionCard({
           {section.description ? <p className="text-sm text-muted-foreground">{section.description}</p> : null}
         </div>
         <div className="flex gap-2">
-          <IconButton variant="outline" label={section.visible === false ? "Show section" : "Hide section"} icon={section.visible === false ? <EyeOff /> : <Eye />} onClick={() => onToggleSection(section)} />
+          <IconButton variant="outline" label={section.visible === false ? "Show section" : "Hide section"} icon={section.visible === false ? <EyeOff /> : <Eye />} onClick={() => onToggleSection(section)} disabled={togglingSectionId === section._id} />
           <IconButton variant="outline" label="Edit section" icon={<Pencil />} onClick={() => onEditSection(section)} />
           <IconButton variant="destructive" label="Delete section" icon={<Trash2 />} onClick={() => onDeleteSection(section)} />
           <IconButton variant="default" label="Add member" icon={<Plus />} onClick={() => onAddMember(section._id)} />

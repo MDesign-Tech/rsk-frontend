@@ -31,6 +31,7 @@ import { toast } from "sonner";
 export function MissionVisionForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
   const form = useForm<MissionVisionInput>({
     resolver: zodResolver(missionVisionSchema),
@@ -89,12 +90,15 @@ export function MissionVisionForm() {
     const current = form.getValues("visible");
     const next = !current;
     form.setValue("visible", next, { shouldDirty: true });
+    setIsToggling(true);
     try {
       await missionVisionService.update({ ...form.getValues(), visible: next });
       toast.success(next ? "Mission & Vision shown" : "Mission & Vision hidden");
     } catch (err) {
       form.setValue("visible", current, { shouldDirty: true });
       toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+    } finally {
+      setIsToggling(false);
     }
   };
 
@@ -127,6 +131,7 @@ export function MissionVisionForm() {
               label={isVisible ? "Hide mission & vision" : "Show mission & vision"}
               icon={isVisible ? <Eye /> : <EyeOff />}
               onClick={toggleVisibility}
+              disabled={isToggling}
             />
           </TooltipTrigger>
           <TooltipContent>

@@ -17,6 +17,8 @@ export function useTeamManager() {
   const [sectionOpen, setSectionOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<TeamSection | null>(null);
   const [deleteSectionTarget, setDeleteSectionTarget] = useState<TeamSection | null>(null);
+  const [togglingMemberId, setTogglingMemberId] = useState<string | null>(null);
+  const [togglingSectionId, setTogglingSectionId] = useState<string | null>(null);
 
   const load = async () => {
     setIsLoading(true);
@@ -48,11 +50,15 @@ export function useTeamManager() {
     setMembers((prev) => (prev.some((x) => x._id === m._id) ? prev.map((x) => (x._id === m._id ? m : x)) : [m, ...prev]));
 
   const toggleMember = async (m: TeamMember) => {
+    setTogglingMemberId(m._id);
     try {
       const res = await teamService.toggleVisibility(m._id, !m.visible);
       setMembers((prev) => prev.map((x) => (x._id === m._id ? res.data.teamMember : x)));
+      toast.success(res.data.teamMember.visible ? "Team member shown" : "Team member hidden");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to toggle visibility");
+    } finally {
+      setTogglingMemberId(null);
     }
   };
   const confirmDelete = async () => {
@@ -80,11 +86,15 @@ export function useTeamManager() {
     }
   };
   const toggleSection = async (s: TeamSection) => {
+    setTogglingSectionId(s._id);
     try {
       const res = await teamSectionService.toggleVisibility(s._id, !s.visible);
       setSections((prev) => prev.map((x) => (x._id === s._id ? res.data.teamSection : x)));
+      toast.success(res.data.teamSection.visible ? "Section shown" : "Section hidden");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to toggle section visibility");
+    } finally {
+      setTogglingSectionId(null);
     }
   };
   const confirmDeleteSection = async () => {
@@ -104,6 +114,7 @@ export function useTeamManager() {
     members, sections, isLoading, search, setSearch,
     memberOpen, setMemberOpen, editing, imageFile, setImageFile, deleteTarget, setDeleteTarget,
     sectionOpen, setSectionOpen, editingSection, deleteSectionTarget, setDeleteSectionTarget,
+    togglingMemberId, togglingSectionId,
     filtered, openCreate, openEdit, onMemberSaved, toggleMember, confirmDelete,
     openCreateSection, openEditSection, onSectionSubmit, toggleSection, confirmDeleteSection,
   };
