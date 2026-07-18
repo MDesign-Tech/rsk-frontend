@@ -99,7 +99,7 @@ export default function TeamPage() {
               <div key={grp.section._id}>
                 <h2 className="text-xl font-semibold">{grp.section.name}</h2>
                 {grp.section.description ? (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-md text-muted-foreground">
                     {grp.section.description}
                   </p>
                 ) : null}

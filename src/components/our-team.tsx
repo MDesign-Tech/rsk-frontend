@@ -68,10 +68,10 @@ export function OurTeam() {
                   delay: index * 0.1,
                 }}
                 viewport={{ once: true }}
-                className="group"
+                className="group grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
               >
 
-                <div className="relative mb-4 overflow-hidden rounded-lg aspect-[3/4] w-full max-w-[300px]">
+                <div className="relative mb-4 overflow-hidden rounded-lg aspect-[3/4] w-full">
 
                   {hasImage ? (
                     <Image
