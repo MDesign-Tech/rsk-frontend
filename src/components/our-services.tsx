@@ -48,7 +48,7 @@ export function OurServices() {
   const services = useWebsiteStore((state) => state.data?.services);
 
   // Filter only visible services
-  const visibleServices = services?.filter((s) => s.visible !== false) ?? [];
+  const visibleServices = services
 
   if (!visibleServices || visibleServices.length === 0) {
     return null;

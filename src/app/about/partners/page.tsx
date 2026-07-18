@@ -50,13 +50,15 @@ export default function PartnersPage() {
                   className="flex flex-col items-center justify-center gap-3"
                 >
                   {p.image ? (
-                    <Image
-                      src={p.image}
-                      alt={p.name}
-                      width={160}
-                      height={80}
-                      style={{ objectFit: "contain" }}
-                    />
+                    <div className="rounded-lg overflow-hidden">
+                      <Image
+                        src={p.image}
+                        alt={p.name}
+                        width={160}
+                        height={80}
+                        style={{ objectFit: "contain" }}
+                      />
+                    </div>
                   ) : null}
                   <span className="text-sm font-bold text-foreground">
                     {p.name}

@@ -56,7 +56,7 @@ export function LogoCloud() {
                 <img
                   src={partner.image}
                   alt={partner.name}
-                  className="h-8 w-auto object-contain"
+                  className="h-8 w-auto rounded-xs object-contain"
                 />
               ) : (
                 <span className="text-lg font-semibold tracking-tight">

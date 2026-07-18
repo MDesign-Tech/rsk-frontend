@@ -103,8 +103,23 @@ export interface TeamMember {
   title: string;
   bio?: string;
   visible?: boolean;
+  section?: TeamSection | string;
+  socialMedia?: SocialMedia;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface TeamSection {
+  _id: string;
+  name: string;
+  description?: string;
+  order?: number;
+  visible?: boolean;
+}
+
+export interface TeamSectionGroup {
+  section: TeamSection;
+  members: TeamMember[];
 }
 
 export type ContactStatus = "pending" | "replied";

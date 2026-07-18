@@ -151,12 +151,40 @@ export type FaqInput = z.infer<typeof faqSchema>;
 // ---------------------------------------------------------------------------
 // Team Members
 // ---------------------------------------------------------------------------
+
+// Social media links for a team member (href + visibility per platform).
+const teamSocialLinkSchema = z.object({
+  href: z.string().optional().default(""),
+  visible: z.boolean().optional().default(true),
+});
+
+export const teamMemberSocialSchema = z.object({
+  facebook: teamSocialLinkSchema.optional(),
+  instagram: teamSocialLinkSchema.optional(),
+  whatsapp: teamSocialLinkSchema.optional(),
+  x: teamSocialLinkSchema.optional(),
+  linkedin: teamSocialLinkSchema.optional(),
+  youtube: teamSocialLinkSchema.optional(),
+});
+export type TeamMemberSocialInput = z.infer<typeof teamMemberSocialSchema>;
+
 export const teamMemberSchema = z.object({
   name: z.string().min(1, "Name is required"),
   title: z.string().min(1, "Title is required"),
   bio: z.string().optional().default(""),
+  section: z.string().min(1, "Section is required"),
+  socialMedia: teamMemberSocialSchema.default({}),
 });
 export type TeamMemberInput = z.infer<typeof teamMemberSchema>;
+
+// ---------------------------------------------------------------------------
+// Team Sections
+// ---------------------------------------------------------------------------
+export const teamSectionSchema = z.object({
+  name: z.string().min(1, "Section name is required"),
+  description: z.string().optional().default(""),
+});
+export type TeamSectionInput = z.infer<typeof teamSectionSchema>;
 
 // ---------------------------------------------------------------------------
 // Users
