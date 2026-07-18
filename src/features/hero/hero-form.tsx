@@ -195,7 +195,7 @@ export function HeroForm() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Background Image</label>
             <ImageUpload
-              value={hero?.bgImage ?? null}
+              value={hero?.image ?? null}
               onChange={setImageFile}
               disabled={isSaving}
             />

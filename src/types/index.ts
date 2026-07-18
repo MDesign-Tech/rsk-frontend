@@ -24,7 +24,7 @@ export interface HeroContent {
   title: string;
   subtitle: string;
   trust: string;
-  bgImage?: string | null;
+  image?: string | null;
   subtitleVisible?: boolean;
   trustVisible?: boolean;
 }

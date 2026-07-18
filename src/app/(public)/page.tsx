@@ -20,7 +20,7 @@ import { useWebsiteStore } from "@/stores/website.store";
 
 export default function Home() {
   const hero = useWebsiteStore((state) => state.data?.hero);
-  const bgImage = hero?.bgImage;
+  const bgImage = hero?.image;
 
   return (
     <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
