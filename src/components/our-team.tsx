@@ -70,9 +70,7 @@ export function OurTeam() {
                 viewport={{ once: true }}
                 className="group"
               >
-
                 <div className="relative mb-4 overflow-hidden rounded-lg aspect-[3/4] w-full">
-
                   {hasImage ? (
                     <Image
                       src={hasImage}
@@ -84,7 +82,7 @@ export function OurTeam() {
                   ) : (
                     <div className="grid h-full w-full object-cover place-items-center bg-muted text-muted-foreground">
                       <User
-                        className="w-3/4 h-3/4 max-w-[200px] max-h-[200px]"
+                        className="w-3/4 h-3/4 max-w-50 max-h-50"
                         strokeWidth={1.5}
                       />
                     </div>
