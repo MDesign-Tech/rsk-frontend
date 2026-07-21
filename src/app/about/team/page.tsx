@@ -1,10 +1,24 @@
 "use client";
 
-import { Navbar } from "@/components/navbar";
+import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import api from "@/services/api";
-import { Facebook, Instagram, Linkedin, Youtube, Globe, MessageCircle, User } from "lucide-react";
+import { Navbar } from "@/components/navbar";
+import { SectionDivider } from "@/components/section-divider";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Globe,
+  MessageCircle,
+  User,
+  Briefcase,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import type { TeamSectionGroup, SocialMedia } from "@/types";
 
 const PLATFORM_ICONS: Record<string, typeof Facebook> = {
@@ -18,8 +32,12 @@ const PLATFORM_ICONS: Record<string, typeof Facebook> = {
 
 function SocialLinks({ social }: { social?: SocialMedia }) {
   if (!social) return null;
-  const entries = (Object.entries(social) as [string, { href?: string | null; visible?: boolean }][])
-    .filter(([, v]) => v?.visible !== false && v?.href);
+  const entries = (
+    Object.entries(social) as [
+      string,
+      { href?: string | null; visible?: boolean },
+    ][]
+  ).filter(([, v]) => v?.visible !== false && v?.href);
   if (entries.length === 0) return null;
   return (
     <div className="mt-4 flex items-center gap-3 text-muted-foreground">
@@ -45,6 +63,7 @@ function SocialLinks({ social }: { social?: SocialMedia }) {
 export default function TeamPage() {
   const [groups, setGroups] = useState<TeamSectionGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     let active = true;
@@ -76,71 +95,163 @@ export default function TeamPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <section className="pt-28 pb-16">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8 space-y-10">
-          <div>
-            <h1 className="text-3xl font-semibold">Our team</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Experts who deliver impact
+      <section className="relative overflow-hidden pt-28 pb-24 bg-slate-950/5">
+        <div className="absolute inset-0 bg-linear-to-br from-slate-950/80 via-transparent to-transparent" />
+        <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
+          <motion.div
+            initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="rounded-4xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl"
+          >
+            <p className="text-sm uppercase tracking-[0.35em] text-sky-400">
+              Our team
             </p>
-          </div>
+            <h1 className="mt-4 text-4xl sm:text-5xl font-bold">
+              Experts transforming strategy into results.
+            </h1>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
+              Our team blends corporate advisory experience, financial
+              discipline, and practical execution to deliver solutions that help
+              businesses move forward with confidence.
+            </p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-6">
+                <div className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-3 py-1 text-sky-300 text-sm font-semibold">
+                  <Briefcase className="h-4 w-4" /> Teams supported
+                </div>
+                <p className="mt-4 text-3xl font-bold">120+</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-6">
+                <div className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-3 py-1 text-sky-300 text-sm font-semibold">
+                  <Sparkles className="h-4 w-4" /> Average client impact
+                </div>
+                <p className="mt-4 text-3xl font-bold">4.9/5</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+      <SectionDivider variant="wave" />
 
+      <section className="py-20">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8 space-y-10">
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading team…</p>
           ) : groups.filter((g) => g.members.length > 0).length === 0 ? (
-            <p className="text-sm text-muted-foreground">No team members to show.</p>
+            <p className="text-sm text-muted-foreground">
+              No team members to show.
+            </p>
           ) : (
             groups
               .filter((g) => g.members.length > 0)
               .map((grp) => (
-              <div key={grp.section._id}>
-                <h2 className="text-xl font-semibold">{grp.section.name}</h2>
-                {grp.section.description ? (
-                  <p className="mt-1 text-md text-muted-foreground">
-                    {grp.section.description}
-                  </p>
-                ) : null}
-                <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {grp.members.map((m) => (
-                    <div
-                      key={m._id}
-                      className="rounded-2xl border border-border/60 bg-card p-4"
-                    >
-                      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg">
-                        {m.image ? (
-                          <Image
-                            src={m.image}
-                            alt={m.name}
-                            fill
-                            style={{ objectFit: "cover" }}
-                          />
-                        ) : (
-                          <div className="grid h-full w-full place-items-center bg-muted text-muted-foreground">
-                            <User className="w-3/4 h-3/4 max-w-[200px] max-h-[200px]" strokeWidth={1.5} />
-                          </div>
-                        )}
-                      </div>
-                      <h3 className="mt-4 text-lg font-semibold">{m.name}</h3>
-                      <div className="text-sm text-muted-foreground">
-                        {m.title}
-                      </div>
-                      {m.bio ? (
-                        <p className="mt-3 text-sm text-muted-foreground">
-                          {m.bio}
+                <div key={grp.section._id} className="space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                      {grp.section.name}
+                    </h2>
+                    {grp.section.description ? (
+                      <p className="mt-2 text-muted-foreground">
+                        {grp.section.description}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {grp.members.map((m) => (
+                      <motion.div
+                        key={m._id}
+                        initial={
+                          shouldReduceMotion ? {} : { opacity: 0, y: 16 }
+                        }
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.55 }}
+                        className="rounded-3xl border border-border/60 bg-card/80 p-5 shadow-lg shadow-slate-950/10"
+                      >
+                        <div className="relative aspect-4/5 w-full overflow-hidden rounded-3xl bg-muted">
+                          {m.image ? (
+                            <Image
+                              src={m.image}
+                              alt={m.name}
+                              fill
+                              style={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <div className="grid h-full w-full place-items-center bg-muted text-muted-foreground">
+                              <User
+                                className="w-3/4 h-3/4 max-w-40 max-h-40"
+                                strokeWidth={1.5}
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <h3 className="mt-4 text-lg font-semibold">{m.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {m.title}
                         </p>
-                      ) : null}
-                      <SocialLinks social={m.socialMedia} />
-                    </div>
-                  ))}
+                        {m.bio ? (
+                          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                            {m.bio}
+                          </p>
+                        ) : null}
+                        <SocialLinks social={m.socialMedia} />
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))
           )}
         </div>
       </section>
+      <SectionDivider variant="diagonal" />
+
+      <section className="bg-slate-950/5 py-20">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <motion.div
+            initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="rounded-4xl border border-white/10 bg-sky-950/95 p-10 shadow-[0_40px_120px_-50px_rgba(14,116,232,0.55)]"
+          >
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
+              <div>
+                <p className="text-sm uppercase tracking-[0.35em] text-sky-400">
+                  Join our team
+                </p>
+                <h2 className="mt-4 text-4xl font-semibold">
+                  Build your career with corporate advisory experts.
+                </h2>
+                <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200">
+                  If you're passionate about strategy, finance, and client
+                  success, RSK Associates offers a collaborative environment and
+                  an opportunity to work on high-impact corporate engagements.
+                </p>
+              </div>
+              <div className="flex flex-col gap-4 sm:items-end">
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
+                >
+                  Apply now
+                </Link>
+                <Link
+                  href="/about/who"
+                  className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Learn more about us
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+      <SectionDivider variant="curve" />
     </main>
   );
 }

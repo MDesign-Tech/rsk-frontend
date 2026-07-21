@@ -23,21 +23,19 @@ export function Hero() {
     <section className="relative min-h-screen flex flex-col overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(2,6,23,0.82),rgba(30,64,175,0.45)_45%,transparent_78%)]" />
-         {
-          bgImage && (
-            <div
-          className="absolute inset-0 opacity-85"
-          style={{
-            backgroundImage: `url('${bgImage}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            filter: "saturate(0.85) contrast(0.9)",
-          }}
-        />
-          )
-         }
-        
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-950/55 via-blue-800/30 to-transparent" />
+        {bgImage && (
+          <div
+            className="absolute inset-0 opacity-85"
+            style={{
+              backgroundImage: `url('${bgImage}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              filter: "saturate(0.85) contrast(0.9)",
+            }}
+          />
+        )}
+
+        <div className="absolute inset-0 bg-linear-to-br from-blue-950/55 via-blue-800/30 to-transparent" />
       </div>
 
       <div className="flex-1 flex items-center justify-center pt-28 lg:pt-32 pb-40 sm:pb-32">
@@ -63,7 +61,9 @@ export function Hero() {
             {hero.subtitleVisible !== false && (
               <motion.span
                 animate={
-                  shouldReduceMotion ? {} : { y: [0, -6, 0], scale: [1, 1.01, 1] }
+                  shouldReduceMotion
+                    ? {}
+                    : { y: [0, -6, 0], scale: [1, 1.01, 1] }
                 }
                 transition={{
                   duration: 1.6,

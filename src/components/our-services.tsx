@@ -48,7 +48,7 @@ export function OurServices() {
   const services = useWebsiteStore((state) => state.data?.services);
 
   // Filter only visible services
-  const visibleServices = services
+  const visibleServices = services;
 
   if (!visibleServices || visibleServices.length === 0) {
     return null;
@@ -128,7 +128,7 @@ export function OurServices() {
                 transition={{ type: "spring", stiffness: 220, damping: 18 }}
                 className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card/70 p-6 backdrop-blur transition-colors duration-300 hover:bg-card/90"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-linear-to-br from-primary/8 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 <div className="relative">
                   <Icon
