@@ -25,6 +25,66 @@ const sampleNews = [
     excerpt:
       "A new report highlights evolving funding trends and how companies can prepare their capital structure for the next cycle...",
   },
+  {
+    id: 3,
+    image:
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
+    title: "Digital transformation strategies",
+    writer: "By Sarah Johnson",
+    date: "2026-04-15",
+    excerpt:
+      "Explore how companies are leveraging digital tools to streamline operations and improve customer engagement...",
+  },
+  {
+    id: 4,
+    image:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+    title: "Sustainability in business",
+    writer: "By Michael Brown",
+    date: "2026-03-20",
+    excerpt:
+      "Learn about the latest sustainability initiatives and how businesses can reduce their environmental impact...",
+  },
+  {
+    id: 5,
+    image:
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
+    title: "Scaling your startup efficiently",
+    writer: "By Emily Davis",
+    date: "2026-02-28",
+    excerpt:
+      "Key strategies for startups to scale operations without compromising quality or culture...",
+  },
+  {
+    id: 6,
+    image:
+      "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1200&q=80",
+    title: "Market analysis: Q2 trends",
+    writer: "By David Wilson",
+    date: "2026-02-10",
+    excerpt:
+      "A comprehensive analysis of market trends and what they mean for your business strategy...",
+  },
+  {
+    id: 7,
+    image:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+    title: "Building effective leadership teams",
+    writer: "By Lisa Anderson",
+    date: "2026-01-25",
+    excerpt:
+      "Discover the components of successful leadership teams and how to develop them...",
+  },
+  {
+    id: 8,
+    image:
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
+    title: "Investment strategies for growth",
+    writer: "By Robert Taylor",
+    date: "2026-01-10",
+    excerpt:
+      "Understanding different investment approaches to accelerate your business growth...",
+  },
 ];
 
 const sampleArticles = {
@@ -42,17 +102,25 @@ const sampleArticles = {
 
 export default function NewsPage() {
   const [tab, setTab] = useState<"week" | "month" | "all">("week");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(sampleNews.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentNews = sampleNews.slice(startIndex, endIndex);
 
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
 
-      <div class="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
-        <div class="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
-          {/* <div class="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
-            <span class="badge badge-primary shrink-0 rounded-full">Our team</span>
+      <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+          {/* <div className="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
+            <span className="badge badge-primary shrink-0 rounded-full">Our team</span>
           </div> */}
-          <h1 class="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
+          <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
             <span>News & updates</span>
             <svg
               width="223"
@@ -60,7 +128,7 @@ export default function NewsPage() {
               viewBox="0 0 223 12"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              class="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
+              className="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
             >
               <path
                 d="M1.30466 10.7431C39.971 5.28788 76.0949 3.02 115.082 2.30401C143.893 1.77489 175.871 0.628649 204.399 3.63102C210.113 3.92052 215.332 4.91391 221.722 6.06058"
@@ -83,7 +151,7 @@ export default function NewsPage() {
               </defs>
             </svg>
           </h1>
-          <p class="text-base-content/80 max-w-3xl">
+          <p className="text-base-content/80 max-w-3xl">
             Latest updates & stories .
           </p>
         </div>
@@ -102,42 +170,84 @@ export default function NewsPage() {
 
           <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2 space-y-6">
-              {sampleNews.map((n) => (
-                <article
-                  key={n.id}
-                  className="rounded-2xl overflow-hidden border border-border/60 bg-card shadow-sm"
-                >
-                  <div className="relative h-56 w-full">
-                    <Image
-                      src={n.image}
-                      alt={n.title}
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h2 className="text-xl font-semibold text-foreground">
-                      {n.title}
-                    </h2>
-                    <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
-                      <span>{n.writer}</span>
-                      <span>•</span>
-                      <time dateTime={n.date}>
-                        {new Date(n.date).toLocaleDateString()}
-                      </time>
+              {/* News Grid - 2 Columns */}
+              <div className="grid gap-6 md:grid-cols-2">
+                {currentNews.map((n) => (
+                  <article
+                    key={n.id}
+                    className="rounded-2xl overflow-hidden border border-border/60 bg-card shadow-sm"
+                  >
+                    <div className="relative h-40 w-full">
+                      <Image
+                        src={n.image}
+                        alt={n.title}
+                        fill
+                        style={{ objectFit: "cover" }}
+                      />
                     </div>
-                    <p className="mt-4 text-sm text-muted-foreground">
-                      {n.excerpt.slice(0, 160)}...
+                    <div className="p-4">
+                      <h2 className="text-lg font-semibold text-foreground line-clamp-2">
+                        {n.title}
+                      </h2>
+                      <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                        <span>{n.writer}</span>
+                        <span>•</span>
+                        <time dateTime={n.date}>
+                          {new Date(n.date).toLocaleDateString()}
+                        </time>
+                      </div>
+                      <p className="mt-3 text-xs text-muted-foreground line-clamp-2">
+                        {n.excerpt}
+                      </p>
                       <a
-                        className="ml-2 text-primary font-medium"
+                        className="mt-3 inline-block text-primary font-medium text-xs"
                         href={`/blog/news/${n.id}`}
                       >
-                        Read more
+                        Read more →
                       </a>
-                    </p>
-                  </div>
-                </article>
-              ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-border/60">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-border/60 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                >
+                  ← Previous
+                </button>
+
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                          currentPage === page
+                            ? "bg-primary text-white"
+                            : "border border-border/60 text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
+                </div>
+
+                <button
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-border/60 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                >
+                  Next →
+                </button>
+              </div>
             </div>
 
             <aside className="md:col-span-1">
