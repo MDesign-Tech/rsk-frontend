@@ -101,52 +101,53 @@ export default function MembershipPage() {
     <main className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <section className="relative overflow-hidden pt-28 pb-24">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(14,116,232,0.18),transparent_55%)]" />
-        <div className="absolute inset-0 opacity-30 bg-[url('/images/8.jpg')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-background/80" />
-        <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-          <motion.div
-            initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="rounded-4xl border border-white/10 bg-slate-950/95 p-10 shadow-[0_35px_90px_-40px_rgba(14,116,232,0.75)]"
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-sky-400">
-                  Membership
-                </p>
-                <h1 className="mt-4 text-4xl sm:text-5xl font-bold leading-tight">
-                  Join RSK and grow with confidence.
-                </h1>
-              </div>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 text-sm font-medium text-sky-300 hover:text-white"
-              >
-                <ArrowLeft className="h-4 w-4" /> Back to home
-              </Link>
-            </div>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-              Become part of a corporate network that combines strategy, funding
-              access, and operational support for sustainable growth.
-            </p>
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {reasons.map((reason) => (
-                <div
-                  key={reason}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6"
+      <div class="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+        <div class="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+          <div class="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
+            <span class="badge badge-primary shrink-0 rounded-full">Join RSK and grow with confidence.</span>
+          </div>
+          <h1 class="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
+            <span>Membership</span>
+            <svg
+              width="223"
+              height="12"
+              viewBox="0 0 223 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
+            >
+              <path
+                d="M1.30466 10.7431C39.971 5.28788 76.0949 3.02 115.082 2.30401C143.893 1.77489 175.871 0.628649 204.399 3.63102C210.113 3.92052 215.332 4.91391 221.722 6.06058"
+                stroke="url(#paint0_linear_10365_68643)"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <defs>
+                <linearGradient
+                  id="paint0_linear_10365_68643"
+                  x1="19.0416"
+                  y1="4.03539"
+                  x2="42.8362"
+                  y2="66.9459"
+                  gradientUnits="userSpaceOnUse"
                 >
-                  <p className="text-sm text-muted-foreground">{reason}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+                  <stop offset="0.2" stop-color="var(--color-primary)" />
+                  <stop offset="1" stop-color="var(--color-primary-content)" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </h1>
+          <p class="text-base-content/80 max-w-3xl">
+            Become part of a corporate network that combines strategy, funding
+            access, and operational support for sustainable growth.
+          </p>
         </div>
-      </section>
-      {/* <SectionDivider variant="wave" /> */}
+      </div>
+      <br />
+      <br />
+
+      
+      <SectionDivider variant="wave" />
       <section className="py-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <motion.div
@@ -199,9 +200,9 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      <SectionDivider variant="curve" />
+      {/* <SectionDivider variant="curve" /> */}
       <FAQ />
-      <SectionDivider variant="gradient" />
+      {/* <SectionDivider variant="gradient" /> */}
       <Testimonials />
 
       <section className="py-20">

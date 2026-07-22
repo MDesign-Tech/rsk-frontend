@@ -46,8 +46,54 @@ export default function WhoPage() {
     <main className="min-h-screen bg-background text-foreground">
       <Navbar />
 
+      <div class="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+        <div class="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+          {/* <div class="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
+            <span class="badge badge-primary shrink-0 rounded-full">Our team</span>
+          </div> */}
+          <h1 class="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
+            <span>Who we are</span>
+            <svg
+              width="223"
+              height="12"
+              viewBox="0 0 223 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
+            >
+              <path
+                d="M1.30466 10.7431C39.971 5.28788 76.0949 3.02 115.082 2.30401C143.893 1.77489 175.871 0.628649 204.399 3.63102C210.113 3.92052 215.332 4.91391 221.722 6.06058"
+                stroke="url(#paint0_linear_10365_68643)"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <defs>
+                <linearGradient
+                  id="paint0_linear_10365_68643"
+                  x1="19.0416"
+                  y1="4.03539"
+                  x2="42.8362"
+                  y2="66.9459"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0.2" stop-color="var(--color-primary)" />
+                  <stop offset="1" stop-color="var(--color-primary-content)" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </h1>
+          <p class="text-base-content/80 max-w-3xl">
+            Our team blends corporate advisory experience, financial discipline,
+            and practical execution to deliver solutions that help businesses
+            move forward with confidence.
+          </p>
+        </div>
+      </div>
+      <br />
+      <br />
+
       <section className="relative overflow-hidden pt-28 pb-24">
-        <div className="absolute inset-0 bg-linear-to-br from-slate-950/70 via-blue-950/10 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-br bg-sky-50 bg-sky-50 to-transparent" />
         <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_top_left,rgba(14,116,232,0.18),transparent_40%)]" />
 
         <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
@@ -75,12 +121,6 @@ export default function WhoPage() {
                 >
                   Talk to our team
                 </Link>
-                <Link
-                  href="/membership"
-                  className="inline-flex items-center justify-center rounded-full border border-sky-300/40 bg-white/5 px-6 py-3 text-sm font-semibold text-sky-100 transition hover:border-sky-200/60"
-                >
-                  Explore membership
-                </Link>
               </div>
             </motion.div>
 
@@ -103,8 +143,8 @@ export default function WhoPage() {
           </div>
         </div>
       </section>
-      <SectionDivider variant="wave" />
-      <section className="relative overflow-hidden border-t border-border/70 bg-slate-950/5 py-20">
+      {/* <SectionDivider variant="wave" /> */}
+      <section className="relative overflow-hidden border-t border-border/70 bg-sky-50 py-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2">
             <motion.div
@@ -112,9 +152,9 @@ export default function WhoPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
-              className="rounded-4xl border border-white/10 bg-white/10 p-10 backdrop-blur-xl"
+              className="rounded-4xl border border-white/10 bg-sky-50 p-10 backdrop-blur-xl"
             >
-              <div className="inline-flex items-center gap-3 rounded-full bg-sky-500/10 px-4 py-2 text-sky-300 text-sm font-semibold">
+              <div className="inline-flex items-center gap-3 rounded-full bg-sky-50 px-4 py-2 text-sky-300 text-sm font-semibold">
                 <Globe className="h-4 w-4" />
                 Our Story
               </div>
@@ -159,28 +199,7 @@ export default function WhoPage() {
                 </div>
               </motion.div>
 
-              <motion.div
-                initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="rounded-4xl border border-white/10 bg-slate-950/90 p-10"
-              >
-                <span className="inline-flex items-center gap-2 text-sky-300 text-sm font-semibold uppercase tracking-[0.35em] mb-4">
-                  <Sparkles className="h-4 w-4" />
-                  Core values
-                </span>
-                <ul className="space-y-4 text-muted-foreground">
-                  {coreValues.map((value) => (
-                    <li
-                      key={value}
-                      className="rounded-3xl border border-white/10 bg-white/5 p-4"
-                    >
-                      {value}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
+              
             </div>
           </div>
         </div>
@@ -188,26 +207,7 @@ export default function WhoPage() {
       <SectionDivider variant="gradient" />
       <section className="py-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-2">
-            <motion.div
-              initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="rounded-4xl border border-white/10 bg-white/10 p-10 backdrop-blur-xl"
-            >
-              <h2 className="text-3xl font-semibold">Objectives</h2>
-              <div className="mt-6 space-y-4 text-muted-foreground">
-                {objectives.map((objective) => (
-                  <p
-                    key={objective}
-                    className="rounded-3xl border border-white/10 bg-slate-950/5 p-4"
-                  >
-                    {objective}
-                  </p>
-                ))}
-              </div>
-            </motion.div>
+          <div className="grid gap-8 lg:grid-cols-1">
 
             <motion.div
               initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
