@@ -74,12 +74,12 @@ export default function OpportunitiesPage() {
     <main className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <div class="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
-        <div class="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
-          {/* <div class="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
-            <span class="badge badge-primary shrink-0 rounded-full">Our team</span>
+      <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+          {/* <div className="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
+            <span className="badge badge-primary shrink-0 rounded-full">Our team</span>
           </div> */}
-          <h1 class="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
+          <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
             <span>Opportunities</span>
             <svg
               width="223"
@@ -87,7 +87,7 @@ export default function OpportunitiesPage() {
               viewBox="0 0 223 12"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              class="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
+              className="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
             >
               <path
                 d="M1.30466 10.7431C39.971 5.28788 76.0949 3.02 115.082 2.30401C143.893 1.77489 175.871 0.628649 204.399 3.63102C210.113 3.92052 215.332 4.91391 221.722 6.06058"
@@ -110,7 +110,7 @@ export default function OpportunitiesPage() {
               </defs>
             </svg>
           </h1>
-          <p class="text-base-content/80 max-w-3xl">
+          <p className="text-base-content/80 max-w-3xl">
             Find jobs, internships, tenders, and training with RSK. Discover
             curated opportunities designed for professionals and businesses
             ready to grow, learn, and partner with industry leaders.

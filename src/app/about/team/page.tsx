@@ -98,12 +98,12 @@ export default function TeamPage() {
     <main className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <div class="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
-        <div class="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
-          {/* <div class="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
-            <span class="badge badge-primary shrink-0 rounded-full">Our team</span>
+      <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+          {/* <div className="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
+            <span className="badge badge-primary shrink-0 rounded-full">Our team</span>
           </div> */}
-          <h1 class="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
+          <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
             <span>Our team</span>
             <svg
               width="223"
@@ -111,7 +111,7 @@ export default function TeamPage() {
               viewBox="0 0 223 12"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              class="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
+              className="absolute -bottom-1.5 left-10 -z-1 max-lg:left-4 max-md:hidden"
             >
               <path
                 d="M1.30466 10.7431C39.971 5.28788 76.0949 3.02 115.082 2.30401C143.893 1.77489 175.871 0.628649 204.399 3.63102C210.113 3.92052 215.332 4.91391 221.722 6.06058"
@@ -134,17 +134,19 @@ export default function TeamPage() {
               </defs>
             </svg>
           </h1>
-          <p class="text-base-content/80 max-w-3xl">
+          <p className="text-base-content/80 max-w-3xl">
             Our team blends corporate advisory experience, financial discipline,
             and practical execution to deliver solutions that help businesses
             move forward with confidence.
           </p>
         </div>
-      </div><br /><br /> 
+      </div>
+      <br />
+      <br />
 
-      <SectionDivider variant="wave" />
+      {/* <SectionDivider variant="wave" /> */}
 
-      <section className="py-20 " >
+      <section className="py-20 ">
         <div className="mx-auto max-w-6xl px-6 lg:px-8 space-y-10 ">
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading team…</p>
@@ -156,18 +158,25 @@ export default function TeamPage() {
             groups
               .filter((g) => g.members.length > 0)
               .map((grp) => (
-                <div key={grp.section._id} className="space-y-6">
-                  <div>
-                    <h2 className="text-2xl font-semibold">
-                      {grp.section.name}
-                    </h2>
+                <div key={grp.section._id} className="space-y-2 ">
+                  <div className="mb-4 text-center sm:mb-16 lg:mb-24">
+                    <div className="relative flex py-5 items-center mx-auto max-w-6xl">
+                      <div className="flex-grow border-t border-gray-400"></div>
+                      <span className="flex-shrink mx-4 text-gray-600 px-4">
+                        <h2 className="text-base-content mb-4 text-2xl font-semibold md:text-3xl lg:text-4xl">
+                          {grp.section.name}
+                        </h2>
+                      </span>
+                      <div className="flex-grow border-t border-gray-400"></div>
+                    </div>
+
                     {grp.section.description ? (
                       <p className="mt-2 text-muted-foreground">
                         {grp.section.description}
                       </p>
                     ) : null}
                   </div>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ">
                     {grp.members.map((m) => (
                       <motion.div
                         key={m._id}
@@ -177,7 +186,7 @@ export default function TeamPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.55 }}
-                        className="rounded-3xl border border-border/60 bg-card/80 p-5 shadow-lg shadow-slate-950/10"
+                        className="rounded-3xl  bg-card/80 p-5"
                       >
                         <div className="relative aspect-4/5 w-full overflow-hidden rounded-3xl bg-muted">
                           {m.image ? (
@@ -196,8 +205,9 @@ export default function TeamPage() {
                             </div>
                           )}
                         </div>
+
                         <h3 className="mt-4 text-lg font-semibold">{m.name}</h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="mb-1 font-medium text-muted-foreground">
                           {m.title}
                         </p>
                         {m.bio ? (
@@ -205,6 +215,7 @@ export default function TeamPage() {
                             {m.bio}
                           </p>
                         ) : null}
+
                         <SocialLinks social={m.socialMedia} />
                       </motion.div>
                     ))}
@@ -212,49 +223,6 @@ export default function TeamPage() {
                 </div>
               ))
           )}
-        </div>
-      </section>
-      <SectionDivider variant="diagonal" />
-
-      <section className="bg-slate-950/5 py-20">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <motion.div
-            initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="rounded-4xl border border-white/10 bg-sky-950/95 p-10 shadow-[0_40px_120px_-50px_rgba(14,116,232,0.55)]"
-          >
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-sky-400">
-                  Join our team
-                </p>
-                <h2 className="mt-4 text-4xl font-semibold">
-                  Build your career with corporate advisory experts.
-                </h2>
-                <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200">
-                  If you're passionate about strategy, finance, and client
-                  success, RSK Associates offers a collaborative environment and
-                  an opportunity to work on high-impact corporate engagements.
-                </p>
-              </div>
-              <div className="flex flex-col gap-4 sm:items-end">
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
-                >
-                  Apply now
-                </Link>
-                <Link
-                  href="/about/who"
-                  className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Learn more about us
-                </Link>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
       <SectionDivider variant="curve" />
