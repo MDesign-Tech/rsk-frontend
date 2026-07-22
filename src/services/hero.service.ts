@@ -9,4 +9,14 @@ export const heroService = {
     api
       .put<ApiResponse<{ hero: HeroContent }>>("/hero", formData)
       .then((res) => res.data),
+
+  updateSubtitleVisibility: (visible: boolean) =>
+    api
+      .patch<ApiResponse<{ hero: HeroContent }>>("/hero/visibility/subtitle", { subtitleVisible: visible })
+      .then((res) => res.data),
+
+  updateTrustVisibility: (visible: boolean) =>
+    api
+      .patch<ApiResponse<{ hero: HeroContent }>>("/hero/visibility/trust", { trustVisible: visible })
+      .then((res) => res.data),
 };

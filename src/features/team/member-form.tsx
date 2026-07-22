@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { teamMemberSchema, type TeamMemberInput } from "@/schemas";
 import { teamService } from "@/services/team.service";

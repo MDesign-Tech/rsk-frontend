@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
 import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
 import { saveResource } from "@/lib/image-save";
@@ -18,7 +17,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { IconButton } from "@/components/admin/icon-button";
+import { StatusToggle } from "@/components/ui/status-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { FormCard } from "@/components/admin/form-card";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
@@ -31,6 +35,8 @@ export function HeroForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isTogglingSubtitle, setIsTogglingSubtitle] = useState(false);
+  const [isTogglingTrust, setIsTogglingTrust] = useState(false);
 
   const form = useForm<HeroInput>({
     resolver: zodResolver(heroSchema),
@@ -86,14 +92,32 @@ export function HeroForm() {
     }
   };
 
-  // Toggle the subtitle visibility locally; persisted on Save Changes.
-  const toggleSubtitleVisibility = (visible: boolean) => {
+  // Toggle the subtitle visibility locally and persist via PATCH /hero/visibility/subtitle.
+  const toggleSubtitleVisibility = async (visible: boolean) => {
     form.setValue("subtitleVisible", visible, { shouldDirty: true });
+    setIsTogglingSubtitle(true);
+    try {
+      await heroService.updateSubtitleVisibility(visible);
+      toast.success("Subtitle visibility updated.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update subtitle visibility");
+    } finally {
+      setIsTogglingSubtitle(false);
+    }
   };
 
-  // Toggle the trust text visibility locally; persisted on Save Changes.
-  const toggleTrustVisibility = (visible: boolean) => {
+  // Toggle the trust text visibility locally and persist via PATCH /hero/visibility/trust.
+  const toggleTrustVisibility = async (visible: boolean) => {
     form.setValue("trustVisible", visible, { shouldDirty: true });
+    setIsTogglingTrust(true);
+    try {
+      await heroService.updateTrustVisibility(visible);
+      toast.success("Trust text visibility updated.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update trust text visibility");
+    } finally {
+      setIsTogglingTrust(false);
+    }
   };
 
   if (isLoading) return <LoadingSpinner label="Loading hero..." />;
@@ -128,29 +152,28 @@ export function HeroForm() {
                   <FormControl>
                     <Textarea rows={3} {...field} />
                   </FormControl>
-                  <IconButton
-                    type="button"
-                    variant="outline"
-                    label={
-                      form.watch("subtitleVisible") === false
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <StatusToggle
+                        checked={form.watch("subtitleVisible") !== false}
+                        onCheckedChange={(checked) =>
+                          toggleSubtitleVisibility(checked)
+                        }
+                        disabled={isSaving || isTogglingSubtitle}
+                        className="mt-0.5 shrink-0"
+                        aria-label={
+                          form.watch("subtitleVisible") === false
+                            ? "Show Subtitle"
+                            : "Hide Subtitle"
+                        }
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {form.watch("subtitleVisible") === false
                         ? "Show Subtitle"
-                        : "Hide Subtitle"
-                    }
-                    icon={
-                      form.watch("subtitleVisible") === false ? (
-                        <EyeOff />
-                      ) : (
-                        <Eye />
-                      )
-                    }
-                    onClick={() =>
-                      toggleSubtitleVisibility(
-                        form.watch("subtitleVisible") === false
-                      )
-                    }
-                    className="mt-0.5 shrink-0"
-                    disabled={isSaving}
-                  />
+                        : "Hide Subtitle"}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <FormMessage />
               </FormItem>
@@ -166,29 +189,28 @@ export function HeroForm() {
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                  <IconButton
-                    type="button"
-                    variant="outline"
-                    label={
-                      form.watch("trustVisible") === false
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <StatusToggle
+                        checked={form.watch("trustVisible") !== false}
+                        onCheckedChange={(checked) =>
+                          toggleTrustVisibility(checked)
+                        }
+                        disabled={isSaving || isTogglingTrust}
+                        className="mt-0.5 shrink-0"
+                        aria-label={
+                          form.watch("trustVisible") === false
+                            ? "Show Trust Text"
+                            : "Hide Trust Text"
+                        }
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {form.watch("trustVisible") === false
                         ? "Show Trust Text"
-                        : "Hide Trust Text"
-                    }
-                    icon={
-                      form.watch("trustVisible") === false ? (
-                        <EyeOff />
-                      ) : (
-                        <Eye />
-                      )
-                    }
-                    onClick={() =>
-                      toggleTrustVisibility(
-                        form.watch("trustVisible") === false
-                      )
-                    }
-                    className="mt-0.5 shrink-0"
-                    disabled={isSaving}
-                  />
+                        : "Hide Trust Text"}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <FormMessage />
               </FormItem>

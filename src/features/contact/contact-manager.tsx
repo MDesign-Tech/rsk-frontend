@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Eye, Trash2, Reply, EyeOff } from "lucide-react";
+import { Eye, Trash2, Reply } from "lucide-react";
 import { contactService } from "@/services/contact.service";
 import type { ContactMessage, ContactStatus } from "@/types";
 import { Button } from "@/components/ui/button";

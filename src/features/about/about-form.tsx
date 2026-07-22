@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, X, Eye, EyeOff } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { aboutSchema, type AboutInput } from "@/schemas";
 import { aboutService } from "@/services/about.service";
 import {
@@ -20,8 +20,14 @@ import { IconButton } from "@/components/admin/icon-button";
 import { FormCard } from "@/components/admin/form-card";
 import { StatInput } from "@/components/admin/stat-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
+import { StatusToggle } from "@/components/ui/status-toggle";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function AboutForm() {
   const [isLoading, setIsLoading] = useState(true);
@@ -266,29 +272,30 @@ export function AboutForm() {
                       )}
                     />
 
-                    <IconButton
-                      variant="outline"
-                      label={
-                        form.watch(`contactMethods.${index}.visible`) === false
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <StatusToggle
+                          checked={
+                            form.watch(`contactMethods.${index}.visible`) !== false
+                          }
+                          onCheckedChange={(checked) =>
+                            toggleContactMethodVisibility(index, checked)
+                          }
+                          className="mt-0.5"
+                          disabled={isSaving}
+                          aria-label={
+                            form.watch(`contactMethods.${index}.visible`) === false
+                              ? "Show contact method"
+                              : "Hide contact method"
+                          }
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {form.watch(`contactMethods.${index}.visible`) === false
                           ? "Show contact method"
-                          : "Hide contact method"
-                      }
-                      icon={
-                        form.watch(`contactMethods.${index}.visible`) === false ? (
-                          <EyeOff />
-                        ) : (
-                          <Eye />
-                        )
-                      }
-                      className="mt-0.5"
-                      onClick={() =>
-                        toggleContactMethodVisibility(
-                          index,
-                          !(form.watch(`contactMethods.${index}.visible`) ?? true)
-                        )
-                      }
-                      disabled={isSaving}
-                    />
+                          : "Hide contact method"}
+                      </TooltipContent>
+                    </Tooltip>
                     <IconButton
                       variant="outline"
                       label="Remove contact"
@@ -335,30 +342,34 @@ export function AboutForm() {
                       </FormItem>
                     )}
                   />
-                  <IconButton
-                    variant="outline"
-                    label={
-                      form.watch(`socialMedia.${platform}.visible`) === false
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <StatusToggle
+                        checked={
+                          form.watch(`socialMedia.${platform}.visible`) !== false
+                        }
+                        onCheckedChange={(checked) =>
+                          form.setValue(
+                            `socialMedia.${platform}.visible`,
+                            checked,
+                            { shouldDirty: true }
+                          )
+                        }
+                        className="mt-0.5"
+                        disabled={isSaving}
+                        aria-label={
+                          form.watch(`socialMedia.${platform}.visible`) === false
+                            ? `Show ${platform}`
+                            : `Hide ${platform}`
+                        }
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {form.watch(`socialMedia.${platform}.visible`) === false
                         ? `Show ${platform}`
-                        : `Hide ${platform}`
-                    }
-                    icon={
-                      form.watch(`socialMedia.${platform}.visible`) === false ? (
-                        <EyeOff />
-                      ) : (
-                        <Eye />
-                      )
-                    }
-                    className="mt-0.5"
-                    onClick={() =>
-                      form.setValue(
-                        `socialMedia.${platform}.visible`,
-                        !(form.watch(`socialMedia.${platform}.visible`) ?? true),
-                        { shouldDirty: true }
-                      )
-                    }
-                    disabled={isSaving}
-                  />
+                        : `Hide ${platform}`}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               ))}
             </div>

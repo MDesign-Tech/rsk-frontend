@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { serviceSchema, type ServiceInput } from "@/schemas";
 import { serviceService } from "@/services/service.service";
@@ -32,8 +32,14 @@ import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
+import { StatusToggle } from "@/components/ui/status-toggle";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function ServicesManager() {
   const [services, setServices] = useState<Service[]>([]);
@@ -45,6 +51,7 @@ export function ServicesManager() {
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [viewService, setViewService] = useState<Service | null>(null);
 
   const form = useForm<ServiceInput>({
     resolver: zodResolver(serviceSchema),
@@ -132,6 +139,10 @@ export function ServicesManager() {
     }
   };
 
+  const handleRowClick = (service: Service) => {
+    setViewService(service);
+  };
+
   const filtered = services.filter(
     (s) =>
       s.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -143,7 +154,16 @@ export function ServicesManager() {
     {
       key: "description",
       header: "Description",
-      render: (s) => <span className="line-clamp-1">{s.description}</span>,
+      render: (s) => {
+        const words = s.description.split(" ");
+        const preview =
+          words.length > 3 ? words.slice(0, 3).join(" ") + "..." : s.description;
+        return (
+          <span className="text-sm text-foreground" title={s.description}>
+            {preview}
+          </span>
+        );
+      },
     },
     {
       key: "actions",
@@ -151,24 +171,41 @@ export function ServicesManager() {
       className: "text-right",
       render: (s) => (
         <div className="flex justify-end gap-2">
-          <IconButton
-            variant="outline"
-            label={s.visible === false ? "Show service" : "Hide service"}
-            icon={s.visible === false ? <EyeOff /> : <Eye />}
-            onClick={() => toggleVisibility(s)}
-            disabled={togglingId === s._id}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                <StatusToggle
+                  checked={!!s.visible}
+                  onCheckedChange={() => toggleVisibility(s)}
+                  disabled={togglingId === s._id}
+                  aria-label={s.visible ? "Hide service" : "Show service"}
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              {s.visible ? "Hide" : "Show"}
+            </TooltipContent>
+          </Tooltip>
           <IconButton
             variant="outline"
             label="Edit service"
             icon={<Pencil />}
-            onClick={() => openEdit(s)}
+            onClick={(e) => {
+              e.stopPropagation();
+              openEdit(s);
+            }}
           />
           <IconButton
             variant="destructive"
             label="Delete service"
             icon={<Trash2 />}
-            onClick={() => setDeleteTarget(s)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setDeleteTarget(s);
+            }}
           />
         </div>
       ),
@@ -203,7 +240,12 @@ export function ServicesManager() {
           }
         />
       ) : (
-        <DataTable columns={columns} data={filtered} keyField="_id" />
+        <DataTable
+          columns={columns}
+          data={filtered}
+          keyField="_id"
+          onRowClick={handleRowClick}
+        />
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -258,6 +300,38 @@ export function ServicesManager() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewService} onOpenChange={(o) => !o && setViewService(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{viewService?.title}</DialogTitle>
+            <DialogDescription>Service details</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">Description</h4>
+              <p className="text-sm text-foreground whitespace-pre-wrap">
+                {viewService?.description}
+              </p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
+              <p className="text-sm text-foreground">
+                {viewService?.visible ? "Visible" : "Hidden"}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setViewService(null)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

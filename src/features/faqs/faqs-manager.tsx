@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { faqSchema, type FaqInput } from "@/schemas";
 import { faqService } from "@/services/faq.service";
@@ -32,8 +32,14 @@ import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
+import { StatusToggle } from "@/components/ui/status-toggle";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function FaqsManager() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -45,6 +51,7 @@ export function FaqsManager() {
   const [deleteTarget, setDeleteTarget] = useState<FAQ | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [viewFaq, setViewFaq] = useState<FAQ | null>(null);
 
   const form = useForm<FaqInput>({
     resolver: zodResolver(faqSchema),
@@ -85,7 +92,7 @@ export function FaqsManager() {
       if (editing) {
         const res = await faqService.update(editing._id, values);
         setFaqs((prev) =>
-          prev.map((f) => (f._id === editing._id ? res.data.faq : f))
+          prev.map((f) => (f._id === editing._id ? res.data.faq : f)),
         );
         toast.success("FAQ updated");
       } else {
@@ -97,7 +104,7 @@ export function FaqsManager() {
     } catch (err) {
       setIsSaving(false);
       toast.error(err instanceof Error ? err.message : "Save failed");
-    } 
+    }
   };
 
   const confirmDelete = async () => {
@@ -120,32 +127,54 @@ export function FaqsManager() {
     try {
       const res = await faqService.toggleVisibility(faq._id, !faq.visible);
       setFaqs((prev) =>
-        prev.map((f) => (f._id === faq._id ? res.data.faq : f))
+        prev.map((f) => (f._id === faq._id ? res.data.faq : f)),
       );
       toast.success(res.data.faq.visible ? "FAQ shown" : "FAQ hidden");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update visibility",
+      );
     } finally {
       setTogglingId(null);
     }
   };
 
+  const handleRowClick = (faq: FAQ) => {
+    setViewFaq(faq);
+  };
+
   const filtered = faqs.filter(
     (f) =>
       f.question.toLowerCase().includes(search.toLowerCase()) ||
-      f.answer.toLowerCase().includes(search.toLowerCase())
+      f.answer.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const truncateWords = (text: string, maxWords: number) => {
+    const words = text.split(" ");
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(" ") + "...";
+    }
+    return text;
+  };
 
   const columns: Column<FAQ>[] = [
     {
       key: "question",
       header: "Question",
-      render: (f) => <span className="line-clamp-1 font-medium">{f.question}</span>,
+      render: (f) => (
+        <span className="text-sm text-foreground" title={f.question}>
+          {truncateWords(f.question, 3)}
+        </span>
+      ),
     },
     {
       key: "answer",
       header: "Answer",
-      render: (f) => <span className="line-clamp-1">{f.answer}</span>,
+      render: (f) => (
+        <span className="text-sm text-foreground" title={f.answer}>
+          {truncateWords(f.answer, 3)}
+        </span>
+      ),
     },
     {
       key: "actions",
@@ -153,24 +182,41 @@ export function FaqsManager() {
       className: "text-right",
       render: (f) => (
         <div className="flex justify-end gap-2">
-          <IconButton
-            variant="outline"
-            label={f.visible === false ? "Show FAQ" : "Hide FAQ"}
-            icon={f.visible === false ? <EyeOff /> : <Eye />}
-            onClick={() => toggleVisibility(f)}
-            disabled={togglingId === f._id}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                <StatusToggle
+                  checked={!!f.visible}
+                  onCheckedChange={() => toggleVisibility(f)}
+                  disabled={togglingId === f._id}
+                  aria-label={f.visible ? "Hide FAQ" : "Show FAQ"}
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              {f.visible ? "Hide" : "Show"}
+            </TooltipContent>
+          </Tooltip>
           <IconButton
             variant="outline"
             label="Edit FAQ"
             icon={<Pencil />}
-            onClick={() => openEdit(f)}
+            onClick={(e) => {
+              e.stopPropagation();
+              openEdit(f);
+            }}
           />
           <IconButton
             variant="destructive"
             label="Delete FAQ"
             icon={<Trash2 />}
-            onClick={() => setDeleteTarget(f)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setDeleteTarget(f);
+            }}
           />
         </div>
       ),
@@ -180,7 +226,11 @@ export function FaqsManager() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search FAQs..." />
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search FAQs..."
+        />
         <IconButton
           variant="default"
           label="Add FAQ"
@@ -201,7 +251,12 @@ export function FaqsManager() {
           }
         />
       ) : (
-        <DataTable columns={columns} data={filtered} keyField="_id" />
+        <DataTable
+          columns={columns}
+          data={filtered}
+          keyField="_id"
+          onRowClick={handleRowClick}
+        />
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -256,6 +311,38 @@ export function FaqsManager() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewFaq} onOpenChange={(o) => !o && setViewFaq(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{viewFaq?.question}</DialogTitle>
+            <DialogDescription>FAQ details</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">Answer</h4>
+              <p className="text-sm text-foreground whitespace-pre-wrap">
+                {viewFaq?.answer}
+              </p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
+              <p className="text-sm text-foreground">
+                {viewFaq?.visible ? "Visible" : "Hidden"}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setViewFaq(null)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

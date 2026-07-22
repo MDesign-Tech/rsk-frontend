@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
 import { missionVisionSchema, type MissionVisionInput } from "@/schemas";
 import { missionVisionService } from "@/services/missionVision.service";
 
@@ -22,7 +21,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { IconButton } from "@/components/admin/icon-button";
+import { StatusToggle } from "@/components/ui/status-toggle";
 import { FormCard } from "@/components/admin/form-card";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { SubmitButton } from "@/components/admin/submit-button";
@@ -44,35 +43,35 @@ export function MissionVisionForm() {
     },
   });
 
- useEffect(() => {
-  const load = async () => {
-    try {
-      const res = await missionVisionService.get();
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await missionVisionService.get();
 
-      const mv = res.data;
+        const mv = res.data;
 
-      if (!mv) {
-        throw new Error("Mission vision not found");
+        if (!mv) {
+          throw new Error("Mission vision not found");
+        }
+
+        form.reset({
+          missionTitle: mv.missionTitle ?? "",
+          missionDescription: mv.missionDescription ?? "",
+          visionTitle: mv.visionTitle ?? "",
+          visionDescription: mv.visionDescription ?? "",
+          visible: mv.visible ?? true,
+        });
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        toast.error(
+          err instanceof Error ? err.message : "Failed to load"
+        );
       }
+    };
 
-      form.reset({
-        missionTitle: mv.missionTitle ?? "",
-        missionDescription: mv.missionDescription ?? "",
-        visionTitle: mv.visionTitle ?? "",
-        visionDescription: mv.visionDescription ?? "",
-        visible: mv.visible ?? true,
-      });
-      setIsLoading(false);
-    } catch (err) {
-      setIsLoading(false);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to load"
-      );
-    }
-  };
-
-  load();
-}, [form]);
+    load();
+  }, [form]);
 
   const onSubmit = async (values: MissionVisionInput) => {
     setIsSaving(true);
@@ -110,39 +109,30 @@ export function MissionVisionForm() {
     <FormCard
       title="Mission & Vision"
       description="Update the mission and vision statement."
-      footer={
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {isVisible ? "Visible on website" : "Hidden from website"}
-          </span>
-          <SubmitButton isLoading={isSaving}>Save Changes</SubmitButton>
-        </div>
-      }
     >
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-semibold">Mission & Vision</h3>
-          <p className="text-sm text-muted-foreground">Update the mission and vision statement.</p>
-        </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <IconButton
-              variant="outline"
-              label={isVisible ? "Hide mission & vision" : "Show mission & vision"}
-              icon={isVisible ? <Eye /> : <EyeOff />}
-              onClick={toggleVisibility}
-              disabled={isToggling}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            {isVisible
-              ? "Hide this section from the website"
-              : "Show this section on the website"}
-          </TooltipContent>
-        </Tooltip>
-      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold">Mission & Vision</h3>
+              <p className="text-sm text-muted-foreground">Update the mission and vision statement.</p>
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <StatusToggle
+                  checked={isVisible}
+                  onCheckedChange={toggleVisibility}
+                  disabled={isToggling}
+                  aria-label={isVisible ? "Hide mission & vision" : "Show mission & vision"}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                {isVisible
+                  ? "Hide this section from the website"
+                  : "Show this section on the website"}
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <div className="grid md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
@@ -197,9 +187,14 @@ export function MissionVisionForm() {
               </FormItem>
             )}
           />
+          <div className="flex items-center justify-between pt-4 border-t">
+            <span className="text-sm text-muted-foreground">
+              {isVisible ? "Visible on website" : "Hidden from website"}
+            </span>
+            <SubmitButton isLoading={isSaving}>Save Changes</SubmitButton>
+          </div>
         </form>
       </Form>
     </FormCard>
   );
 }
-

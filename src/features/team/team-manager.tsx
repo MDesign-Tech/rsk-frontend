@@ -6,6 +6,15 @@ import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SectionCard } from "./section-card";
 import { MemberFormDialog } from "./member-form";
 import { SectionFormDialog } from "./section-form";
@@ -41,6 +50,7 @@ export function TeamManager() {
             onEditSection={t.openEditSection}
             onDeleteSection={t.setDeleteSectionTarget}
             onToggleSection={t.toggleSection}
+            onViewMember={t.handleViewMember}
             togglingMemberId={t.togglingMemberId}
             togglingSectionId={t.togglingSectionId}
           />
@@ -61,6 +71,36 @@ export function TeamManager() {
 
       <DeleteDialog open={!!t.deleteTarget} onOpenChange={(o) => !o && t.setDeleteTarget(null)} onConfirm={t.confirmDelete} isDeleting={false} title="Delete team member?" description={`Delete "${t.deleteTarget?.name}"? This cannot be undone.`} />
       <DeleteDialog open={!!t.deleteSectionTarget} onOpenChange={(o) => !o && t.setDeleteSectionTarget(null)} onConfirm={t.confirmDeleteSection} isDeleting={false} title="Delete section?" description={`Delete "${t.deleteSectionTarget?.name}"? Fails if it still has members.`} />
+
+      <Dialog open={!!t.viewMember} onOpenChange={(o) => !o && t.setViewMember(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t.viewMember?.name}</DialogTitle>
+            <DialogDescription>Team member details</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">Title</h4>
+              <p className="text-sm text-foreground">{t.viewMember?.title}</p>
+            </div>
+            {t.viewMember?.bio ? (
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground">Bio</h4>
+                <p className="text-sm text-foreground whitespace-pre-wrap">{t.viewMember.bio}</p>
+              </div>
+            ) : null}
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
+              <p className="text-sm text-foreground">{t.viewMember?.visible ? "Visible" : "Hidden"}</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => t.setViewMember(null)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

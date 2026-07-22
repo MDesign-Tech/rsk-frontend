@@ -1,10 +1,16 @@
 "use client";
 
-import { Eye, EyeOff, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconButton } from "@/components/admin/icon-button";
+import { StatusToggle } from "@/components/ui/status-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const PLATFORMS = ["facebook", "instagram", "whatsapp", "x", "linkedin", "youtube"] as const;
 type Platform = (typeof PLATFORMS)[number];
@@ -75,12 +81,18 @@ export function SocialMediaField({
                       control={control}
                       name={`socialMedia.${key}.visible` as const}
                       render={({ field: f }) => (
-                        <IconButton
-                          variant="outline"
-                          label={f.value === false ? `Show ${label}` : `Hide ${label}`}
-                          icon={f.value === false ? <EyeOff /> : <Eye />}
-                          onClick={() => f.onChange(!f.value)}
-                        />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <StatusToggle
+                              checked={!!f.value}
+                              onCheckedChange={(checked) => f.onChange(checked)}
+                              aria-label={f.value === false ? `Show ${label}` : `Hide ${label}`}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {f.value === false ? `Show ${label}` : `Hide ${label}`}
+                          </TooltipContent>
+                        </Tooltip>
                       )}
                     />
                     <IconButton

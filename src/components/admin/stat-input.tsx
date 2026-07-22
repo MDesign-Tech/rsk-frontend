@@ -1,10 +1,16 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { X, Eye, EyeOff } from "lucide-react";
+import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { FormMessage } from "@/components/ui/form";
 import { IconButton } from "@/components/admin/icon-button";
+import { StatusToggle } from "@/components/ui/status-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { AboutInput } from "@/schemas";
 
 interface StatInputProps {
@@ -43,14 +49,20 @@ export function StatInput({
           <FormMessage>{statError.label.message}</FormMessage>
         )}
       </div>
-      <IconButton
-        variant="outline"
-        label={visible === false ? "Show stat" : "Hide stat"}
-        icon={visible === false ? <EyeOff /> : <Eye />}
-        className="mt-0.5"
-        onClick={() => onToggle(!visible)}
-        disabled={disabled}
-      />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <StatusToggle
+            checked={visible !== false}
+            onCheckedChange={(checked) => onToggle(checked)}
+            className="mt-0.5"
+            disabled={disabled}
+            aria-label={visible === false ? "Show stat" : "Hide stat"}
+          />
+        </TooltipTrigger>
+        <TooltipContent>
+          {visible === false ? "Show stat" : "Hide stat"}
+        </TooltipContent>
+      </Tooltip>
       <IconButton
         variant="outline"
         label="Remove stat"

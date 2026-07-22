@@ -19,6 +19,7 @@ export function useTeamManager() {
   const [deleteSectionTarget, setDeleteSectionTarget] = useState<TeamSection | null>(null);
   const [togglingMemberId, setTogglingMemberId] = useState<string | null>(null);
   const [togglingSectionId, setTogglingSectionId] = useState<string | null>(null);
+  const [viewMember, setViewMember] = useState<TeamMember | null>(null);
 
   const load = async () => {
     setIsLoading(true);
@@ -110,12 +111,17 @@ export function useTeamManager() {
     }
   };
 
+  const handleViewMember = (m: TeamMember) => {
+    setViewMember(m);
+  };
+
   return {
     members, sections, isLoading, search, setSearch,
     memberOpen, setMemberOpen, editing, imageFile, setImageFile, deleteTarget, setDeleteTarget,
     sectionOpen, setSectionOpen, editingSection, deleteSectionTarget, setDeleteSectionTarget,
-    togglingMemberId, togglingSectionId,
+    togglingMemberId, togglingSectionId, viewMember, setViewMember,
     filtered, openCreate, openEdit, onMemberSaved, toggleMember, confirmDelete,
     openCreateSection, openEditSection, onSectionSubmit, toggleSection, confirmDeleteSection,
+    handleViewMember,
   };
 }

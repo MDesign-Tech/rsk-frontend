@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { partnerSchema, type PartnerInput } from "@/schemas";
 import { partnerService } from "@/services/partner.service";
@@ -32,9 +32,15 @@ import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { StatusToggle } from "@/components/ui/status-toggle";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function PartnersManager() {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -173,13 +179,19 @@ export function PartnersManager() {
       className: "text-right",
       render: (p) => (
         <div className="flex justify-end gap-2">
-          <IconButton
-            variant="outline"
-            label={p.visible === false ? "Show partner" : "Hide partner"}
-            icon={p.visible === false ? <EyeOff /> : <Eye />}
-            onClick={() => toggleVisibility(p)}
-            disabled={togglingId === p._id}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <StatusToggle
+                checked={!!p.visible}
+                onCheckedChange={() => toggleVisibility(p)}
+                disabled={togglingId === p._id}
+                aria-label={p.visible ? "Hide partner" : "Show partner"}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              {p.visible ? "Hide" : "Show"}
+            </TooltipContent>
+          </Tooltip>
           <IconButton
             variant="outline"
             label="Edit partner"
