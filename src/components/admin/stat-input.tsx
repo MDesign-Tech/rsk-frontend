@@ -16,7 +16,7 @@ import type { AboutInput } from "@/schemas";
 interface StatInputProps {
   index: number;
   visible?: boolean;
-  onToggle: (visible: boolean) => void;
+  onToggle: () => void;
   onRemove: () => void;
   disabled?: boolean;
 }
@@ -53,7 +53,7 @@ export function StatInput({
         <TooltipTrigger asChild>
           <StatusToggle
             checked={visible !== false}
-            onCheckedChange={(checked) => onToggle(checked)}
+            onCheckedChange={onToggle}
             className="mt-0.5"
             disabled={disabled}
             aria-label={visible === false ? "Show stat" : "Hide stat"}

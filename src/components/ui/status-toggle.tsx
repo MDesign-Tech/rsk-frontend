@@ -20,10 +20,13 @@ function StatusToggle({
         "focus-visible:ring-offset-2",
         "disabled:cursor-not-allowed disabled:opacity-50",
 
-        // Track
-        "bg-zinc-300 dark:bg-zinc-700",
+        // Track - light mode unchecked
+        "bg-zinc-300",
+        // Track - dark mode unchecked
+        "dark:bg-zinc-700", 
+        // Track - checked state (both themes)
         "data-[state=checked]:bg-primary",
-        "dark:data-[state=unchecked]:bg-zinc-700",
+        "dark:data-[state=checked]:bg-primary",
 
         className
       )}
@@ -33,12 +36,11 @@ function StatusToggle({
         data-slot="status-toggle-thumb"
         className={cn(
           "pointer-events-none block h-5 w-5 rounded-full",
-          "shadow-lg",
+          "shadow-md",
           "transition-all duration-300 ease-out",
 
-          // Thumb color
+          // Thumb color - white works in both light and dark themes
           "bg-white",
-          "data-[state=checked]:bg-primary",
 
           // Position
           "translate-x-0.5",

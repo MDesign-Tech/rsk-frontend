@@ -1,9 +1,21 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { IconButton } from "@/components/admin/icon-button";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import {
@@ -12,7 +24,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const PLATFORMS = ["facebook", "instagram", "whatsapp", "x", "linkedin", "youtube"] as const;
+const PLATFORMS = [
+  "facebook",
+  "instagram",
+  "whatsapp",
+  "x",
+  "linkedin",
+  "youtube",
+] as const;
 type Platform = (typeof PLATFORMS)[number];
 
 export function SocialMediaField({
@@ -46,7 +65,10 @@ export function SocialMediaField({
           return (
             <div className="space-y-3">
               {available.length > 0 && (
-                <Select value="" onValueChange={(v) => addPlatform(v as Platform)}>
+                <Select
+                  value=""
+                  onValueChange={(v) => addPlatform(v as Platform)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Add a social media platform" />
                   </SelectTrigger>
@@ -83,14 +105,25 @@ export function SocialMediaField({
                       render={({ field: f }) => (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <StatusToggle
-                              checked={!!f.value}
-                              onCheckedChange={(checked) => f.onChange(checked)}
-                              aria-label={f.value === false ? `Show ${label}` : `Hide ${label}`}
-                            />
+                            <span
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => e.stopPropagation()}
+                            >
+                              <StatusToggle
+                                checked={!!f.value}
+                                onCheckedChange={() => f.onChange(!f.value)}
+                                aria-label={
+                                  f.value === false
+                                    ? `Show ${label}`
+                                    : `Hide ${label}`
+                                }
+                              />
+                            </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            {f.value === false ? `Show ${label}` : `Hide ${label}`}
+                            {f.value === false
+                              ? `Show ${label}`
+                              : `Hide ${label}`}
                           </TooltipContent>
                         </Tooltip>
                       )}
@@ -106,7 +139,9 @@ export function SocialMediaField({
               })}
 
               {selected.length === 0 && (
-                <p className="text-sm text-muted-foreground">No social media added yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No social media added yet.
+                </p>
               )}
             </div>
           );

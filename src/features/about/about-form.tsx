@@ -106,17 +106,19 @@ export function AboutForm() {
     }
   };
 
-  const toggleStatVisibility = (index: number, visible: boolean) => {
+  const toggleStatVisibility = (index: number) => {
     const stats = form.getValues("stats");
-    const next = stats.map((s, i) => (i === index ? { ...s, visible } : s));
+    const current = stats[index]?.visible ?? true;
+    const next = stats.map((s, i) => (i === index ? { ...s, visible: !current } : s));
     form.setValue("stats", next, { shouldDirty: true });
   };
 
   // Toggle the visibility of an individual contact method by index.
-  const toggleContactMethodVisibility = (index: number, visible: boolean) => {
+  const toggleContactMethodVisibility = (index: number) => {
     const contactMethods = form.getValues("contactMethods");
+    const current = contactMethods[index]?.visible ?? true;
     const next = contactMethods.map((c, i) =>
-      i === index ? { ...c, visible } : c
+      i === index ? { ...c, visible: !current } : c
     );
     form.setValue("contactMethods", next, { shouldDirty: true });
   };
@@ -189,7 +191,7 @@ export function AboutForm() {
                     key={f.id}
                     index={i}
                     visible={form.watch(`stats.${i}.visible`) ?? true}
-                    onToggle={(visible) => toggleStatVisibility(i, visible)}
+                    onToggle={() => toggleStatVisibility(i)}
                     onRemove={() => remove(i)}
                     disabled={isSaving}
                   />
@@ -278,8 +280,8 @@ export function AboutForm() {
                           checked={
                             form.watch(`contactMethods.${index}.visible`) !== false
                           }
-                          onCheckedChange={(checked) =>
-                            toggleContactMethodVisibility(index, checked)
+                          onCheckedChange={() =>
+                            toggleContactMethodVisibility(index)
                           }
                           className="mt-0.5"
                           disabled={isSaving}
@@ -348,10 +350,10 @@ export function AboutForm() {
                         checked={
                           form.watch(`socialMedia.${platform}.visible`) !== false
                         }
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={() =>
                           form.setValue(
                             `socialMedia.${platform}.visible`,
-                            checked,
+                            !form.watch(`socialMedia.${platform}.visible`),
                             { shouldDirty: true }
                           )
                         }

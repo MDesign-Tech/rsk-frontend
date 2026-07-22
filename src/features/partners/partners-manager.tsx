@@ -181,12 +181,17 @@ export function PartnersManager() {
         <div className="flex justify-end gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
+              <span
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
               <StatusToggle
                 checked={!!p.visible}
                 onCheckedChange={() => toggleVisibility(p)}
                 disabled={togglingId === p._id}
                 aria-label={p.visible ? "Hide partner" : "Show partner"}
               />
+               </span>
             </TooltipTrigger>
             <TooltipContent>
               {p.visible ? "Hide" : "Show"}

@@ -80,8 +80,12 @@ export function HeroForm() {
       formData.append("image", imageFile);
     }
 
-    const result = await saveResource<ApiResponse<{ hero: HeroContent }>, HeroContent>({
-      save: async (): Promise<ApiResponse<{ hero: HeroContent }>> => heroService.update(formData),
+    const result = await saveResource<
+      ApiResponse<{ hero: HeroContent }>,
+      HeroContent
+    >({
+      save: async (): Promise<ApiResponse<{ hero: HeroContent }>> =>
+        heroService.update(formData),
       getEntity: (res) => res.data.hero,
       successMessage: "Hero updated successfully.",
     });
@@ -93,28 +97,40 @@ export function HeroForm() {
   };
 
   // Toggle the subtitle visibility locally and persist via PATCH /hero/visibility/subtitle.
-  const toggleSubtitleVisibility = async (visible: boolean) => {
-    form.setValue("subtitleVisible", visible, { shouldDirty: true });
+  const toggleSubtitleVisibility = async () => {
+    const current = form.getValues("subtitleVisible");
+    const next = !current;
+    form.setValue("subtitleVisible", next, { shouldDirty: true });
     setIsTogglingSubtitle(true);
     try {
-      await heroService.updateSubtitleVisibility(visible);
+      await heroService.updateSubtitleVisibility(next);
       toast.success("Subtitle visibility updated.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update subtitle visibility");
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to update subtitle visibility",
+      );
     } finally {
       setIsTogglingSubtitle(false);
     }
   };
 
   // Toggle the trust text visibility locally and persist via PATCH /hero/visibility/trust.
-  const toggleTrustVisibility = async (visible: boolean) => {
-    form.setValue("trustVisible", visible, { shouldDirty: true });
+  const toggleTrustVisibility = async () => {
+    const current = form.getValues("trustVisible");
+    const next = !current;
+    form.setValue("trustVisible", next, { shouldDirty: true });
     setIsTogglingTrust(true);
     try {
-      await heroService.updateTrustVisibility(visible);
+      await heroService.updateTrustVisibility(next);
       toast.success("Trust text visibility updated.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update trust text visibility");
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to update trust text visibility",
+      );
     } finally {
       setIsTogglingTrust(false);
     }
@@ -154,19 +170,21 @@ export function HeroForm() {
                   </FormControl>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <StatusToggle
-                        checked={form.watch("subtitleVisible") !== false}
-                        onCheckedChange={(checked) =>
-                          toggleSubtitleVisibility(checked)
-                        }
-                        disabled={isSaving || isTogglingSubtitle}
-                        className="mt-0.5 shrink-0"
-                        aria-label={
-                          form.watch("subtitleVisible") === false
-                            ? "Show Subtitle"
-                            : "Hide Subtitle"
-                        }
-                      />
+                      <span
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
+                        <StatusToggle
+                          checked={form.watch("subtitleVisible") !== false}
+                          onCheckedChange={toggleSubtitleVisibility}
+                          disabled={isSaving || isTogglingSubtitle}
+                          aria-label={
+                            form.watch("subtitleVisible") === false
+                              ? "Show Subtitle"
+                              : "Hide Subtitle"
+                          }
+                        />
+                      </span>
                     </TooltipTrigger>
                     <TooltipContent>
                       {form.watch("subtitleVisible") === false
@@ -191,19 +209,22 @@ export function HeroForm() {
                   </FormControl>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <StatusToggle
-                        checked={form.watch("trustVisible") !== false}
-                        onCheckedChange={(checked) =>
-                          toggleTrustVisibility(checked)
-                        }
-                        disabled={isSaving || isTogglingTrust}
-                        className="mt-0.5 shrink-0"
-                        aria-label={
-                          form.watch("trustVisible") === false
-                            ? "Show Trust Text"
-                            : "Hide Trust Text"
-                        }
-                      />
+                      <span
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
+                        <StatusToggle
+                          checked={form.watch("trustVisible") !== false}
+                          onCheckedChange={toggleTrustVisibility}
+                          disabled={isSaving || isTogglingTrust}
+                          className="mt-0.5 shrink-0"
+                          aria-label={
+                            form.watch("trustVisible") === false
+                              ? "Show Trust Text"
+                              : "Hide Trust Text"
+                          }
+                        />
+                      </span>
                     </TooltipTrigger>
                     <TooltipContent>
                       {form.watch("trustVisible") === false
@@ -228,9 +249,7 @@ export function HeroForm() {
             </p>
           </div>
           <div className="flex justify-end">
-            <SubmitButton isLoading={isSaving}>
-              Save Changes
-            </SubmitButton>
+            <SubmitButton isLoading={isSaving}>Save Changes</SubmitButton>
           </div>
         </form>
       </Form>

@@ -97,12 +97,17 @@ export function SectionCard({
         <div className="flex gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
+              <span
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
               <StatusToggle
                 checked={!!section.visible}
                 onCheckedChange={() => onToggleSection(section)}
                 disabled={togglingSectionId === section._id}
                 aria-label={section.visible ? "Hide section" : "Show section"}
               />
+              </span>
             </TooltipTrigger>
             <TooltipContent>
               {section.visible ? "Hide" : "Show"}

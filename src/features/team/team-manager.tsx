@@ -27,9 +27,9 @@ export function TeamManager() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SearchInput value={t.search} onChange={t.setSearch} placeholder="Search team..." />
-        <div className="flex gap-2">
-          <IconButton variant="outline" label="Add section" icon={<Plus />} onClick={t.openCreateSection} />
-          <IconButton variant="default" label="Add team member" icon={<Plus />} onClick={t.openCreate} />
+        <div className="flex gap-4">
+          <span>Add section <IconButton variant="outline" label="Add section" icon={<Plus />} onClick={t.openCreateSection} /></span>
+          <span>Add member <IconButton variant="default" label="Add team member" icon={<Plus />} onClick={t.openCreate} /></span>
         </div>
       </div>
 

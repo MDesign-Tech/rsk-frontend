@@ -119,12 +119,17 @@ export function MissionVisionForm() {
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
+                <span
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
                 <StatusToggle
                   checked={isVisible}
                   onCheckedChange={toggleVisibility}
                   disabled={isToggling}
                   aria-label={isVisible ? "Hide mission & vision" : "Show mission & vision"}
                 />
+                </span>
               </TooltipTrigger>
               <TooltipContent>
                 {isVisible
