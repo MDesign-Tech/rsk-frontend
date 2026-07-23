@@ -24,7 +24,7 @@ import type { TeamSectionGroup, SocialMedia } from "@/types";
 const PLATFORM_ICONS: Record<string, typeof Facebook> = {
   facebook: Facebook,
   instagram: Instagram,
-  linkedin: Linkedin,
+  linkedin: Linkedin,             
   youtube: Youtube,
   whatsapp: MessageCircle,
   x: Globe,
@@ -56,6 +56,35 @@ function SocialLinks({ social }: { social?: SocialMedia }) {
           </a>
         );
       })}
+    </div>
+  );
+}
+
+// Skeleton for section header
+function SectionHeaderSkeleton() {
+  return (
+    <div className="mb-4 text-center sm:mb-16 lg:mb-24 animate-pulse">
+      <div className="relative flex py-5 items-center mx-auto max-w-6xl">
+        <div className="flex-grow border-t border-gray-400" />
+        <div className="flex-shrink mx-4 px-4">
+          <div className="h-8 bg-muted rounded w-40 mx-auto" />
+        </div>
+        <div className="flex-grow border-t border-gray-400" />
+      </div>
+      <div className="h-4 bg-muted rounded w-64 mx-auto mt-2" />
+    </div>
+  );
+}
+
+// Skeleton for team member card - matches the actual card layout
+function TeamMemberCardSkeleton() {
+  return (
+    <div className="rounded-3xl bg-card/80 p-5 animate-pulse">
+      <div className="relative aspect-4/5 w-full overflow-hidden rounded-3xl bg-muted" />
+      <div className="mt-4 h-5 bg-muted rounded w-3/4" />
+      <div className="mt-2 h-4 bg-muted rounded w-1/2" />
+      <div className="mt-3 h-3 bg-muted rounded w-full" />
+      <div className="mt-1 h-3 bg-muted rounded w-2/3" />
     </div>
   );
 }
@@ -149,7 +178,14 @@ export default function TeamPage() {
       <section className="py-20 ">
         <div className="mx-auto max-w-6xl px-6 lg:px-8 space-y-10 ">
           {loading ? (
-            <p className="text-sm text-muted-foreground">Loading team…</p>
+            <>
+              <SectionHeaderSkeleton />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <TeamMemberCardSkeleton key={i} />
+                ))}
+              </div>
+            </>
           ) : groups.filter((g) => g.members.length > 0).length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No team members to show.

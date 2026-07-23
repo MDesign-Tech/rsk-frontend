@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, GripVertical } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
@@ -15,10 +15,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Reorder, useDragControls } from "framer-motion";
 import { SectionCard } from "./section-card";
 import { MemberFormDialog } from "./member-form";
 import { SectionFormDialog } from "./section-form";
 import { useTeamManager } from "./use-team-manager";
+import type { TeamSection } from "@/types";
+
+function DragHandle() {
+  const controls = useDragControls();
+  return (
+    <IconButton
+      variant="ghost"
+      label="Drag to reorder"
+      icon={<GripVertical className="size-4 text-muted-foreground" />}
+      onPointerDown={(e) => controls.start(e)}
+    />
+  );
+}
 
 export function TeamManager() {
   const t = useTeamManager();
@@ -38,23 +52,43 @@ export function TeamManager() {
       ) : t.sections.length === 0 ? (
         <EmptyState title="No sections found" description="Create a section first, then add team members to it." />
       ) : (
-        t.sections.map((s) => (
-          <SectionCard
-            key={s._id}
-            section={s}
-            members={t.filtered(s._id)}
-            onAddMember={t.openCreate}
-            onEditMember={t.openEdit}
-            onDeleteMember={t.setDeleteTarget}
-            onToggleMember={t.toggleMember}
-            onEditSection={t.openEditSection}
-            onDeleteSection={t.setDeleteSectionTarget}
-            onToggleSection={t.toggleSection}
-            onViewMember={t.handleViewMember}
-            togglingMemberId={t.togglingMemberId}
-            togglingSectionId={t.togglingSectionId}
-          />
-        ))
+        <Reorder.Group
+          axis="y"
+          values={t.sections}
+          onReorder={t.reorderSections}
+          className="space-y-4"
+        >
+          {t.sections.map((s) => (
+            <Reorder.Item
+              key={s._id}
+              value={s}
+              className="cursor-grab active:cursor-grabbing"
+            >
+              <div className="flex items-start gap-2">
+                <div className="pt-1">
+                  <DragHandle />
+                </div>
+                <div className="flex-1">
+                  <SectionCard
+                    section={s}
+                    members={t.filtered(s._id)}
+                    onAddMember={t.openCreate}
+                    onEditMember={t.openEdit}
+                    onDeleteMember={t.setDeleteTarget}
+                    onToggleMember={t.toggleMember}
+                    onEditSection={t.openEditSection}
+                    onDeleteSection={t.setDeleteSectionTarget}
+                    onToggleSection={t.toggleSection}
+                    onViewMember={t.handleViewMember}
+                    togglingMemberId={t.togglingMemberId}
+                    togglingSectionId={t.togglingSectionId}
+                    onReorderMembers={t.reorderMembers}
+                  />
+                </div>
+              </div>
+            </Reorder.Item>
+          ))}
+        </Reorder.Group>
       )}
 
       <MemberFormDialog

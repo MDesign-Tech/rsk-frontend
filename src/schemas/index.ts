@@ -204,3 +204,83 @@ export const createUserSchema = userSchema.extend({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 export type CreateUserInput = z.infer<typeof createUserSchema>;
+
+// ---------------------------------------------------------------------------
+// News
+// ---------------------------------------------------------------------------
+export const newsSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  excerpt: z.string().min(1, "Excerpt is required"),
+  content: z.string().min(1, "Content is required"),
+  coverImage: z.string().optional().default(""),
+  category: z.string().min(1, "Category is required"),
+  authorId: z.string().min(1, "Author is required"),
+  featured: z.boolean().default(false),
+  status: z.enum(["draft", "published", "archived"]).default("draft"),
+  readingTime: z.number().min(1).default(5),
+});
+export type NewsInput = z.infer<typeof newsSchema>;
+
+// ---------------------------------------------------------------------------
+// Opportunities
+// ---------------------------------------------------------------------------
+export const opportunitySchema = z.object({
+  type: z.string().min(1, "Type is required"),
+  title: z.string().min(1, "Title is required"),
+  org: z.string().min(1, "Organization is required"),
+  shortDescription: z.string().min(1, "Short description is required"),
+  description: z.string().min(1, "Description is required"),
+  category: z.string().min(1, "Category is required"),
+  location: z.string().min(1, "Location is required"),
+  employmentType: z.string().optional().default(""),
+  salary: z.string().optional().default(""),
+  budget: z.string().optional().default(""),
+  date: z.string().min(1, "Deadline is required"),
+  contactEmail: z.string().min(1, "Contact email is required").email("Invalid email"),
+  contactPhone: z.string().min(1, "Contact phone is required"),
+  requirements: z.string().optional().default(""),
+  benefits: z.string().optional().default(""),
+  featured: z.boolean().default(false),
+  status: z.enum(["active", "closed"]).default("active"),
+  visible: z.boolean().default(true),
+  image: z.string().optional().nullable().default(null),
+});
+export type OpportunityInput = z.infer<typeof opportunitySchema>;
+
+// ---------------------------------------------------------------------------
+// Why Join Us
+// ---------------------------------------------------------------------------
+export const whyJoinUsSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  visible: z.boolean().default(true),
+});
+
+export type WhyJoinUsInput = z.infer<typeof whyJoinUsSchema>;
+
+export const whyJoinUsPointSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  visible: z.boolean().default(true),
+});
+
+export type WhyJoinUsPointInput = z.infer<typeof whyJoinUsPointSchema>;
+
+// ---------------------------------------------------------------------------
+// Why Become Member
+// ---------------------------------------------------------------------------
+export const whyBecomeMemberSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  visible: z.boolean().default(true),
+});
+
+export type WhyBecomeMemberInput = z.infer<typeof whyBecomeMemberSchema>;
+
+export const whyBecomeMemberPointSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  visible: z.boolean().default(true),
+});
+
+export type WhyBecomeMemberPointInput = z.infer<typeof whyBecomeMemberPointSchema>;

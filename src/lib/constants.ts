@@ -15,6 +15,7 @@ export interface NavItem {
   title: string;
   href: string;
   icon: string; // lucide icon name resolved in the sidebar
+  children?: NavItem[];
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -27,6 +28,17 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "FAQs", href: "/admin/faqs", icon: "HelpCircle" },
   { title: "Team Members", href: "/admin/team", icon: "Users" },
   { title: "Contact Messages", href: "/admin/contact", icon: "Mail" },
+  { title: "Why Join Us", href: "/admin/why-join-us", icon: "Users" },
+  { title: "Why Become Member", href: "/admin/why-become-member", icon: "Award" },
+  {
+    title: "Blog",
+    href: "/admin/blog",
+    icon: "BookOpen",
+    children: [
+      { title: "News", href: "/admin/news", icon: "Newspaper" },
+      { title: "Opportunities", href: "/admin/opportunities", icon: "Briefcase" },
+    ],
+  },
   { title: "Users", href: "/admin/users", icon: "UserCog" },
   { title: "Profile", href: "/admin/profile", icon: "User" },
 ];

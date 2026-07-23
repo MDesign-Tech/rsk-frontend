@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -14,9 +15,13 @@ import {
   Mail,
   UserCog,
   User,
+  Award,
+  BookOpen,
+  Newspaper,
+  ChevronDown,
   type LucideIcon,
 } from "lucide-react";
-import { NAV_ITEMS } from "@/lib/constants";
+import { NAV_ITEMS, type NavItem } from "@/lib/constants";
 import { useSidebarStore } from "@/stores/sidebar.store";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -33,6 +38,9 @@ const iconMap: Record<string, LucideIcon> = {
   Mail,
   UserCog,
   User,
+  Award,
+  BookOpen,
+  Newspaper,
 };
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
@@ -46,6 +54,11 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
           item.href === "/admin"
             ? pathname === "/admin"
             : pathname.startsWith(item.href);
+
+        if (item.children) {
+          return <NavDropdown key={item.href} item={item} pathname={pathname} onNavigate={onNavigate} />;
+        }
+
         return (
           <Link
             key={item.href}
@@ -64,6 +77,54 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         );
       })}
     </nav>
+  );
+}
+
+function NavDropdown({ item, pathname, onNavigate }: { item: NavItem; pathname: string; onNavigate?: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const active = item.children?.some((child) => pathname.startsWith(child.href));
+
+  const ParentIcon = iconMap[item.icon] ?? LayoutDashboard;
+  return (
+    <div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+          active
+            ? "bg-primary/10 text-primary"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+        )}
+      >
+        <ParentIcon className="size-4" />
+        {item.title}
+        <ChevronDown className={cn("ml-auto size-4 transition-transform", isOpen && "rotate-180")} />
+      </button>
+      {isOpen && (
+        <div className="ml-4 mt-1 flex flex-col gap-1 border-l pl-3">
+          {item.children?.map((child) => {
+            const ChildIcon = iconMap[child.icon] ?? LayoutDashboard;
+            const childActive = pathname.startsWith(child.href);
+            return (
+              <Link
+                key={child.href}
+                href={child.href}
+                onClick={onNavigate}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  childActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                )}
+              >
+                <ChildIcon className="size-4" />
+                {child.title}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 

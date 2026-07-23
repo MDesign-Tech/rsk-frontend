@@ -5,97 +5,19 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   CheckCircle2,
-  ShieldCheck,
-  BookOpen,
-  Users,
-  Award,
-  MessageCircle,
-  Sparkles,
-  Star,
 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { FAQ } from "@/components/faq";
 import { Testimonials } from "@/components/testimonials";
 import { SectionDivider } from "@/components/section-divider";
+import { useWebsiteStore } from "@/stores/website.store";
 
-const reasons = [
-  "Access tailored advisory support for corporate strategy and business growth.",
-  "Receive curated opportunities for tenders, training, and funding introductions.",
-  "Connect with a premium network of professionals and industry leaders.",
-];
-
-const benefits = [
-  {
-    title: "Networking",
-    detail: "High-value introductions and member-only networking events.",
-  },
-  {
-    title: "Training",
-    detail: "Workshops, certifications, and executive learning support.",
-  },
-  {
-    title: "Business Support",
-    detail:
-      "Dedicated advisory resources for strategic decisions and implementation.",
-  },
-  {
-    title: "Funding Opportunities",
-    detail: "Priority access to tenders, grants, and funding pathways.",
-  },
-  {
-    title: "Certifications",
-    detail: "Professional recognition through member qualification programs.",
-  },
-  {
-    title: "Mentorship",
-    detail:
-      "Personal guidance from experienced advisors and corporate leaders.",
-  },
-];
-
-const requirements = [
-  "A business or individual with a clear growth objective.",
-  "Commitment to professional development and transparent partnership.",
-  "Readiness to engage in member-led resources and events.",
-];
-
-const plans = [
-  {
-    title: "Associate",
-    price: "$299",
-    period: "/year",
-    features: [
-      "Access to member events",
-      "Tender alerts",
-      "Mentorship sessions",
-    ],
-  },
-  {
-    title: "Corporate",
-    price: "$599",
-    period: "/year",
-    featured: true,
-    features: [
-      "Dedicated advisory support",
-      "Priority funding introductions",
-      "Executive training",
-    ],
-  },
-  {
-    title: "Enterprise",
-    price: "$1,099",
-    period: "/year",
-    features: [
-      "Custom corporate onboarding",
-      "Premium partner matching",
-      "Enhanced certification support",
-    ],
-  },
-];
 
 export default function MembershipPage() {
   const shouldReduceMotion = useReducedMotion();
+  const whyBecomeMember = useWebsiteStore((state) => state.data?.whyBecomeMember);
+  const visibleBenefits = whyBecomeMember?.points ?? [];
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -166,38 +88,32 @@ export default function MembershipPage() {
             </h2>
           </motion.div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
-            {benefits.map((benefit, index) => {
-              const Icon = [
-                Users,
-                BookOpen,
-                ShieldCheck,
-                Award,
-                Sparkles,
-                MessageCircle,
-              ][index];
-              return (
-                <motion.div
-                  key={benefit.title}
-                  initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.05 * index }}
-                  className="rounded-4xl border border-border/70 bg-card/70 p-6 backdrop-blur-xl shadow-[0_20px_50px_-30px_rgba(14,116,232,0.5)]"
-                >
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-400">
-                    {Icon && <Icon className="h-6 w-6" />}
-                  </div>
-                  <h3 className="mt-6 text-xl font-semibold text-foreground">
-                    {benefit.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                    {benefit.detail}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
+          {visibleBenefits.length > 0 && (
+            <div className="grid gap-6 lg:grid-cols-3">
+              {visibleBenefits.map((benefit, index) => {
+                return (
+                  <motion.div
+                    key={benefit.title + index}
+                    initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.05 * index }}
+                    className="rounded-4xl border border-sky-500/20 bg-sky-950/95 p-10 text-white shadow-[0_40px_120px_-50px_rgba(14,116,232,0.65)]"
+                  >
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-400">
+                      <CheckCircle2 className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-6 text-xl font-semibold text-foreground">
+                      {benefit.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                      {benefit.description}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -207,7 +123,6 @@ export default function MembershipPage() {
       {/* <Testimonials /> */}
 
 
-      
 
 
 

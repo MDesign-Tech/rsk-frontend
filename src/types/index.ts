@@ -115,6 +115,7 @@ export interface TeamMember {
   visible?: boolean;
   section?: TeamSection | string;
   socialMedia?: SocialMedia;
+  order?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -272,4 +273,82 @@ export interface WebsiteContent {
   partners: Partner[];
   faqs: FAQ[];
   teamMembers: TeamMember[];
+  whyJoinUs: WhyJoinUs;
+  whyBecomeMember: WhyBecomeMember;
+}
+
+export interface WhyJoinUsPoint {
+  _id: string;
+  title: string;
+  description: string;
+  visible: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WhyJoinUs {
+  _id: string;
+  title: string;
+  description: string;
+  visible?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WhyBecomeMemberPoint {
+  _id: string;
+  title: string;
+  description: string;
+  visible: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WhyBecomeMember {
+  _id: string;
+  title: string;
+  description: string;
+  visible?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Opportunity {
+  _id: string;
+  type: string;
+  title: string;
+  slug: string;
+  organization: {
+    name: string;
+    logo?: string | null;
+    website?: string | null;
+  };
+  image?: string | null;
+  imagePublicId?: string | null;
+  shortDescription: string;
+  description: string;
+  category: string;
+  location: string;
+  employmentType?: string | null;
+  salary?: string | null;
+  budget?: string | null;
+  deadline: string;
+  publishedAt?: string;
+  contact: {
+    email: string;
+    phone: string;
+  };
+  requirements: string[];
+  documents: {
+    name: string;
+    url: string;
+  }[];
+  benefits: string[];
+  featured: boolean;
+  status: "Open" | "Closed";
+  visible: boolean;
+  views: number;
+  applicants?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
 }

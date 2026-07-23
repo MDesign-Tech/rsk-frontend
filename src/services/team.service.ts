@@ -60,6 +60,11 @@ export const teamService = {
         visible,
       })
       .then((res) => res.data),
+
+  reorder: (order: string[]) =>
+    api
+      .patch<ApiResponse<Record<string, never>>>("/team/reorder", { order })
+      .then((res) => res.data),
 };
 
 export const teamSectionService = {
@@ -108,5 +113,10 @@ export const teamSectionService = {
         `/team-sections/${id}/visibility`,
         { visible }
       )
+      .then((res) => res.data),
+
+  reorder: (order: string[]) =>
+    api
+      .patch<ApiResponse<Record<string, never>>>("/team-sections/reorder", { order })
       .then((res) => res.data),
 };
