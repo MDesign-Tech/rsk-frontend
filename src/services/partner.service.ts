@@ -8,14 +8,14 @@ export const partnerService = {
   get: (id: string) =>
     api.get<ApiResponse<{ partner: Partner }>>(`/partners/${id}`).then((res) => res.data),
 
-  create: (formData: FormData) =>
+  create: (data: { name: string; image?: string | null; imagePublicId?: string | null; visible?: boolean }) =>
     api
-      .post<ApiResponse<{ partner: Partner }>>("/partners", formData)
+      .post<ApiResponse<{ partner: Partner }>>("/partners", data)
       .then((res) => res.data),
 
-  update: (id: string, formData: FormData) =>
+  update: (id: string, data: { name: string; image?: string | null; imagePublicId?: string | null; visible?: boolean }) =>
     api
-      .put<ApiResponse<{ partner: Partner }>>(`/partners/${id}`, formData)
+      .put<ApiResponse<{ partner: Partner }>>(`/partners/${id}`, data)
       .then((res) => res.data),
 
   remove: (id: string) =>

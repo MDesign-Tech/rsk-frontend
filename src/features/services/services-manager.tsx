@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, CheckCircle } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { serviceSchema, type ServiceInput } from "@/schemas";
 import { serviceService } from "@/services/service.service";
-import type { Service } from "@/types";
+import type { ApiResponse, Service, CloudinaryImage } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,7 +33,9 @@ import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { StatusToggle } from "@/components/ui/status-toggle";
+import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { saveResource } from "@/lib/image-save";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -48,10 +50,17 @@ export function ServicesManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [viewService, setViewService] = useState<Service | null>(null);
+
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
+
+  const isBusy = isSaving || isUploading;
 
   const form = useForm<ServiceInput>({
     resolver: zodResolver(serviceSchema),
@@ -76,36 +85,57 @@ export function ServicesManager() {
 
   const openCreate = () => {
     setEditing(null);
+    setImageData(null);
     form.reset({ title: "", description: "" });
     setDialogOpen(true);
   };
 
   const openEdit = (service: Service) => {
     setEditing(service);
+    setImageData(null);
     form.reset({ title: service.title, description: service.description });
     setDialogOpen(true);
   };
 
   const onSubmit = async (values: ServiceInput) => {
     setIsSaving(true);
+
     try {
-      if (editing) {
-        const res = await serviceService.update(editing._id, values);
+      // Upload any pending image first
+      const uploadedImage = await imageUploadRef.current?.upload();
+
+      const data = {
+        title: values.title,
+        description: values.description,
+        image: uploadedImage?.url ?? null,
+        imagePublicId: uploadedImage?.publicId ?? null,
+      };
+
+      const result = await saveResource<ApiResponse<{ service: Service }>, Service>({
+        save: async (): Promise<ApiResponse<{ service: Service }>> => {
+          if (editing) {
+            return serviceService.update(editing._id, data);
+          }
+          return serviceService.create(data);
+        },
+        getEntity: (res) => res.data.service,
+        successMessage: editing ? "Service updated" : "Service created",
+        showToast: false,
+      });
+
+      if (result) {
         setServices((prev) =>
-          prev.map((s) => (s._id === editing._id ? res.data.service : s))
+          prev.map((s) => (s._id === result._id ? result : s))
         );
+        if (!editing) setServices((prev) => [result, ...prev]);
+        setImageData(null);
         setDialogOpen(false);
-        toast.success("Service updated");
-      } else {
-        const res = await serviceService.create(values);
-        setServices((prev) => [res.data.service, ...prev]);
-        setDialogOpen(false);
-        toast.success("Service created");
+        toast.success(editing ? "Service updated successfully" : "Service created successfully");
       }
-      setIsSaving(false);
     } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save service");
+    } finally {
       setIsSaving(false);
-      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
@@ -150,6 +180,24 @@ export function ServicesManager() {
   );
 
   const columns: Column<Service>[] = [
+    {
+      key: "icon",
+      header: "",
+      className: "w-12",
+      render: (s) => (
+        <div className="flex items-center justify-center">
+          {s.image ? (
+            <img
+              src={s.image}
+              alt={s.title}
+              className="size-10 rounded-lg object-cover"
+            />
+          ) : (
+            <CheckCircle className="size-8 text-muted-foreground" />
+          )}
+        </div>
+      ),
+    },
     { key: "title", header: "Title" },
     {
       key: "description",
@@ -248,7 +296,13 @@ export function ServicesManager() {
         />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(isOpen) => {
+        if (!isOpen && imageData && !isBusy) {
+          toast.error("Please save the data or remove the image before closing.");
+          return;
+        }
+        if (!isBusy) setDialogOpen(isOpen);
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Service" : "Add Service"}</DialogTitle>
@@ -260,6 +314,25 @@ export function ServicesManager() {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Icon</label>
+                <ImageUpload
+                  ref={imageUploadRef}
+                  value={
+                    editing?.image && editing?.imagePublicId
+                      ? { url: editing.image, publicId: editing.imagePublicId }
+                      : null
+                  }
+                  onChange={setImageData}
+                  disabled={isBusy}
+                  onUploadingChange={setIsUploading}
+                  onProgress={setUploadProgress}
+                  label="Service icon"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Upload an icon for this service. A default icon will be shown if none is provided.
+                </p>
+              </div>
               <FormField
                 control={form.control}
                 name="title"
@@ -267,7 +340,7 @@ export function ServicesManager() {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} disabled={isBusy} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -280,7 +353,7 @@ export function ServicesManager() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea rows={4} {...field} />
+                      <Textarea rows={4} {...field} disabled={isBusy} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -291,10 +364,11 @@ export function ServicesManager() {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
+                  disabled={isBusy}
                 >
                   Cancel
                 </Button>
-                <SubmitButton isLoading={isSaving}>
+                <SubmitButton isLoading={isSaving} disabled={isBusy}>
                   {editing ? "Save Changes" : "Create"}
                 </SubmitButton>
               </DialogFooter>

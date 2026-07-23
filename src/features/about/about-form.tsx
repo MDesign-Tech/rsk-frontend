@@ -276,6 +276,10 @@ export function AboutForm() {
 
                     <Tooltip>
                       <TooltipTrigger asChild>
+                         <span
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
                         <StatusToggle
                           checked={
                             form.watch(`contactMethods.${index}.visible`) !== false
@@ -291,6 +295,7 @@ export function AboutForm() {
                               : "Hide contact method"
                           }
                         />
+                        </span>
                       </TooltipTrigger>
                       <TooltipContent>
                         {form.watch(`contactMethods.${index}.visible`) === false
@@ -346,6 +351,10 @@ export function AboutForm() {
                   />
                   <Tooltip>
                     <TooltipTrigger asChild>
+                       <span
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
                       <StatusToggle
                         checked={
                           form.watch(`socialMedia.${platform}.visible`) !== false
@@ -364,7 +373,7 @@ export function AboutForm() {
                             ? `Show ${platform}`
                             : `Hide ${platform}`
                         }
-                      />
+                      /></span>
                     </TooltipTrigger>
                     <TooltipContent>
                       {form.watch(`socialMedia.${platform}.visible`) === false

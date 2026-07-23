@@ -5,6 +5,7 @@ export interface SaveResourceOptions<R, T> {
   getEntity: (response: R) => T;
   successMessage: string;
   errorMessage?: string;
+  showToast?: boolean;
 }
 
 export async function saveResource<R, T>({
@@ -12,14 +13,19 @@ export async function saveResource<R, T>({
   getEntity,
   successMessage,
   errorMessage = "Something went wrong. Please try again.",
+  showToast = true,
 }: SaveResourceOptions<R, T>): Promise<T | null> {
   try {
     const saved = await save();
     const result = getEntity(saved);
-    toast.success(successMessage);
+    if (showToast) {
+      toast.success(successMessage);
+    }
     return result;
   } catch (err) {
-    toast.error(err instanceof Error ? err.message : errorMessage);
+    if (showToast) {
+      toast.error(err instanceof Error ? err.message : errorMessage);
+    }
     return null;
   }
 }

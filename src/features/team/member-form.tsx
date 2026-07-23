@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { teamMemberSchema, type TeamMemberInput } from "@/schemas";
 import { teamService } from "@/services/team.service";
-import type { ApiResponse, TeamMember, TeamSection } from "@/types";
+import type { ApiResponse, TeamMember, TeamSection, CloudinaryImage } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ImageUpload } from "@/components/admin/image-upload";
+import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
 import { toast } from "sonner";
@@ -24,19 +24,22 @@ export function MemberFormDialog({
   open,
   editing,
   sections,
-  imageFile,
-  setImageFile,
+  imageData,
+  setImageData,
   onOpenChange,
   onSaved,
 }: {
   open: boolean;
   editing: TeamMember | null;
   sections: TeamSection[];
-  imageFile: File | null;
-  setImageFile: (f: File | null) => void;
+  imageData: CloudinaryImage | null;
+  setImageData: (d: CloudinaryImage | null) => void;
   onOpenChange: (o: boolean) => void;
   onSaved: (m: TeamMember) => void;
 }) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
   const form = useForm<TeamMemberInput>({
     resolver: zodResolver(teamMemberSchema),
     defaultValues: {
@@ -47,6 +50,8 @@ export function MemberFormDialog({
       socialMedia: {},
     },
   });
+
+  const isBusy = isUploading || form.formState.isSubmitting;
 
   useEffect(() => {
     if (editing) {
@@ -82,29 +87,49 @@ export function MemberFormDialog({
   }, [editing, form]);
 
   const onSubmit = async (values: TeamMemberInput) => {
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("title", values.title);
-    formData.append("bio", values.bio);
-    formData.append("section", values.section);
-    formData.append("socialMedia", JSON.stringify(values.socialMedia ?? {}));
-    if (imageFile) formData.append("image", imageFile);
+    try {
+      // Upload any pending image first
+      const uploadedImage = await imageUploadRef.current?.upload();
 
-    const result = await saveResource<ApiResponse<{ teamMember: TeamMember }>, TeamMember>({
-      save: () =>
-        editing ? teamService.update(editing._id, formData) : teamService.create(formData),
-      getEntity: (res) => res.data.teamMember,
-      successMessage: editing ? "Team member updated successfully." : "Team member created successfully.",
-    });
-    if (result) {
-      onSaved(result);
-      setImageFile(null);
-      onOpenChange(false);
+      const data = {
+        name: values.name,
+        title: values.title,
+        bio: values.bio,
+        section: values.section,
+        socialMedia: values.socialMedia ?? {},
+        image: uploadedImage?.url ?? null,
+        imagePublicId: uploadedImage?.publicId ?? null,
+      };
+
+      const result = await saveResource<ApiResponse<{ teamMember: TeamMember }>, TeamMember>({
+        save: () =>
+          editing ? teamService.update(editing._id, data) : teamService.create(data),
+        getEntity: (res) => res.data.teamMember,
+        successMessage: editing ? "Team member updated successfully." : "Team member created successfully.",
+        showToast: false,
+      });
+
+      if (result) {
+        onSaved(result);
+        setImageData(null);
+        onOpenChange(false);
+        toast.success(editing ? "Team member updated successfully" : "Team member created successfully");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save team member");
     }
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen && imageData && !isBusy) {
+      toast.error("Please save the data or remove the image before closing.");
+      return;
+    }
+    if (!isBusy) onOpenChange(isOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editing ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
@@ -115,10 +140,10 @@ export function MemberFormDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="title" render={({ field }) => (
-              <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="section" render={({ field }) => (
               <FormItem>
@@ -131,17 +156,29 @@ export function MemberFormDialog({
               </FormItem>
             )} />
             <FormField control={form.control} name="bio" render={({ field }) => (
-              <FormItem><FormLabel>Bio</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Bio</FormLabel><FormControl><Textarea rows={3} {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
             )} />
             <SocialMediaField control={form.control} />
             <div className="space-y-2">
               <label className="text-sm font-medium">Photo</label>
-              <ImageUpload value={editing?.image ?? null} onChange={setImageFile} disabled={form.formState.isSubmitting} label="Team member photo" />
+              <ImageUpload
+                ref={imageUploadRef}
+                value={
+                  editing?.image && editing?.imagePublicId
+                    ? { url: editing.image, publicId: editing.imagePublicId }
+                    : null
+                }
+                onChange={setImageData}
+                disabled={isBusy}
+                onUploadingChange={setIsUploading}
+                onProgress={setUploadProgress}
+                label="Team member photo"
+              />
               <p className="text-sm text-muted-foreground">Select a new image and save to update the photo.</p>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <SubmitButton isLoading={form.formState.isSubmitting}>{editing ? "Save Changes" : "Create"}</SubmitButton>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
+              <SubmitButton isLoading={form.formState.isSubmitting} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
             </DialogFooter>
           </form>
         </Form>

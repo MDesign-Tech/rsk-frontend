@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { teamService, teamSectionService } from "@/services/team.service";
-import type { TeamMember, TeamSection } from "@/types";
+import type { TeamMember, TeamSection, CloudinaryImage } from "@/types";
 import { toast } from "sonner";
 
 export function useTeamManager() {
@@ -12,7 +12,7 @@ export function useTeamManager() {
   const [search, setSearch] = useState("");
   const [memberOpen, setMemberOpen] = useState(false);
   const [editing, setEditing] = useState<TeamMember | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TeamMember | null>(null);
   const [sectionOpen, setSectionOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<TeamSection | null>(null);
@@ -45,8 +45,8 @@ export function useTeamManager() {
       return sectionIdOf(m) === sid && (!q || m.name.toLowerCase().includes(q) || m.title.toLowerCase().includes(q));
     });
 
-  const openCreate = () => { setEditing(null); setImageFile(null); setMemberOpen(true); };
-  const openEdit = (m: TeamMember) => { setEditing(m); setImageFile(null); setMemberOpen(true); };
+  const openCreate = () => { setEditing(null); setImageData(null); setMemberOpen(true); };
+  const openEdit = (m: TeamMember) => { setEditing(m); setImageData(null); setMemberOpen(true); };
   const onMemberSaved = (m: TeamMember) =>
     setMembers((prev) => (prev.some((x) => x._id === m._id) ? prev.map((x) => (x._id === m._id ? m : x)) : [m, ...prev]));
 
@@ -117,7 +117,7 @@ export function useTeamManager() {
 
   return {
     members, sections, isLoading, search, setSearch,
-    memberOpen, setMemberOpen, editing, imageFile, setImageFile, deleteTarget, setDeleteTarget,
+    memberOpen, setMemberOpen, editing, imageData, setImageData, deleteTarget, setDeleteTarget,
     sectionOpen, setSectionOpen, editingSection, deleteSectionTarget, setDeleteSectionTarget,
     togglingMemberId, togglingSectionId, viewMember, setViewMember,
     filtered, openCreate, openEdit, onMemberSaved, toggleMember, confirmDelete,

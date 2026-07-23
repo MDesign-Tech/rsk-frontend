@@ -41,14 +41,14 @@ export const teamService = {
   get: (id: string) =>
     api.get<ApiResponse<{ teamMember: TeamMember }>>(`/team/${id}`).then((res) => res.data),
 
-  create: (formData: FormData) =>
+  create: (data: { name: string; title: string; bio: string; section: string; socialMedia: Record<string, { href?: string | null; visible?: boolean }>; image?: string | null; imagePublicId?: string | null }) =>
     api
-      .post<ApiResponse<{ teamMember: TeamMember }>>("/team", formData)
+      .post<ApiResponse<{ teamMember: TeamMember }>>("/team", data)
       .then((res) => res.data),
 
-  update: (id: string, formData: FormData) =>
+  update: (id: string, data: { name: string; title: string; bio: string; section: string; socialMedia: Record<string, { href?: string | null; visible?: boolean }>; image?: string | null; imagePublicId?: string | null }) =>
     api
-      .put<ApiResponse<{ teamMember: TeamMember }>>(`/team/${id}`, formData)
+      .put<ApiResponse<{ teamMember: TeamMember }>>(`/team/${id}`, data)
       .then((res) => res.data),
 
   remove: (id: string) =>

@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
 import { saveResource } from "@/lib/image-save";
-import type { ApiResponse } from "@/types";
+import type { ApiResponse, CloudinaryImage } from "@/types";
 import {
   Form,
   FormControl,
@@ -24,7 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FormCard } from "@/components/admin/form-card";
-import { ImageUpload } from "@/components/admin/image-upload";
+import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { toast } from "sonner";
@@ -34,9 +34,12 @@ export function HeroForm() {
   const [hero, setHero] = useState<HeroContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
   const [isTogglingSubtitle, setIsTogglingSubtitle] = useState(false);
   const [isTogglingTrust, setIsTogglingTrust] = useState(false);
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
 
   const form = useForm<HeroInput>({
     resolver: zodResolver(heroSchema),
@@ -72,27 +75,41 @@ export function HeroForm() {
 
   const onSubmit = async (values: HeroInput) => {
     setIsSaving(true);
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("subtitle", values.subtitle);
-    formData.append("trust", values.trust);
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
 
-    const result = await saveResource<
-      ApiResponse<{ hero: HeroContent }>,
-      HeroContent
-    >({
-      save: async (): Promise<ApiResponse<{ hero: HeroContent }>> =>
-        heroService.update(formData),
-      getEntity: (res) => res.data.hero,
-      successMessage: "Hero updated successfully.",
-    });
-    setIsSaving(false);
-    if (result) {
-      setHero(result);
-      setImageFile(null);
+    try {
+      // Upload any pending image first
+      const uploadedImage = await imageUploadRef.current?.upload();
+
+      const data = {
+        title: values.title,
+        subtitle: values.subtitle,
+        trust: values.trust,
+        subtitleVisible: values.subtitleVisible,
+        trustVisible: values.trustVisible,
+        image: uploadedImage?.url ?? null,
+        imagePublicId: uploadedImage?.publicId ?? null,
+      };
+
+      const result = await saveResource<
+        ApiResponse<{ hero: HeroContent }>,
+        HeroContent
+      >({
+        save: async (): Promise<ApiResponse<{ hero: HeroContent }>> =>
+          heroService.update(data),
+        getEntity: (res) => res.data.hero,
+        successMessage: "Hero updated successfully.",
+        showToast: false,
+      });
+
+      if (result) {
+        setHero(result);
+        setImageData(null);
+        toast.success("Hero updated successfully");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update hero");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -240,9 +257,16 @@ export function HeroForm() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Background Image</label>
             <ImageUpload
-              value={hero?.image ?? null}
-              onChange={setImageFile}
+              ref={imageUploadRef}
+              value={
+                hero?.image && hero?.imagePublicId
+                  ? { url: hero.image, publicId: hero.imagePublicId }
+                  : null
+              }
+              onChange={setImageData}
               disabled={isSaving}
+              onUploadingChange={setIsUploading}
+              onProgress={setUploadProgress}
             />
             <p className="text-sm text-muted-foreground">
               Select a new image and save to update the background.

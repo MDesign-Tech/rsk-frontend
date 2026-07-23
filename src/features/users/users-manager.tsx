@@ -107,6 +107,7 @@ export function UsersManager() {
         setUsers((prev) =>
           prev.map((u) => (u._id === editing._id ? res.data.user : u))
         );
+        setIsSaving(false);
         setDialogOpen(false);
         toast.success("User updated");
       } else {
@@ -118,10 +119,10 @@ export function UsersManager() {
           role: "admin" as const,
         });
         setUsers((prev) => [res.data.user, ...prev]);
+        setIsSaving(false);
         setDialogOpen(false);
         toast.success("User created");
       }
-      setIsSaving(false);
     } catch (err) {
       setIsSaving(false);
       toast.error(err instanceof Error ? err.message : "Save failed");
@@ -205,7 +206,7 @@ export function UsersManager() {
         <DataTable columns={columns} data={filtered} keyField="_id" />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(isOpen) => { if (!isSaving) setDialogOpen(isOpen); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editing ? "Edit User" : "Add User"}</DialogTitle>
@@ -224,7 +225,7 @@ export function UsersManager() {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} disabled={isSaving} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -237,7 +238,7 @@ export function UsersManager() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" {...field} />
+                      <Input type="email" {...field} disabled={isSaving} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -250,7 +251,7 @@ export function UsersManager() {
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} disabled={isSaving} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -269,6 +270,7 @@ export function UsersManager() {
                         type="password"
                         placeholder={editing ? "••••••••" : "At least 6 characters"}
                         {...field}
+                        disabled={isSaving}
                       />
                     </FormControl>
                     <FormMessage />
@@ -280,10 +282,11 @@ export function UsersManager() {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
+                  disabled={isSaving}
                 >
                   Cancel
                 </Button>
-                <SubmitButton isLoading={isSaving}>
+                <SubmitButton isLoading={isSaving} disabled={isSaving}>
                   {editing ? "Save Changes" : "Create"}
                 </SubmitButton>
               </DialogFooter>

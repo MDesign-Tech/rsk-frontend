@@ -263,7 +263,7 @@ export function ContactManager() {
 
       <Dialog
         open={!!replyTarget}
-        onOpenChange={(o) => !o && setReplyTarget(null)}
+        onOpenChange={(isOpen) => { if (!isOpen && !isReplying) setReplyTarget(null); }}
       >
         <DialogContent>
           <DialogHeader>

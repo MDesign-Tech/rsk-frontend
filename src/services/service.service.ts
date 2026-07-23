@@ -8,12 +8,12 @@ export const serviceService = {
   get: (id: string) =>
     api.get<ApiResponse<{ service: Service }>>(`/services/${id}`).then((res) => res.data),
 
-  create: (data: { title: string; description: string }) =>
+  create: (data: { title: string; description: string; image?: string | null; imagePublicId?: string | null }) =>
     api
       .post<ApiResponse<{ service: Service }>>("/services", data)
       .then((res) => res.data),
 
-  update: (id: string, data: { title: string; description: string }) =>
+  update: (id: string, data: { title: string; description: string; image?: string | null; imagePublicId?: string | null }) =>
     api
       .put<ApiResponse<{ service: Service }>>(`/services/${id}`, data)
       .then((res) => res.data),

@@ -94,10 +94,12 @@ export function FaqsManager() {
         setFaqs((prev) =>
           prev.map((f) => (f._id === editing._id ? res.data.faq : f)),
         );
+        setIsSaving(false);
         toast.success("FAQ updated");
       } else {
         const res = await faqService.create(values);
         setFaqs((prev) => [res.data.faq, ...prev]);
+        setIsSaving(false);
         toast.success("FAQ created");
       }
       setDialogOpen(false);
@@ -259,7 +261,7 @@ export function FaqsManager() {
         />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(isOpen) => { if (!isSaving) setDialogOpen(isOpen); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editing ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
@@ -278,7 +280,7 @@ export function FaqsManager() {
                   <FormItem>
                     <FormLabel>Question</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} disabled={isSaving} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -291,7 +293,7 @@ export function FaqsManager() {
                   <FormItem>
                     <FormLabel>Answer</FormLabel>
                     <FormControl>
-                      <Textarea rows={5} {...field} />
+                      <Textarea rows={5} {...field} disabled={isSaving} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -302,10 +304,11 @@ export function FaqsManager() {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
+                  disabled={isSaving}
                 >
                   Cancel
                 </Button>
-                <SubmitButton isLoading={isSaving}>
+                <SubmitButton isLoading={isSaving} disabled={isSaving}>
                   {editing ? "Save Changes" : "Create"}
                 </SubmitButton>
               </DialogFooter>

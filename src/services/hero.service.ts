@@ -5,9 +5,9 @@ export const heroService = {
   get: () =>
     api.get<ApiResponse<{ hero: HeroContent }>>("/hero").then((res) => res.data),
 
-  update: (formData: FormData) =>
+  update: (data: { title: string; subtitle: string; trust: string; subtitleVisible: boolean; trustVisible: boolean; image?: string | null; imagePublicId?: string | null }) =>
     api
-      .put<ApiResponse<{ hero: HeroContent }>>("/hero", formData)
+      .put<ApiResponse<{ hero: HeroContent }>>("/hero", data)
       .then((res) => res.data),
 
   updateSubtitleVisibility: (visible: boolean) =>

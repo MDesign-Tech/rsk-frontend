@@ -1,4 +1,9 @@
 
+export interface CloudinaryImage {
+  url: string;
+  publicId: string;
+}
+
 export type UserRole = "admin";
 
 export interface AuthUser {
@@ -25,6 +30,7 @@ export interface HeroContent {
   subtitle: string;
   trust: string;
   image?: string | null;
+  imagePublicId?: string | null;
   subtitleVisible?: boolean;
   trustVisible?: boolean;
 }
@@ -33,6 +39,8 @@ export interface Service {
   _id: string;
   title: string;
   description: string;
+  image?: string | null;
+  imagePublicId?: string | null;
   visible?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -82,6 +90,7 @@ export interface Partner {
   _id: string;
   name: string;
   image?: string | null;
+  imagePublicId?: string | null;
   visible?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -100,6 +109,7 @@ export interface TeamMember {
   _id: string;
   name: string;
   image?: string | null;
+  imagePublicId?: string | null;
   title: string;
   bio?: string;
   visible?: boolean;
@@ -142,6 +152,109 @@ export interface ContactMethod {
   value: string;
   href?: string | null;
   visible: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Content Block types (used in block-editor and news articles)
+// ---------------------------------------------------------------------------
+export type BlockType =
+  | "heading"
+  | "paragraph"
+  | "image"
+  | "gallery"
+  | "quote"
+  | "bulletList"
+  | "numberedList"
+  | "checklist"
+  | "divider"
+  | "callout"
+  | "button"
+  | "spacer"
+  | "table"
+  | "codeBlock"
+  | "video"
+  | "fileAttachment"
+  | "faq"
+  | "timeline"
+  | "statistics"
+  | "card"
+  | "banner"
+  | "twoColumns"
+  | "threeColumns";
+
+export interface ContentBlock {
+  id: string;
+  type: BlockType;
+  _draggedId?: string;
+  _file?: File;
+  _publicId?: string;
+}
+
+export interface ImageBlock extends ContentBlock {
+  type: "image";
+  src: string;
+  alt: string;
+  caption: string;
+  alignment: "left" | "center" | "right";
+  borderRadius: number;
+  width: number;
+}
+
+export interface GalleryBlock extends ContentBlock {
+  type: "gallery";
+  images: { src: string; caption: string; _publicId?: string }[];
+  layout: "grid" | "masonry";
+}
+
+export interface HeadingBlock extends ContentBlock {
+  type: "heading";
+  level: 1 | 2 | 3 | 4;
+  text: string;
+}
+
+export interface ParagraphBlock extends ContentBlock {
+  type: "paragraph";
+  content: string;
+}
+
+export interface QuoteBlock extends ContentBlock {
+  type: "quote";
+  text: string;
+  author: string;
+  position: string;
+}
+
+export interface ListBlock extends ContentBlock {
+  type: "bulletList" | "numberedList";
+  items: string[];
+}
+
+export interface ChecklistBlock extends ContentBlock {
+  type: "checklist";
+  items: { text: string; checked: boolean }[];
+}
+
+export interface CalloutBlock extends ContentBlock {
+  type: "callout";
+  variant: "info" | "success" | "warning" | "danger";
+  message: string;
+  icon: string;
+}
+
+export interface ButtonBlock extends ContentBlock {
+  type: "button";
+  label: string;
+  url: string;
+  variant: "primary" | "secondary" | "outline";
+}
+
+export interface SpacerBlock extends ContentBlock {
+  type: "spacer";
+  height: number;
+}
+
+export interface DividerBlock extends ContentBlock {
+  type: "divider";
 }
 
 // Generic API envelope returned by the backend.

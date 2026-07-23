@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { partnerSchema, type PartnerInput } from "@/schemas";
 import { partnerService } from "@/services/partner.service";
-import type { ApiResponse, Partner } from "@/types";
+import type { ApiResponse, Partner, CloudinaryImage } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,7 +31,7 @@ import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
-import { ImageUpload } from "@/components/admin/image-upload";
+import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
@@ -49,10 +49,16 @@ export function PartnersManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Partner | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Partner | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
+
+  const isBusy = isSaving || isUploading;
 
   const form = useForm<PartnerInput>({
     resolver: zodResolver(partnerSchema),
@@ -77,14 +83,14 @@ export function PartnersManager() {
 
   const openCreate = () => {
     setEditing(null);
-    setImageFile(null);
+    setImageData(null);
     form.reset({ name: "", visible: true });
     setDialogOpen(true);
   };
 
   const openEdit = (partner: Partner) => {
     setEditing(partner);
-    setImageFile(null);
+    setImageData(null);
     form.reset({
       name: partner.name,
       visible: partner.visible ?? true,
@@ -94,32 +100,45 @@ export function PartnersManager() {
 
   const onSubmit = async (values: PartnerInput) => {
     setIsSaving(true);
-    const formData = new FormData();
-    formData.append("name", values.name);
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
 
-    const result = await saveResource<ApiResponse<{ partner: Partner }>, Partner>({
-      save: async (): Promise<ApiResponse<{ partner: Partner }>> => {
-        if (editing) {
-          return partnerService.update(editing._id, formData);
-        }
-        return partnerService.create(formData);
-      },
-      getEntity: (res) => res.data.partner,
-      successMessage: editing
-        ? "Partner updated successfully."
-        : "Partner created successfully.",
-    });
-    setIsSaving(false);
-    if (result) {
-      setPartners((prev) =>
-        prev.map((p) => (p._id === result._id ? result : p))
-      );
-      if (!editing) setPartners((prev) => [result, ...prev]);
-      setImageFile(null);
-      setDialogOpen(false);
+    try {
+      // Upload any pending image first
+      const uploadedImage = await imageUploadRef.current?.upload();
+
+      const data = {
+        name: values.name,
+        visible: values.visible,
+        image: uploadedImage?.url ?? null,
+        imagePublicId: uploadedImage?.publicId ?? null,
+      };
+
+      const result = await saveResource<ApiResponse<{ partner: Partner }>, Partner>({
+        save: async (): Promise<ApiResponse<{ partner: Partner }>> => {
+          if (editing) {
+            return partnerService.update(editing._id, data);
+          }
+          return partnerService.create(data);
+        },
+        getEntity: (res) => res.data.partner,
+        successMessage: editing
+          ? "Partner updated successfully."
+          : "Partner created successfully.",
+        showToast: false,
+      });
+
+      if (result) {
+        setPartners((prev) =>
+          prev.map((p) => (p._id === result._id ? result : p))
+        );
+        if (!editing) setPartners((prev) => [result, ...prev]);
+        setImageData(null);
+        setDialogOpen(false);
+        toast.success(editing ? "Partner updated successfully" : "Partner created successfully");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save partner");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -252,7 +271,13 @@ export function PartnersManager() {
         />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(isOpen) => {
+        if (!isOpen && imageData && !isBusy) {
+          toast.error("Please save the data or remove the image before closing.");
+          return;
+        }
+        if (!isBusy) setDialogOpen(isOpen);
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Partner" : "Add Partner"}</DialogTitle>
@@ -271,7 +296,7 @@ export function PartnersManager() {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} disabled={isBusy} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -280,9 +305,16 @@ export function PartnersManager() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Logo</label>
                 <ImageUpload
-                  value={editing?.image ?? null}
-                  onChange={setImageFile}
-                  disabled={isSaving}
+                  ref={imageUploadRef}
+                  value={
+                    editing?.image && editing?.imagePublicId
+                      ? { url: editing.image, publicId: editing.imagePublicId }
+                      : null
+                  }
+                  onChange={setImageData}
+                  disabled={isBusy}
+                  onUploadingChange={setIsUploading}
+                  onProgress={setUploadProgress}
                   label="Partner logo"
                 />
                 <p className="text-sm text-muted-foreground">
@@ -294,11 +326,11 @@ export function PartnersManager() {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
-                  disabled={isSaving}
+                  disabled={isBusy}
                 >
                   Cancel
                 </Button>
-                <SubmitButton isLoading={isSaving}>
+                <SubmitButton isLoading={isSaving} disabled={isBusy}>
                   {editing ? "Save Changes" : "Create"}
                 </SubmitButton>
               </DialogFooter>

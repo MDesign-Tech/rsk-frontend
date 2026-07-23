@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSectionSchema, type TeamSectionInput } from "@/schemas";
@@ -23,6 +23,7 @@ export function SectionFormDialog({
   onOpenChange: (o: boolean) => void;
   onSubmit: (values: TeamSectionInput) => Promise<void>;
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<TeamSectionInput>({
     resolver: zodResolver(teamSectionSchema),
     defaultValues: { name: "", description: "" },
@@ -39,8 +40,10 @@ export function SectionFormDialog({
     }
   }, [editing, form]);
 
+  const isBusy = isSubmitting || form.formState.isSubmitting;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isBusy) onOpenChange(isOpen); }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{editing ? "Edit Section" : "Add Section"}</DialogTitle>
@@ -51,20 +54,22 @@ export function SectionFormDialog({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(async (values) => {
+              setIsSubmitting(true);
               await onSubmit(values);
+              setIsSubmitting(false);
               onOpenChange(false);
             })}
             className="space-y-4"
           >
             <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={3} {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <SubmitButton isLoading={form.formState.isSubmitting}>{editing ? "Save Changes" : "Create"}</SubmitButton>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
+              <SubmitButton isLoading={isBusy} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
             </DialogFooter>
           </form>
         </Form>

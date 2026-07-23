@@ -61,8 +61,8 @@ export function TeamManager() {
         open={t.memberOpen}
         editing={t.editing}
         sections={t.sections}
-        imageFile={t.imageFile}
-        setImageFile={t.setImageFile}
+        imageData={t.imageData}
+        setImageData={t.setImageData}
         onOpenChange={t.setMemberOpen}
         onSaved={t.onMemberSaved}
       />
