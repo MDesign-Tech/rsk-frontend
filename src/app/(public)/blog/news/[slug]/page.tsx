@@ -221,7 +221,6 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
           {/* Stats */}
           <div className="mt-10 pt-6 border-t border-border/60">
             <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-              <span>{article.views} views</span>
               <span>{article.likes} likes</span>
               <span>{article.shares} shares</span>
               <span>{article.commentsCount} comments</span>

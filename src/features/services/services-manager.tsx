@@ -33,7 +33,10 @@ import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
 import { StatusToggle } from "@/components/ui/status-toggle";
-import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
+import {
+  ImageUpload,
+  type ImageUploadHandle,
+} from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
 import { toast } from "sonner";
@@ -75,7 +78,9 @@ export function ServicesManager() {
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
-      toast.error(err instanceof Error ? err.message : "Failed to load services");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to load services",
+      );
     }
   };
 
@@ -111,7 +116,10 @@ export function ServicesManager() {
         imagePublicId: uploadedImage?.publicId ?? null,
       };
 
-      const result = await saveResource<ApiResponse<{ service: Service }>, Service>({
+      const result = await saveResource<
+        ApiResponse<{ service: Service }>,
+        Service
+      >({
         save: async (): Promise<ApiResponse<{ service: Service }>> => {
           if (editing) {
             return serviceService.update(editing._id, data);
@@ -125,15 +133,21 @@ export function ServicesManager() {
 
       if (result) {
         setServices((prev) =>
-          prev.map((s) => (s._id === result._id ? result : s))
+          prev.map((s) => (s._id === result._id ? result : s)),
         );
         if (!editing) setServices((prev) => [result, ...prev]);
         setImageData(null);
         setDialogOpen(false);
-        toast.success(editing ? "Service updated successfully" : "Service created successfully");
+        toast.success(
+          editing
+            ? "Service updated successfully"
+            : "Service created successfully",
+        );
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save service");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to save service",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -157,13 +171,20 @@ export function ServicesManager() {
   const toggleVisibility = async (service: Service) => {
     setTogglingId(service._id);
     try {
-      const res = await serviceService.toggleVisibility(service._id, !service.visible);
-      setServices((prev) =>
-        prev.map((s) => (s._id === service._id ? res.data.service : s))
+      const res = await serviceService.toggleVisibility(
+        service._id,
+        !service.visible,
       );
-      toast.success(res.data.service.visible ? "Service shown" : "Service hidden");
+      setServices((prev) =>
+        prev.map((s) => (s._id === service._id ? res.data.service : s)),
+      );
+      toast.success(
+        res.data.service.visible ? "Service shown" : "Service hidden",
+      );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update visibility");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update visibility",
+      );
     } finally {
       setTogglingId(null);
     }
@@ -176,7 +197,7 @@ export function ServicesManager() {
   const filtered = services.filter(
     (s) =>
       s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.description.toLowerCase().includes(search.toLowerCase())
+      s.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   const columns: Column<Service>[] = [
@@ -193,7 +214,9 @@ export function ServicesManager() {
               className="size-10 rounded-lg object-cover"
             />
           ) : (
-            <CheckCircle className="size-8 text-muted-foreground" />
+            <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <CheckCircle className="h-4 w-4" />
+            </div>
           )}
         </div>
       ),
@@ -205,7 +228,9 @@ export function ServicesManager() {
       render: (s) => {
         const words = s.description.split(" ");
         const preview =
-          words.length > 3 ? words.slice(0, 3).join(" ") + "..." : s.description;
+          words.length > 3
+            ? words.slice(0, 3).join(" ") + "..."
+            : s.description;
         return (
           <span className="text-sm text-foreground" title={s.description}>
             {preview}
@@ -233,9 +258,7 @@ export function ServicesManager() {
                 />
               </span>
             </TooltipTrigger>
-            <TooltipContent>
-              {s.visible ? "Hide" : "Show"}
-            </TooltipContent>
+            <TooltipContent>{s.visible ? "Hide" : "Show"}</TooltipContent>
           </Tooltip>
           <IconButton
             variant="outline"
@@ -296,16 +319,23 @@ export function ServicesManager() {
         />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={(isOpen) => {
-        if (!isOpen && imageData && !isBusy) {
-          toast.error("Please save the data or remove the image before closing.");
-          return;
-        }
-        if (!isBusy) setDialogOpen(isOpen);
-      }}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(isOpen) => {
+          if (!isOpen && imageData && !isBusy) {
+            toast.error(
+              "Please save the data or remove the image before closing.",
+            );
+            return;
+          }
+          if (!isBusy) setDialogOpen(isOpen);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit Service" : "Add Service"}</DialogTitle>
+            <DialogTitle>
+              {editing ? "Edit Service" : "Add Service"}
+            </DialogTitle>
             <DialogDescription>
               {editing
                 ? "Update the details of this service."
@@ -330,7 +360,8 @@ export function ServicesManager() {
                   label="Service icon"
                 />
                 <p className="text-sm text-muted-foreground">
-                  Upload an icon for this service. A default icon will be shown if none is provided.
+                  Upload an icon for this service. A default icon will be shown
+                  if none is provided.
                 </p>
               </div>
               <FormField
@@ -377,7 +408,10 @@ export function ServicesManager() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!viewService} onOpenChange={(o) => !o && setViewService(null)}>
+      <Dialog
+        open={!!viewService}
+        onOpenChange={(o) => !o && setViewService(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{viewService?.title}</DialogTitle>
@@ -385,13 +419,17 @@ export function ServicesManager() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground">Description</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Description
+              </h4>
               <p className="text-sm text-foreground whitespace-pre-wrap">
                 {viewService?.description}
               </p>
             </div>
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Status
+              </h4>
               <p className="text-sm text-foreground">
                 {viewService?.visible ? "Visible" : "Hidden"}
               </p>

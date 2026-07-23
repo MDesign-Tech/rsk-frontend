@@ -2,24 +2,16 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle, TrendingUp, Calculator, Briefcase, Shield, Zap } from "lucide-react";
+import { CheckCircle } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useWebsiteStore } from "@/stores/website.store";
 
-const SERVICE_ICONS = [
-  CheckCircle,
-  TrendingUp,
-  Calculator,
-  Briefcase,
-  Shield,
-  Zap,
-];
 
 export function HomeWhyJoin() {
   const shouldReduceMotion = useReducedMotion();
   const whyJoinUs = useWebsiteStore((state) => state.data?.whyJoinUs);
   const visiblePoints = whyJoinUs?.points ?? [];
-
   return (
     <section
       id="why-join-rsk"
@@ -45,7 +37,6 @@ export function HomeWhyJoin() {
         {visiblePoints.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {visiblePoints.map((point, index) => {
-              const Icon = SERVICE_ICONS[index % SERVICE_ICONS.length];
               return (
                 <motion.div
                   key={point.title + index}
@@ -56,7 +47,11 @@ export function HomeWhyJoin() {
                   className="group rounded-4xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl shadow-[0_30px_80px_-50px_rgba(14,116,232,0.55)] transition-all hover:-translate-y-1 hover:border-sky-300/30 hover:bg-white/20"
                 >
                   <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-sky-950/10 text-sky-400 transition-colors group-hover:bg-sky-400/10">
-                    <Icon className="h-7 w-7" />
+                    {point.image ? (
+                      <Image src={point.image} alt={point.title} width={28} height={28} className="rounded-full object-cover" />
+                    ) : (
+                      <CheckCircle className="h-7 w-7" />
+                    )}
                   </div>
                   <h3 className="mt-6 text-xl font-semibold text-foreground">
                     {point.title}

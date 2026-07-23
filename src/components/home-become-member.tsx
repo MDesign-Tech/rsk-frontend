@@ -2,24 +2,16 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle, TrendingUp, Calculator, Briefcase, Shield, Zap } from "lucide-react";
+import { CheckCircle } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useWebsiteStore } from "@/stores/website.store";
-
-const SERVICE_ICONS = [
-  CheckCircle,
-  TrendingUp,
-  Calculator,
-  Briefcase,
-  Shield,
-  Zap,
-];
 
 export function BecomeMember() {
   const shouldReduceMotion = useReducedMotion();
   const whyBecomeMember = useWebsiteStore((state) => state.data?.whyBecomeMember);
   const visiblePoints = whyBecomeMember?.points ?? [];
-
+console.log(visiblePoints)
   return (
     <section
       id="become-a-member"
@@ -44,7 +36,6 @@ export function BecomeMember() {
         {visiblePoints.length > 0 && (
           <div className="grid gap-6 lg:grid-cols-3">
             {visiblePoints.map((benefit, index) => {
-              const Icon = SERVICE_ICONS[index % SERVICE_ICONS.length];
               return (
                 <motion.div
                   key={benefit.title + index}
@@ -55,7 +46,11 @@ export function BecomeMember() {
                   className="rounded-4xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl shadow-[0_25px_60px_-35px_rgba(15,23,42,0.45)] transition-all hover:-translate-y-1 hover:border-sky-300/30 hover:bg-white/20"
                 >
                   <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-950/10 text-sky-400 transition-colors group-hover:bg-sky-400/10">
-                    <Icon className="h-6 w-6" />
+                    {benefit.image ? (
+                      <Image src={benefit.image} alt={benefit.title} width={24} height={24} className="rounded-full object-cover" />
+                    ) : (
+                      <CheckCircle className="h-6 w-6" />
+                    )}
                   </div>
                   <h3 className="mt-6 text-xl font-semibold text-foreground">
                     {benefit.title}

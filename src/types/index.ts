@@ -155,109 +155,6 @@ export interface ContactMethod {
   visible: boolean;
 }
 
-// ---------------------------------------------------------------------------
-// Content Block types (used in block-editor and news articles)
-// ---------------------------------------------------------------------------
-export type BlockType =
-  | "heading"
-  | "paragraph"
-  | "image"
-  | "gallery"
-  | "quote"
-  | "bulletList"
-  | "numberedList"
-  | "checklist"
-  | "divider"
-  | "callout"
-  | "button"
-  | "spacer"
-  | "table"
-  | "codeBlock"
-  | "video"
-  | "fileAttachment"
-  | "faq"
-  | "timeline"
-  | "statistics"
-  | "card"
-  | "banner"
-  | "twoColumns"
-  | "threeColumns";
-
-export interface ContentBlock {
-  id: string;
-  type: BlockType;
-  _draggedId?: string;
-  _file?: File;
-  _publicId?: string;
-}
-
-export interface ImageBlock extends ContentBlock {
-  type: "image";
-  src: string;
-  alt: string;
-  caption: string;
-  alignment: "left" | "center" | "right";
-  borderRadius: number;
-  width: number;
-}
-
-export interface GalleryBlock extends ContentBlock {
-  type: "gallery";
-  images: { src: string; caption: string; _publicId?: string }[];
-  layout: "grid" | "masonry";
-}
-
-export interface HeadingBlock extends ContentBlock {
-  type: "heading";
-  level: 1 | 2 | 3 | 4;
-  text: string;
-}
-
-export interface ParagraphBlock extends ContentBlock {
-  type: "paragraph";
-  content: string;
-}
-
-export interface QuoteBlock extends ContentBlock {
-  type: "quote";
-  text: string;
-  author: string;
-  position: string;
-}
-
-export interface ListBlock extends ContentBlock {
-  type: "bulletList" | "numberedList";
-  items: string[];
-}
-
-export interface ChecklistBlock extends ContentBlock {
-  type: "checklist";
-  items: { text: string; checked: boolean }[];
-}
-
-export interface CalloutBlock extends ContentBlock {
-  type: "callout";
-  variant: "info" | "success" | "warning" | "danger";
-  message: string;
-  icon: string;
-}
-
-export interface ButtonBlock extends ContentBlock {
-  type: "button";
-  label: string;
-  url: string;
-  variant: "primary" | "secondary" | "outline";
-}
-
-export interface SpacerBlock extends ContentBlock {
-  type: "spacer";
-  height: number;
-}
-
-export interface DividerBlock extends ContentBlock {
-  type: "divider";
-}
-
 // Generic API envelope returned by the backend.
 export interface ApiResponse<T> {
   success: boolean;
@@ -281,6 +178,8 @@ export interface WhyJoinUsPoint {
   _id: string;
   title: string;
   description: string;
+  image: string | null;
+  imagePublicId: string | null;
   visible: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -291,6 +190,7 @@ export interface WhyJoinUs {
   title: string;
   description: string;
   visible?: boolean;
+  points: WhyJoinUsPoint[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -299,6 +199,8 @@ export interface WhyBecomeMemberPoint {
   _id: string;
   title: string;
   description: string;
+  image: string | null;
+  imagePublicId: string | null;
   visible: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -309,6 +211,7 @@ export interface WhyBecomeMember {
   title: string;
   description: string;
   visible?: boolean;
+  points: WhyBecomeMemberPoint[];
   createdAt?: string;
   updatedAt?: string;
 }

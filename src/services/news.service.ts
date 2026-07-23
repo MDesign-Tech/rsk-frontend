@@ -7,20 +7,19 @@ export interface NewsArticle {
   slug: string;
   excerpt: string;
   content: any[];
-  coverImage: string;
+  coverImage: string | null;
   galleryImages: string[];
   category: string;
   author: {
     _id: string;
     name: string;
-    role: string;
-    avatar: string;
+    role: string | null;
+    avatar: string | null;
   };
   featured: boolean;
   status: "draft" | "published" | "archived";
   publishedAt: string;
   readingTime: number;
-  views: number;
   likes: number;
   shares: number;
   commentsCount: number;

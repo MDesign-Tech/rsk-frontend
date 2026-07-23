@@ -1,20 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, X, Pencil, CheckCircle } from "lucide-react";
-import { whyBecomeMemberSchema, type WhyBecomeMemberInput } from "@/schemas";
+import { Plus, Trash2, Pencil, CheckCircle } from "lucide-react";
 import { whyBecomeMemberService } from "@/services/why-become-member.service";
 import type { WhyBecomeMemberPoint } from "@/types";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { IconButton } from "@/components/admin/icon-button";
@@ -59,26 +48,19 @@ export function WhyBecomeMemberForm() {
   const [sectionTitle, setSectionTitle] = useState("");
   const [sectionDescription, setSectionDescription] = useState("");
   const [sectionVisible, setSectionVisible] = useState(true);
+  const [pointTitle, setPointTitle] = useState("");
+  const [pointDescription, setPointDescription] = useState("");
+  const [pointErrors, setPointErrors] = useState<{ title?: string; description?: string }>({});
 
   const imageUploadRef = useRef<ImageUploadHandle>(null);
   const isBusy = isSaving || isUploading;
-
-  const form = useForm<WhyBecomeMemberInput>({
-    resolver: zodResolver(whyBecomeMemberSchema),
-    defaultValues: {
-      title: sectionTitle,
-      description: sectionDescription,
-      visible: sectionVisible,
-      points: points.map((p) => ({ title: p.title, description: p.description, image: p.image, imagePublicId: p.imagePublicId, visible: p.visible })),
-    },
-  });
 
   const load = async () => {
     setIsLoading(true);
     try {
       const res = await whyBecomeMemberService.get();
       const data = res.data.whyBecomeMember;
-      const normalizedPoints: Point[] = (data.points ?? []).map((p) => ({
+      const normalizedPoints: Point[] = (data.points ?? []).map((p: WhyBecomeMemberPoint) => ({
         ...p,
         image: p.image ?? null,
         imagePublicId: p.imagePublicId ?? null,
@@ -102,6 +84,9 @@ export function WhyBecomeMemberForm() {
   const openCreate = () => {
     setEditingPoint(null);
     setImageData(null);
+    setPointTitle("");
+    setPointDescription("");
+    setPointErrors({});
     setDialogOpen(true);
   };
 
@@ -112,18 +97,30 @@ export function WhyBecomeMemberForm() {
         ? { url: point.image, publicId: point.imagePublicId }
         : null
     );
+    setPointTitle(point.title);
+    setPointDescription(point.description);
+    setPointErrors({});
     setDialogOpen(true);
   };
 
-  const onSubmit = async (values: { title: string; description: string; image: string | null; imagePublicId: string | null }) => {
+  const validatePoint = (): boolean => {
+    const errors: { title?: string; description?: string } = {};
+    if (!pointTitle.trim()) errors.title = "Title is required";
+    if (!pointDescription.trim()) errors.description = "Description is required";
+    setPointErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const onSubmit = async () => {
+    if (!validatePoint()) return;
     setIsSaving(true);
     try {
       const uploadedImage = await imageUploadRef.current?.upload();
       const data = {
-        title: values.title,
-        description: values.description,
-        image: uploadedImage?.url ?? values.image,
-        imagePublicId: uploadedImage?.publicId ?? values.imagePublicId,
+        title: pointTitle,
+        description: pointDescription,
+        image: uploadedImage?.url ?? imageData?.url ?? null,
+        imagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
       };
 
       if (editingPoint) {
@@ -167,7 +164,7 @@ export function WhyBecomeMemberForm() {
         points: newPoints,
       });
       setPoints(res.data.whyBecomeMember.points ?? []);
-      toast.success(res.data.whyBecomeMember.points.find((p) => p._id === point._id)?.visible ? "Benefit shown" : "Benefit hidden");
+      toast.success(res.data.whyBecomeMember.points.find((p: WhyBecomeMemberPoint) => p._id === point._id)?.visible ? "Benefit shown" : "Benefit hidden");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update visibility");
     } finally {
@@ -271,7 +268,7 @@ export function WhyBecomeMemberForm() {
                   return (
                     <div
                       key={point._id || index}
-                      className={`grid grid-cols-[auto_1fr_1fr_auto] gap-4 items-center px-4 py-3 border-b last:border-b-0 w-full ${!point.visible ? "opacity-50" : ""}`}
+                      className="grid grid-cols-[auto_1fr_1fr_auto] gap-4 items-center px-4 py-3 border-b last:border-b-0 w-full"
                     >
                       <div>
                         {hasImage ? (
@@ -302,7 +299,7 @@ export function WhyBecomeMemberForm() {
                         <IconButton
                           variant="destructive"
                           label="Delete benefit"
-                          icon={<X />}
+                          icon={<Trash2 />}
                           onClick={() => setDeleteTarget(point)}
                         />
                       </div>
@@ -340,7 +337,7 @@ export function WhyBecomeMemberForm() {
               {editingPoint ? "Update the benefit details." : "Fill in the details to add a new benefit."}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Image</label>
               <ImageUpload
@@ -360,22 +357,24 @@ export function WhyBecomeMemberForm() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Title</label>
               <Input
-                {...form.register("title")}
+                value={pointTitle}
+                onChange={(e) => { setPointTitle(e.target.value); setPointErrors((prev) => ({ ...prev, title: undefined })); }}
                 disabled={isBusy}
               />
-              {form.formState.errors.title && (
-                <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
+              {pointErrors.title && (
+                <p className="text-sm text-destructive">{pointErrors.title}</p>
               )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Description</label>
               <Textarea
                 rows={3}
-                {...form.register("description")}
+                value={pointDescription}
+                onChange={(e) => { setPointDescription(e.target.value); setPointErrors((prev) => ({ ...prev, description: undefined })); }}
                 disabled={isBusy}
               />
-              {form.formState.errors.description && (
-                <p className="text-sm text-destructive">{form.formState.errors.description.message}</p>
+              {pointErrors.description && (
+                <p className="text-sm text-destructive">{pointErrors.description}</p>
               )}
             </div>
             <DialogFooter>
@@ -387,7 +386,7 @@ export function WhyBecomeMemberForm() {
               >
                 Cancel
               </Button>
-              <SubmitButton isLoading={isSaving} disabled={isBusy}>
+              <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
                 {editingPoint ? "Save Changes" : "Create"}
               </SubmitButton>
             </DialogFooter>

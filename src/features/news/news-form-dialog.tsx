@@ -73,7 +73,7 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
           title: article.title,
           excerpt: article.excerpt,
           content: typeof article.content === 'string' ? article.content : JSON.stringify(article.content),
-          coverImage: article.coverImage,
+          coverImage: article.coverImage || "",
           category: article.category,
           authorId: article.author._id,
           featured: article.featured,

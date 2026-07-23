@@ -212,12 +212,12 @@ export const newsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   excerpt: z.string().min(1, "Excerpt is required"),
   content: z.string().min(1, "Content is required"),
-  coverImage: z.string().optional().default(""),
+  coverImage: z.string().optional().nullable().default(""),
   category: z.string().min(1, "Category is required"),
   authorId: z.string().min(1, "Author is required"),
   featured: z.boolean().default(false),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
-  readingTime: z.number().min(1).default(5),
+  readingTime: z.coerce.number().min(1).default(5),
 });
 export type NewsInput = z.infer<typeof newsSchema>;
 
@@ -250,37 +250,43 @@ export type OpportunityInput = z.infer<typeof opportunitySchema>;
 // ---------------------------------------------------------------------------
 // Why Join Us
 // ---------------------------------------------------------------------------
-export const whyJoinUsSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  visible: z.boolean().default(true),
-});
-
-export type WhyJoinUsInput = z.infer<typeof whyJoinUsSchema>;
-
 export const whyJoinUsPointSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  image: z.string().optional().nullable().default(null),
+  imagePublicId: z.string().optional().nullable().default(null),
   visible: z.boolean().default(true),
 });
 
 export type WhyJoinUsPointInput = z.infer<typeof whyJoinUsPointSchema>;
 
-// ---------------------------------------------------------------------------
-// Why Become Member
-// ---------------------------------------------------------------------------
-export const whyBecomeMemberSchema = z.object({
+export const whyJoinUsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   visible: z.boolean().default(true),
+  points: z.array(whyJoinUsPointSchema).default([]),
 });
 
-export type WhyBecomeMemberInput = z.infer<typeof whyBecomeMemberSchema>;
+export type WhyJoinUsInput = z.infer<typeof whyJoinUsSchema>;
 
+// ---------------------------------------------------------------------------
+// Why Become Member
+// ---------------------------------------------------------------------------
 export const whyBecomeMemberPointSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  image: z.string().optional().nullable().default(null),
+  imagePublicId: z.string().optional().nullable().default(null),
   visible: z.boolean().default(true),
 });
 
 export type WhyBecomeMemberPointInput = z.infer<typeof whyBecomeMemberPointSchema>;
+
+export const whyBecomeMemberSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  visible: z.boolean().default(true),
+  points: z.array(whyBecomeMemberPointSchema).default([]),
+});
+
+export type WhyBecomeMemberInput = z.infer<typeof whyBecomeMemberSchema>;

@@ -26,6 +26,8 @@ import {
 import Image from "next/image";
 import { NewsFormDialog } from "./news-form-dialog";
 
+const RSK_LOGO = "/rsk-logo.svg";
+
 export function NewsManager() {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +73,7 @@ export function NewsManager() {
     try {
       const res = await newsService.toggleFeatured(article._id, !article.featured);
       setArticles((prev) =>
-        prev.map((a) => (a._id === article._id ? res.data : a))
+        prev.map((a) => (a._id === article._id ? { ...a, ...res.data } : a))
       );
       toast.success(res.data.featured ? "Article featured" : "Article unfeatured");
     } catch (err) {
@@ -144,13 +146,23 @@ export function NewsManager() {
               key={article._id}
               className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-md transition-shadow"
             >
-              {article.coverImage && (
+              {article.coverImage ? (
                 <div className="relative h-48 w-full">
                   <Image
                     src={article.coverImage}
                     alt={article.title}
                     fill
                     className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="relative h-48 w-full bg-muted flex items-center justify-center">
+                  <Image
+                    src={RSK_LOGO}
+                    alt="RSK Associates"
+                    width={64}
+                    height={64}
+                    className="opacity-50"
                   />
                 </div>
               )}
@@ -277,10 +289,6 @@ export function NewsManager() {
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Featured</h4>
                 <p className="text-sm text-foreground">{viewArticle?.featured ? "Yes" : "No"}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-muted-foreground">Views</h4>
-                <p className="text-sm text-foreground">{viewArticle?.views}</p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Reading Time</h4>

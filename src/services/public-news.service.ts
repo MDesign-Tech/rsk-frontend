@@ -19,7 +19,6 @@ export interface PublicNewsArticle {
   status: "draft" | "published" | "archived";
   publishedAt: string;
   readingTime: number;
-  views: number;
   likes: number;
   shares: number;
   commentsCount: number;
