@@ -4,7 +4,10 @@ import { Navbar } from "@/components/navbar";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { publicNewsService, type PublicNewsArticle } from "@/services/public-news.service";
+import {
+  publicNewsService,
+  type PublicNewsArticle,
+} from "@/services/public-news.service";
 import { toast } from "sonner";
 
 const RSK_LOGO = "/rsk-logo.svg";
@@ -71,16 +74,19 @@ export default function NewsPage() {
 
   // Scroll to top of content when page changes
   useEffect(() => {
-    const contentSection = document.querySelector('section');
+    const contentSection = document.querySelector("section");
     if (contentSection) {
-      contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      contentSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [currentPage]);
 
   const loadArticles = async () => {
     setIsLoading(true);
     try {
-      const res = await publicNewsService.getAll({ page: currentPage, limit: itemsPerPage });
+      const res = await publicNewsService.getAll({
+        page: currentPage,
+        limit: itemsPerPage,
+      });
       setArticles(res.data.articles);
       setTotalPages(res.data.totalPages);
     } catch (err) {
@@ -161,7 +167,9 @@ export default function NewsPage() {
                 </div>
               ) : currentArticles.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">No articles found for this time period.</p>
+                  <p className="text-muted-foreground">
+                    No articles found for this time period.
+                  </p>
                 </div>
               ) : (
                 <>
@@ -194,20 +202,31 @@ export default function NewsPage() {
                           </div>
                         </Link>
                         <div className="p-4">
-                          <Link href={`/blog/news/${article.slug}`}>
-                            <h2 className="text-lg font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors">
-                              {article.title}
-                            </h2>
-                          </Link>
+                          <div className="flex justify-between gap-4">
+                            <Link href={`/blog/news/${article.slug}`}>
+                              <h2 className="text-lg font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors">
+                                {article.title}
+                              </h2>
+                            </Link>
+                            <span className="inline-flex items-center h-max px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                              {typeof article.category === "string"
+                                ? article.category
+                                : article.category?.name}
+                            </span>
+                          </div>
                           <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                             <span>{article.author.name}</span>
                             <span>•</span>
                             <time dateTime={article.publishedAt}>
-                              {new Date(article.publishedAt).toLocaleDateString()}
+                              {new Date(
+                                article.publishedAt,
+                              ).toLocaleDateString()}
                             </time>
                           </div>
                           <p className="mt-3 text-xs text-muted-foreground line-clamp-2">
-                            {article.content ? article.content.slice(0, 150) + "..." : ""}
+                            {article.content
+                              ? article.content.slice(0, 150) + "..."
+                              : ""}
                           </p>
                           <Link
                             href={`/blog/news/${article.slug}`}
@@ -224,7 +243,9 @@ export default function NewsPage() {
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-border/60">
                       <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        onClick={() =>
+                          setCurrentPage(Math.max(1, currentPage - 1))
+                        }
                         disabled={currentPage === 1}
                         className="px-4 py-2 rounded-lg border border-border/60 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                       >
@@ -232,21 +253,22 @@ export default function NewsPage() {
                       </button>
 
                       <div className="flex items-center gap-2">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                          (page) => (
-                            <button
-                              key={page}
-                              onClick={() => setCurrentPage(page)}
-                              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                                currentPage === page
-                                  ? "bg-primary text-white"
-                                  : "border border-border/60 text-foreground hover:bg-muted"
-                              }`}
-                            >
-                              {page}
-                            </button>
-                          ),
-                        )}
+                        {Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1,
+                        ).map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                              currentPage === page
+                                ? "bg-primary text-white"
+                                : "border border-border/60 text-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
                       </div>
 
                       <button
@@ -269,19 +291,28 @@ export default function NewsPage() {
                 <h3 className="text-lg font-semibold">Articles</h3>
                 <div className="mt-4 flex gap-2">
                   <button
-                    onClick={() => { setTab("week"); setCurrentPage(1); }}
+                    onClick={() => {
+                      setTab("week");
+                      setCurrentPage(1);
+                    }}
                     className={`rounded-full px-3 py-1 text-sm ${tab === "week" ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
                   >
                     This week
                   </button>
                   <button
-                    onClick={() => { setTab("month"); setCurrentPage(1); }}
+                    onClick={() => {
+                      setTab("month");
+                      setCurrentPage(1);
+                    }}
                     className={`rounded-full px-3 py-1 text-sm ${tab === "month" ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
                   >
                     This month
                   </button>
                   <button
-                    onClick={() => { setTab("all"); setCurrentPage(1); }}
+                    onClick={() => {
+                      setTab("all");
+                      setCurrentPage(1);
+                    }}
                     className={`rounded-full px-3 py-1 text-sm ${tab === "all" ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
                   >
                     All the time
@@ -289,22 +320,26 @@ export default function NewsPage() {
                 </div>
 
                 <ul className="mt-4 space-y-3">
-                  {isLoading ? (
-                     [1, 2, 3, 4, 5].map((i) => (
-                       <li key={i} className="h-4 bg-muted rounded animate-pulse" />
-                     ))
-                   ) : (
-                     filteredArticles.slice(0, 10).map((article) => (
-                      <li
-                        key={article._id}
-                        className="text-sm text-foreground/90 hover:text-primary transition-colors"
-                      >
-                        <Link href={`/blog/news/${article.slug}`} className="line-clamp-2">
-                          {article.title}
-                        </Link>
-                      </li>
-                    ))
-                  )}
+                  {isLoading
+                    ? [1, 2, 3, 4, 5].map((i) => (
+                        <li
+                          key={i}
+                          className="h-4 bg-muted rounded animate-pulse"
+                        />
+                      ))
+                    : filteredArticles.slice(0, 10).map((article) => (
+                        <li
+                          key={article._id}
+                          className="text-sm text-foreground/90 hover:text-primary transition-colors"
+                        >
+                          <Link
+                            href={`/blog/news/${article.slug}`}
+                            className="line-clamp-2"
+                          >
+                            {article.title}
+                          </Link>
+                        </li>
+                      ))}
                 </ul>
               </div>
             </aside>

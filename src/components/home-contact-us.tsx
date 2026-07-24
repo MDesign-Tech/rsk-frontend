@@ -2,29 +2,24 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Mail, Phone, MessageSquare } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWebsiteStore } from "@/stores/website.store";
 
-const items = [
-  {
-    label: "Email",
-    value: "contact@rskassociates.com",
-    icon: Mail,
-  },
-  {
-    label: "Phone",
-    value: "+1 (800) 123-4567",
-    icon: Phone,
-  },
-  {
-    label: "Message",
-    value: "Request membership materials or schedule a consultation.",
-    icon: MessageSquare,
-  },
-];
+const CONTACT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Email: Mail,
+  Phone: Phone,
+  Message: MapPin,
+};
 
 export function HomeContactUs() {
   const shouldReduceMotion = useReducedMotion();
+
+  const about = useWebsiteStore((state) => state.data?.about);
+  const contactMethods =
+    about?.contactMethods?.filter((method) => method.visible !== false) ?? [];
+
+  if (contactMethods.length === 0) return null;
 
   return (
     <section
@@ -51,8 +46,8 @@ export function HomeContactUs() {
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {items.map((item, index) => {
-            const Icon = item.icon;
+          {contactMethods.map((item, index) => {
+            const Icon = CONTACT_ICONS[item.label] || MapPin;
             return (
               <motion.div
                 key={item.label}
@@ -68,9 +63,20 @@ export function HomeContactUs() {
                 <h3 className="mt-6 text-xl font-semibold text-foreground">
                   {item.label}
                 </h3>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  {item.value}
-                </p>
+                {item.href ? (
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 text-sm leading-7 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {item.value}
+                  </a>
+                ) : (
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                    {item.value}
+                  </p>
+                )}
               </motion.div>
             );
           })}

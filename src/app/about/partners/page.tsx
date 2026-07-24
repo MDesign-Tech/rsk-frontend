@@ -90,13 +90,13 @@ export default function PartnersPage() {
                   className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-border/60 bg-card/70 p-6"
                 >
                   {p.image ? (
-                    <div className="h-20 w-full overflow-hidden rounded-2xl bg-muted">
+                    <div className="h-max w-full rounded-2xl bg-muted">
                       <Image
                         src={p.image}
                         alt={p.name}
                         width={200}
                         height={80}
-                        style={{ objectFit: "contain" }}
+                        style={{ objectFit: "contain", borderRadius: "10px", width: "100%", height: "100%" }}
                       />
                     </div>
                   ) : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import type { TeamMemberInput } from "@/schemas";
 import {
   FormField,
   FormItem,
@@ -31,15 +32,17 @@ const PLATFORMS = [
   "x",
   "linkedin",
   "youtube",
+  "snapchat",
+  "tiktok",
 ] as const;
 type Platform = (typeof PLATFORMS)[number];
+
+type SocialLink = TeamMemberInput["socialMedia"][Platform];
 
 export function SocialMediaField({
   control,
 }: {
-  control: import("react-hook-form").Control<
-    import("@/schemas").TeamMemberInput
-  >;
+  control: import("react-hook-form").Control<TeamMemberInput>;
 }) {
   return (
     <div className="space-y-3">
@@ -48,16 +51,26 @@ export function SocialMediaField({
         control={control}
         name="socialMedia"
         render={({ field }) => {
-          const current = (field.value ?? {}) as Record<string, unknown>;
-          const isSet = (k: Platform) =>
-            current[k] !== undefined && current[k] !== null;
-          const selected = PLATFORMS.filter(isSet);
-          const available = PLATFORMS.filter((k) => !isSet(k));
+          const current = (field.value ?? {}) as Partial<
+            Record<Platform, SocialLink>
+          >;
+          const selected = PLATFORMS.filter(
+            (k): k is Platform => current[k] !== undefined && current[k] !== null,
+          );
+          const available = PLATFORMS.filter(
+            (k) => current[k] === undefined || current[k] === null,
+          );
 
-          const addPlatform = (key: Platform) =>
-            field.onChange({ ...current, [key]: { href: "", visible: true } });
+          const addPlatform = (key: Platform) => {
+            const next: Partial<Record<Platform, SocialLink>> = {
+              ...current,
+              [key]: { href: "", visible: true },
+            };
+            field.onChange(next);
+          };
+
           const removePlatform = (key: Platform) => {
-            const next = { ...current };
+            const next: Partial<Record<Platform, SocialLink>> = { ...current };
             delete next[key];
             field.onChange(next);
           };
@@ -66,7 +79,7 @@ export function SocialMediaField({
             <div className="space-y-3">
               {available.length > 0 && (
                 <Select
-                  value=""
+                  value={undefined}
                   onValueChange={(v) => addPlatform(v as Platform)}
                 >
                   <SelectTrigger>
@@ -93,7 +106,12 @@ export function SocialMediaField({
                         <FormItem className="flex-1">
                           <FormLabel>{label}</FormLabel>
                           <FormControl>
-                            <Input placeholder="https://..." {...f} />
+                            <Input
+                              placeholder="https://..."
+                              value={f.value as string}
+                              onChange={(e) => f.onChange(e.target.value)}
+                              onBlur={f.onBlur}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

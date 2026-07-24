@@ -172,6 +172,8 @@ export const teamMemberSocialSchema = z.object({
   x: teamSocialLinkSchema.optional(),
   linkedin: teamSocialLinkSchema.optional(),
   youtube: teamSocialLinkSchema.optional(),
+  snapchat: teamSocialLinkSchema.optional(),
+  tiktok: teamSocialLinkSchema.optional(),
 });
 export type TeamMemberSocialInput = z.infer<typeof teamMemberSocialSchema>;
 
