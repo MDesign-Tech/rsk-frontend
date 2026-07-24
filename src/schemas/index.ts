@@ -75,6 +75,8 @@ export const socialMediaSchema = z.object({
   x: socialLinkSchema.default({}),
   linkedin: socialLinkSchema.default({}),
   youtube: socialLinkSchema.default({}),
+  tiktok: socialLinkSchema.default({}),
+  snapchat: socialLinkSchema.default({}),
 });
 
 export type SocialMediaInput = z.infer<typeof socialMediaSchema>;
@@ -114,6 +116,11 @@ export const aboutSchema = z.object({
   contactMethods: z.array(contactMethodSchema).default([]),
 
   socialMedia: socialMediaSchema.default({}),
+
+  ourStory: z.object({
+    title: z.string().min(1, "Our story title is required"),
+    description: z.string().min(1, "Our story description is required"),
+  }).optional().default({ title: "", description: "" }),
 });
 
 
@@ -210,14 +217,12 @@ export type CreateUserInput = z.infer<typeof createUserSchema>;
 // ---------------------------------------------------------------------------
 export const newsSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  excerpt: z.string().min(1, "Excerpt is required"),
   content: z.string().min(1, "Content is required"),
-  coverImage: z.string().optional().nullable().default(""),
+  coverImage: z.string().optional().nullable().default(null),
+  coverImagePublicId: z.string().optional().nullable().default(null),
   category: z.string().min(1, "Category is required"),
   authorId: z.string().min(1, "Author is required"),
-  featured: z.boolean().default(false),
-  status: z.enum(["draft", "published", "archived"]).default("draft"),
-  readingTime: z.coerce.number().min(1).default(5),
+  status: z.enum(["draft", "published"]).default("draft"),
 });
 export type NewsInput = z.infer<typeof newsSchema>;
 
@@ -228,22 +233,13 @@ export const opportunitySchema = z.object({
   type: z.string().min(1, "Type is required"),
   title: z.string().min(1, "Title is required"),
   org: z.string().min(1, "Organization is required"),
-  shortDescription: z.string().min(1, "Short description is required"),
-  description: z.string().min(1, "Description is required"),
-  category: z.string().min(1, "Category is required"),
-  location: z.string().min(1, "Location is required"),
-  employmentType: z.string().optional().default(""),
-  salary: z.string().optional().default(""),
-  budget: z.string().optional().default(""),
-  date: z.string().min(1, "Deadline is required"),
-  contactEmail: z.string().min(1, "Contact email is required").email("Invalid email"),
-  contactPhone: z.string().min(1, "Contact phone is required"),
-  requirements: z.string().optional().default(""),
-  benefits: z.string().optional().default(""),
-  featured: z.boolean().default(false),
-  status: z.enum(["active", "closed"]).default("active"),
-  visible: z.boolean().default(true),
+  description: z.string().optional().default(""),
+  category: z.string().optional().default("General"),
+  location: z.string().optional().default(""),
+  date: z.string().min(1, "Date is required"),
   image: z.string().optional().nullable().default(null),
+  imagePublicId: z.string().optional().nullable().default(null),
+  status: z.enum(["Open", "Closed"]).default("Open"),
 });
 export type OpportunityInput = z.infer<typeof opportunitySchema>;
 

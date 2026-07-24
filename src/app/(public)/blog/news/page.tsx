@@ -69,6 +69,14 @@ export default function NewsPage() {
     loadArticles();
   }, [currentPage, tab]);
 
+  // Scroll to top of content when page changes
+  useEffect(() => {
+    const contentSection = document.querySelector('section');
+    if (contentSection) {
+      contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [currentPage]);
+
   const loadArticles = async () => {
     setIsLoading(true);
     try {
@@ -94,9 +102,7 @@ export default function NewsPage() {
     return true;
   });
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentArticles = filteredArticles.slice(startIndex, endIndex);
+  const currentArticles = filteredArticles;
 
   return (
     <main className="min-h-screen bg-background">
@@ -201,13 +207,13 @@ export default function NewsPage() {
                             </time>
                           </div>
                           <p className="mt-3 text-xs text-muted-foreground line-clamp-2">
-                            {article.excerpt}
+                            {article.content ? article.content.slice(0, 150) + "..." : ""}
                           </p>
                           <Link
                             href={`/blog/news/${article.slug}`}
                             className="mt-3 inline-block text-primary font-medium text-xs hover:underline"
                           >
-                            Read more →
+                            View Details →
                           </Link>
                         </div>
                       </article>
@@ -215,7 +221,7 @@ export default function NewsPage() {
                   </div>
 
                   {/* Pagination Controls */}
-                  {filteredArticles.length > itemsPerPage && (
+                  {totalPages > 1 && (
                     <div className="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-border/60">
                       <button
                         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -226,7 +232,7 @@ export default function NewsPage() {
                       </button>
 
                       <div className="flex items-center gap-2">
-                        {Array.from({ length: Math.ceil(filteredArticles.length / itemsPerPage) }, (_, i) => i + 1).map(
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                           (page) => (
                             <button
                               key={page}
@@ -245,9 +251,9 @@ export default function NewsPage() {
 
                       <button
                         onClick={() =>
-                          setCurrentPage(Math.min(Math.ceil(filteredArticles.length / itemsPerPage), currentPage + 1))
+                          setCurrentPage(Math.min(totalPages, currentPage + 1))
                         }
-                        disabled={currentPage === Math.ceil(filteredArticles.length / itemsPerPage)}
+                        disabled={currentPage === totalPages}
                         className="px-4 py-2 rounded-lg border border-border/60 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                       >
                         Next →
@@ -284,11 +290,11 @@ export default function NewsPage() {
 
                 <ul className="mt-4 space-y-3">
                   {isLoading ? (
-                    [1, 2, 3, 4, 5].map((i) => (
-                      <li key={i} className="h-4 bg-muted rounded animate-pulse" />
-                    ))
-                  ) : (
-                    filteredArticles.slice(0, 10).map((article) => (
+                     [1, 2, 3, 4, 5].map((i) => (
+                       <li key={i} className="h-4 bg-muted rounded animate-pulse" />
+                     ))
+                   ) : (
+                     filteredArticles.slice(0, 10).map((article) => (
                       <li
                         key={article._id}
                         className="text-sm text-foreground/90 hover:text-primary transition-colors"

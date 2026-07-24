@@ -5,57 +5,46 @@ export interface NewsArticle {
   id: string;
   title: string;
   slug: string;
-  excerpt: string;
-  content: any[];
+  content: string;
   coverImage: string | null;
-  galleryImages: string[];
-  category: string;
+  coverImagePublicId: string | null;
+  gallery: string[];
+  category: string | { _id: string; name: string };
   author: {
     _id: string;
     name: string;
     role: string | null;
     avatar: string | null;
   };
-  featured: boolean;
-  status: "draft" | "published" | "archived";
+  status: "draft" | "published";
   publishedAt: string;
-  readingTime: number;
-  likes: number;
-  shares: number;
-  commentsCount: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateNewsInput {
   title: string;
-  excerpt: string;
-  content: any[];
-  coverImage: string;
+  content: string;
+  coverImage: string | null;
+  coverImagePublicId: string | null;
   category: string;
   authorId: string;
-  featured?: boolean;
-  status?: "draft" | "published" | "archived";
-  publishedAt?: string;
-  readingTime?: number;
+  status?: "draft" | "published";
 }
 
 export interface UpdateNewsInput {
   title?: string;
-  excerpt?: string;
-  content?: any[];
-  coverImage?: string;
+  content?: string;
+  coverImage?: string | null;
+  coverImagePublicId?: string | null;
   category?: string;
   authorId?: string;
-  featured?: boolean;
-  status?: "draft" | "published" | "archived";
-  publishedAt?: string;
-  readingTime?: number;
+  status?: "draft" | "published";
 }
 
 export const newsService = {
-  getAll: async () => {
-    const res = await api.get("/news");
+  getAll: async (params?: { page?: number; limit?: number }) => {
+    const res = await api.get("/news", { params });
     return res.data;
   },
 
@@ -65,12 +54,7 @@ export const newsService = {
   },
 
   getBySlug: async (slug: string) => {
-    const res = await api.get(`/news/slug/${slug}`);
-    return res.data;
-  },
-
-  getFeatured: async () => {
-    const res = await api.get("/news/featured");
+    const res = await api.get(`/news/public/${slug}`);
     return res.data;
   },
 
@@ -94,8 +78,8 @@ export const newsService = {
     return res.data;
   },
 
-  toggleFeatured: async (id: string, featured: boolean) => {
-    const res = await api.patch(`/news/${id}/featured`, { featured });
+  toggleStatus: async (id: string, status: "draft" | "published") => {
+    const res = await api.patch(`/news/${id}/status`, { status });
     return res.data;
   },
 };

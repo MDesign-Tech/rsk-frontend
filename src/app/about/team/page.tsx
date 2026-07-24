@@ -194,7 +194,7 @@ export default function TeamPage() {
             groups
               .filter((g) => g.members.length > 0)
               .map((grp) => (
-                <div key={grp.section._id} className="space-y-2 ">
+                <div key={grp.section._id} className="space-y-2">
                   <div className="mb-4 text-center sm:mb-16 lg:mb-24">
                     <div className="relative flex py-5 items-center mx-auto max-w-6xl">
                       <div className="flex-grow border-t border-gray-400"></div>

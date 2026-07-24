@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Globe, ShieldCheck, Target, Sparkles } from "lucide-react";
+import { Globe, Target } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { SectionDivider } from "@/components/section-divider";
 import { useWebsiteStore } from "@/stores/website.store";
@@ -15,26 +15,13 @@ export default function WhoPage() {
   const shouldReduceMotion = useReducedMotion();
 
   const coverImage = hero?.image || "/images/5.jpeg";
-  const coreValues = [
-    "Integrity in every engagement",
-    "Client-first strategic thinking",
-    "Data-driven decision support",
-    "Collaborative execution for growth",
-  ];
-
-  const objectives = [
-    "Deliver measurable business impact with every partnership.",
-    "Expand access to tenders, funding, and training for members.",
-    "Make complex financial strategy clear and actionable.",
-    "Build trusted, long-term corporate relationships.",
-  ];
 
   const impactStats = about?.stats
     ?.filter((item) => item.visible !== false)
     .slice(0, 4)
     .map((stat) => ({
       label: stat.label,
-      value: stat.number || stat.value || "—",
+      value: stat.number || "—",
     })) ?? [
     { value: "150+", label: "Companies served" },
     { value: "95%", label: "Client satisfaction" },
@@ -92,9 +79,9 @@ export default function WhoPage() {
       <br />
       <br />
 
-      <section className="relative overflow-hidden pt-28 pb-24">
-        <div className="absolute inset-0 bg-linear-to-br bg-sky-50 bg-sky-50 to-transparent" />
-        <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_top_left,rgba(14,116,232,0.18),transparent_40%)]" />
+      <section className="relative overflow-hidden pt-28 pb-24 bg-muted">
+        <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent" />
+        <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_top_left,var(--color-primary)/0.18,transparent_40%)]" />
 
         <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
@@ -104,7 +91,7 @@ export default function WhoPage() {
               transition={{ duration: 0.7 }}
               className="space-y-6"
             >
-              <span className="text-sm uppercase tracking-[0.35em] text-sky-400">
+              <span className="text-sm uppercase tracking-[0.35em] text-primary">
                 Who we are
               </span>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
@@ -117,7 +104,7 @@ export default function WhoPage() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <Link
                   href="/contact"
-                  className="inline-flex items-center justify-center rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-400"
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
                 >
                   Talk to our team
                 </Link>
@@ -128,7 +115,7 @@ export default function WhoPage() {
               initial={shouldReduceMotion ? {} : { opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7 }}
-              className="rounded-4xl overflow-hidden border border-white/10 bg-white/10 shadow-[0_30px_80px_-40px_rgba(14,116,232,0.6)]"
+              className="rounded-4xl overflow-hidden border border-border bg-card shadow-[0_30px_80px_-40px_var(--color-primary)]"
             >
               <div className="relative h-96 w-full">
                 <Image
@@ -137,14 +124,14 @@ export default function WhoPage() {
                   fill
                   style={{ objectFit: "cover" }}
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-slate-950/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-background/60 via-transparent to-transparent" />
               </div>
             </motion.div>
           </div>
         </div>
       </section>
       {/* <SectionDivider variant="wave" /> */}
-      <section className="relative overflow-hidden border-t border-border/70 bg-sky-50 py-20">
+      <section className="relative overflow-hidden border-t border-border/70 bg-muted py-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2">
             <motion.div
@@ -152,20 +139,18 @@ export default function WhoPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
-              className="rounded-4xl border border-white/10 bg-sky-50 p-10 backdrop-blur-xl"
+              className="rounded-4xl border border-border bg-background/50 p-10 backdrop-blur-xl"
             >
-              <div className="inline-flex items-center gap-3 rounded-full bg-sky-50 px-4 py-2 text-sky-300 text-sm font-semibold">
+              <div className="inline-flex items-center gap-3 rounded-full bg-primary/10 px-4 py-2 text-primary text-sm font-semibold">
                 <Globe className="h-4 w-4" />
                 Our Story
               </div>
               <h2 className="mt-6 text-3xl font-semibold">
-                A corporate advisory firm built for modern growth.
+                {about?.ourStory?.title ?? "A corporate advisory firm built for modern growth."}
               </h2>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
-                Our story began with a single mission: to make professional
-                financial strategy accessible, effective, and practical for
-                businesses of every size. We bring data, diligence, and
-                experience together to deliver clarity and confidence.
+                {about?.ourStory?.description ??
+                  "Our story began with a single mission: to make professional financial strategy accessible, effective, and practical for businesses of every size. We bring data, diligence, and experience together to deliver clarity and confidence."}
               </p>
             </motion.div>
 
@@ -175,9 +160,9 @@ export default function WhoPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="rounded-4xl border border-white/10 bg-white/10 p-10 backdrop-blur-xl"
+                className="rounded-4xl border border-border bg-background/50 p-10 backdrop-blur-xl"
               >
-                <span className="inline-flex items-center gap-2 text-sky-300 text-sm font-semibold uppercase tracking-[0.35em] mb-4">
+                <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold uppercase tracking-[0.35em] mb-4">
                   <Target className="h-4 w-4" />
                   Vision & Mission
                 </span>
@@ -211,16 +196,16 @@ export default function WhoPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="rounded-4xl border border-white/10 bg-slate-950/5 p-10"
+              className="rounded-4xl border border-border bg-muted p-10"
             >
               <h2 className="text-3xl font-semibold">Impact Statistics</h2>
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {impactStats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-3xl border border-white/10 bg-white/5 p-6 text-center"
+                    className="rounded-3xl border border-border bg-background/50 p-6 text-center"
                   >
-                    <p className="text-4xl font-bold text-sky-400">
+                    <p className="text-4xl font-bold text-primary">
                       {stat.value}
                     </p>
                     <p className="mt-3 text-sm text-muted-foreground">
@@ -230,37 +215,6 @@ export default function WhoPage() {
                 ))}
               </div>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-sky-950 py-20 text-white">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr] items-center rounded-4xl border border-sky-500/20 bg-sky-950/95 p-10 shadow-[0_40px_120px_-50px_rgba(14,116,232,0.65)]">
-            <div>
-              <h2 className="text-4xl font-semibold">
-                Partner with RSK for business-ready results.
-              </h2>
-              <p className="mt-4 text-lg text-slate-200 leading-8">
-                Our advisory approach combines corporate strategy, funding
-                access, and operational support to help your business move
-                securely toward its next milestone.
-              </p>
-            </div>
-            <div className="flex flex-col gap-4 sm:items-end">
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
-              >
-                Contact us
-              </Link>
-              <Link
-                href="/membership"
-                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Become a member
-              </Link>
-            </div>
           </div>
         </div>
       </section>

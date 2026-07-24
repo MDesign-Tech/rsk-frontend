@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
 import { newsSchema, type NewsInput } from "@/schemas";
 import { newsService, type NewsArticle } from "@/services/news.service";
+import { categoryService } from "@/services/category.service";
 import { teamService } from "@/services/team.service";
+import type { Category, CloudinaryImage } from "@/types";
 import {
   Form,
   FormControl,
@@ -33,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StatusToggle } from "@/components/ui/status-toggle";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { toast } from "sonner";
@@ -42,60 +43,70 @@ interface NewsFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   article?: NewsArticle | null;
+  defaultCategory?: string;
   onSuccess: () => void;
 }
 
-export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsFormDialogProps) {
+export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, onSuccess }: NewsFormDialogProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
   const [authors, setAuthors] = useState<{ _id: string; name: string; title: string }[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loadingAuthors, setLoadingAuthors] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
+  const isBusy = isSaving || isUploading;
 
   const form = useForm<NewsInput>({
     resolver: zodResolver(newsSchema),
     defaultValues: {
       title: "",
-      excerpt: "",
       content: "",
-      coverImage: "",
-      category: "General",
+      coverImage: null,
+      category: "",
       authorId: "",
-      featured: false,
       status: "draft",
-      readingTime: 5,
     },
   });
 
   useEffect(() => {
     if (open) {
       if (article) {
+        const categoryName =
+          typeof article.category === "string"
+            ? article.category
+            : article.category?.name ?? "";
         form.reset({
           title: article.title,
-          excerpt: article.excerpt,
-          content: typeof article.content === 'string' ? article.content : JSON.stringify(article.content),
-          coverImage: article.coverImage || "",
-          category: article.category,
+          content: typeof article.content === "string" ? article.content : JSON.stringify(article.content),
+          coverImage: article.coverImage || null,
+          category: categoryName,
           authorId: article.author._id,
-          featured: article.featured,
           status: article.status,
-          readingTime: article.readingTime,
         });
+        setImageData(
+          article.coverImage
+            ? { url: article.coverImage, publicId: article.coverImagePublicId || "" }
+            : null,
+        );
       } else {
         form.reset({
           title: "",
-          excerpt: "",
           content: "",
           coverImage: "",
-          category: "General",
+          category: defaultCategory ?? "",
           authorId: "",
-          featured: false,
           status: "draft",
-          readingTime: 5,
         });
+        setImageData(null);
       }
       loadAuthors();
+      loadCategories();
     }
-  }, [open, article, form]);
+  }, [open, article, defaultCategory, form]);
 
   const loadAuthors = async () => {
     setLoadingAuthors(true);
@@ -109,35 +120,55 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
     }
   };
 
+  const loadCategories = async () => {
+    setLoadingCategories(true);
+    try {
+      const res = await categoryService.getAll();
+      setCategories(res.data.categories);
+    } catch (err) {
+      toast.error("Failed to load categories");
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
   const onSubmit = async (values: NewsInput) => {
     setIsSaving(true);
+
     try {
-      const coverImage = values.coverImage || "";
+      const uploadedImage = await imageUploadRef.current?.upload();
+
+      const data = {
+        ...values,
+        coverImage: uploadedImage?.url ?? imageData?.url ?? null,
+        coverImagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
+      };
 
       if (article) {
-        await newsService.update(article._id, {
-          ...values,
-          coverImage,
-        } as any);
+        await newsService.update(article._id, data);
         toast.success("Article updated successfully");
       } else {
-        await newsService.create({
-          ...values,
-          coverImage,
-        } as any);
+        await newsService.create(data);
         toast.success("Article created successfully");
       }
-      setIsSaving(false);
+      setImageData(null);
       onOpenChange(false);
       onSuccess();
     } catch (err) {
-      setIsSaving(false);
       toast.error(err instanceof Error ? err.message : "Failed to save article");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen && imageData && !isBusy) {
+        toast.error("Please save the data or remove the image before closing.");
+        return;
+      }
+      onOpenChange(isOpen);
+    }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{article ? "Edit Article" : "Create Article"}</DialogTitle>
@@ -156,20 +187,7 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={isSaving} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="excerpt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Excerpt</FormLabel>
-                  <FormControl>
-                    <Textarea rows={2} {...field} disabled={isSaving} />
+                    <Input {...field} disabled={isBusy} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -182,22 +200,28 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
                 <FormItem>
                   <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <Textarea rows={8} {...field} disabled={isSaving} />
+                    <Textarea rows={8} {...field} disabled={isBusy} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Cover Image</label>
-              <ImageUpload
-                value={form.watch("coverImage") ? { url: form.watch("coverImage"), publicId: "" } : null}
-                onChange={(data) => form.setValue("coverImage", data?.url ?? "")}
-                disabled={isSaving}
-                onUploadingChange={setIsUploading}
-                label="Article cover image"
-              />
-            </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Cover Image</label>
+                <ImageUpload
+                  ref={imageUploadRef}
+                  value={
+                    imageData
+                      ? { url: imageData.url, publicId: imageData.publicId }
+                      : null
+                  }
+                  onChange={setImageData}
+                  disabled={isBusy}
+                  onUploadingChange={setIsUploading}
+                  onProgress={setUploadProgress}
+                  label="Article cover image"
+                />
+              </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -205,18 +229,18 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isSaving}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isBusy || loadingCategories}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder={loadingCategories ? "Loading..." : "Select category"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="General">General</SelectItem>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                        <SelectItem value="Business">Business</SelectItem>
-                        <SelectItem value="Technology">Technology</SelectItem>
-                        <SelectItem value="Events">Events</SelectItem>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat._id} value={cat.name}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -229,7 +253,7 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Author</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isSaving || loadingAuthors}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isBusy || loadingAuthors}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder={loadingAuthors ? "Loading..." : "Select author"} />
@@ -255,7 +279,7 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isSaving}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isBusy}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -264,47 +288,23 @@ export function NewsFormDialog({ open, onOpenChange, article, onSuccess }: NewsF
                       <SelectContent>
                         <SelectItem value="draft">Draft</SelectItem>
                         <SelectItem value="published">Published</SelectItem>
-                        <SelectItem value="archived">Archived</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="readingTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Reading Time (min)</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <StatusToggle
-                checked={form.watch("featured")}
-                onCheckedChange={(checked) => form.setValue("featured", checked)}
-                disabled={isSaving}
-              />
-              <span className="text-sm text-muted-foreground">
-                {form.watch("featured") ? "Featured" : "Not featured"}
-              </span>
             </div>
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSaving}
+                disabled={isBusy}
               >
                 Cancel
               </Button>
-              <SubmitButton isLoading={isSaving} disabled={isSaving}>
+              <SubmitButton isLoading={isBusy} disabled={isBusy}>
                 {article ? "Save Changes" : "Create"}
               </SubmitButton>
             </DialogFooter>

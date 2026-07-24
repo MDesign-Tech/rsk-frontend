@@ -65,6 +65,8 @@ export interface SocialMedia {
   x?: SocialLink;
   linkedin?: SocialLink;
   youtube?: SocialLink;
+  tiktok?: SocialLink;
+  snapchat?: SocialLink;
 }
 
 export interface AboutUs {
@@ -75,6 +77,10 @@ export interface AboutUs {
   stats: AboutStat[];
   contactMethods: ContactMethod[];
   socialMedia?: SocialMedia;
+  ourStory?: {
+    title: string;
+    description: string;
+  };
 }
 
 export interface MissionVision {
@@ -216,42 +222,34 @@ export interface WhyBecomeMember {
   updatedAt?: string;
 }
 
+export interface OpportunityType {
+  _id: string;
+  name: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Opportunity {
   _id: string;
-  type: string;
+  type: OpportunityType | string;
   title: string;
   slug: string;
-  organization: {
-    name: string;
-    logo?: string | null;
-    website?: string | null;
-  };
-  image?: string | null;
-  imagePublicId?: string | null;
-  shortDescription: string;
+  org: string;
   description: string;
   category: string;
   location: string;
-  employmentType?: string | null;
-  salary?: string | null;
-  budget?: string | null;
-  deadline: string;
-  publishedAt?: string;
-  contact: {
-    email: string;
-    phone: string;
-  };
-  requirements: string[];
-  documents: {
-    name: string;
-    url: string;
-  }[];
-  benefits: string[];
-  featured: boolean;
+  date: string;
+  image?: string | null;
+  imagePublicId?: string | null;
   status: "Open" | "Closed";
-  visible: boolean;
-  views: number;
-  applicants?: number | null;
+  publishedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
   createdAt?: string;
   updatedAt?: string;
 }

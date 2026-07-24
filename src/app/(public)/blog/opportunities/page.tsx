@@ -2,66 +2,54 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Navbar } from "@/components/navbar";
 import { SectionDivider } from "@/components/section-divider";
-import { useState, useEffect } from "react";
-import { publicOpportunityService, type PublicOpportunity } from "@/services/public-opportunity.service";
+import { publicOpportunityService } from "@/services/public-opportunity.service";
+import type { Opportunity } from "@/types";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const RSK_LOGO = "/rsk-logo.svg";
 
-// Skeleton loader for opportunity cards
-function OpportunityCardSkeleton() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-lg shadow-slate-950/10"
-    >
-      <div className="relative h-56 w-full bg-muted animate-pulse" />
-      <div className="p-6 space-y-3">
-        <div className="h-6 bg-muted rounded w-1/3 animate-pulse" />
-        <div className="h-5 bg-muted rounded w-3/4 animate-pulse" />
-        <div className="h-4 bg-muted rounded w-full animate-pulse" />
-        <div className="h-4 bg-muted rounded w-2/3 animate-pulse" />
-      </div>
-    </motion.div>
-  );
-}
-
-const typeColors: Record<string, string> = {
-  Tender: "bg-blue-500/10 text-blue-300",
-  Job: "bg-green-500/10 text-green-300",
-  Internship: "bg-purple-500/10 text-purple-300",
-  Consultancy: "bg-orange-500/10 text-orange-300",
-  Training: "bg-teal-500/10 text-teal-300",
-  Event: "bg-pink-500/10 text-pink-300",
-  RFP: "bg-cyan-500/10 text-cyan-300",
-  RFQ: "bg-yellow-500/10 text-yellow-300",
-  EOI: "bg-indigo-500/10 text-indigo-300",
-};
-
 export default function OpportunitiesPage() {
   const shouldReduceMotion = useReducedMotion();
-  const [opportunities, setOpportunities] = useState<PublicOpportunity[]>([]);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const itemsPerPage = 6;
 
   useEffect(() => {
-    loadOpportunities();
-  }, []);
+    loadData();
+  }, [currentPage]);
 
-  const loadOpportunities = async () => {
+  // Scroll to top of content when page changes
+  useEffect(() => {
+    const contentSection = document.querySelector('section');
+    if (contentSection) {
+      contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [currentPage]);
+
+  const loadData = async () => {
     setIsLoading(true);
     try {
-      const res = await publicOpportunityService.getAll();
-      setOpportunities(res.data.opportunities);
+      const oppRes = await publicOpportunityService.getAll({ page: currentPage, limit: itemsPerPage });
+      setOpportunities(oppRes.data.opportunities);
+      setTotalPages(oppRes.data.totalPages);
+      setTotal(oppRes.data.total);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load opportunities");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getTypeName = (type: Opportunity["type"]): string => {
+    if (typeof type === "string") return type;
+    return type.name;
   };
 
   return (
@@ -113,101 +101,141 @@ export default function OpportunitiesPage() {
 
       <SectionDivider variant="wave" />
 
-      <section className="py-16">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          {isLoading ? (
+      {isLoading ? (
+        <section className="py-16">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <div className="mb-8 h-8 w-48 bg-muted rounded animate-pulse" />
             <div className="grid gap-6 md:grid-cols-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <OpportunityCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : opportunities.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No opportunities available at the moment.</p>
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2">
-              {opportunities.map((opportunity, index) => (
-                <motion.article
-                  key={opportunity._id}
-                  initial={shouldReduceMotion ? {} : { opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.55, delay: index * 0.1 }}
-                  className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-lg shadow-slate-950/10"
-                >
-                  <div className="relative h-56 w-full overflow-hidden bg-muted">
-                    {opportunity.image ? (
-                      <Image
-                        src={opportunity.image}
-                        alt={opportunity.title}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <Image
-                          src={RSK_LOGO}
-                          alt="RSK Associates"
-                          width={80}
-                          height={80}
-                          className="opacity-50"
-                        />
-                      </div>
-                    )}
+              {[1, 2, 3, 4].map((j) => (
+                <div key={j} className="rounded-3xl border border-border/60 bg-card animate-pulse">
+                  <div className="relative h-56 w-full bg-muted" />
+                  <div className="p-6 space-y-3">
+                    <div className="h-5 bg-muted rounded w-20" />
+                    <div className="h-6 bg-muted rounded w-full" />
+                    <div className="h-4 bg-muted rounded w-3/4" />
                   </div>
-                  <div className="p-6">
-                    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${typeColors[opportunity.type] || "bg-muted text-muted-foreground"}`}>
-                      {opportunity.type}
-                    </span>
-                    <h3 className="mt-4 text-xl font-semibold text-foreground">
-                      {opportunity.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {opportunity.organization.name} •{" "}
-                      <time>{new Date(opportunity.deadline).toLocaleDateString()}</time>
-                    </p>
-                    <p className="mt-4 text-sm leading-6 text-muted-foreground line-clamp-2">
-                      {opportunity.shortDescription}
-                    </p>
-                    <Link
-                      href="/contact"
-                      className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-100"
-                    >
-                      Apply now <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </motion.article>
+                </div>
               ))}
-            </div>
-          )}
-        </div>
-      </section>
-      <SectionDivider variant="diagonal" />
-
-      <section className="bg-sky-950 py-20 text-white">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="rounded-4xl border border-sky-500/20 bg-sky-950/95 p-10 shadow-[0_40px_120px_-50px_rgba(14,116,232,0.65)]">
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-center">
-              <div>
-                <h2 className="text-4xl font-semibold">
-                  Ready to apply for your next opportunity?
-                </h2>
-                <p className="mt-4 text-lg leading-8 text-slate-200">
-                  Submit your interest today and let our team connect you with
-                  relevant jobs, internships, tenders, or training programs.
-                </p>
-              </div>
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
-              >
-                Apply now
-              </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : opportunities.length === 0 ? (
+        <section className="py-16">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8 text-center">
+            <p className="text-muted-foreground">No opportunities found.</p>
+          </div>
+        </section>
+      ) : (
+        <>
+          <section className="py-16">
+            <div className="mx-auto max-w-6xl px-6 lg:px-8">
+              <div className="mb-8">
+                <h2 className="text-3xl font-semibold">All Opportunities</h2>
+                <p className="mt-2 text-muted-foreground">
+                  Carefully selected openings and programs that match our
+                  corporate audience.
+                </p>
+              </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                {opportunities.map((item) => (
+                  <motion.article
+                    key={item._id}
+                    initial={shouldReduceMotion ? {} : { opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.55 }}
+                    className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-lg shadow-slate-950/10"
+                  >
+                    <div className="relative h-56 w-full overflow-hidden bg-muted">
+                      {item.image ? (
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          fill
+                          style={{ objectFit: "cover" }}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <Image
+                            src={RSK_LOGO}
+                            alt="RSK Associates"
+                            width={80}
+                            height={80}
+                            className="opacity-50"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-300">
+                        {getTypeName(item.type)}
+                      </span>
+                      <h3 className="mt-4 text-xl font-semibold text-foreground">
+                        {item.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {item.org} •{" "}
+                        <time>{new Date(item.date).toLocaleDateString()}</time>
+                      </p>
+                      {item.description && (
+                        <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                          {item.description}
+                        </p>
+                      )}
+                      <Link
+                        href={`/contact`}
+                        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-100"
+                      >
+                        Apply now
+                      </Link>
+                    </div>
+                  </motion.article>
+                ))}
+              </div>
+            </div>
+            {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-evenly gap-4 mt-8 pt-6">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg border border-border/60 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+              >
+                ← Previous
+              </button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? "bg-primary text-white"
+                          : "border border-border/60 text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+              </div>
+
+              <button
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg border border-border/60 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+          </section>
+        </>
+      )}
     </main>
   );
 }

@@ -1,93 +1,38 @@
 import api from "./api";
 import type { ApiResponse } from "@/types";
-
-export interface Opportunity {
-  _id: string;
-  type: string;
-  title: string;
-  slug: string;
-  organization: {
-    name: string;
-    logo?: string | null;
-    website?: string | null;
-  };
-  image?: string | null;
-  imagePublicId?: string | null;
-  shortDescription: string;
-  description: string;
-  category: string;
-  location: string;
-  employmentType?: string | null;
-  salary?: string | null;
-  budget?: string | null;
-  deadline: string;
-  publishedAt?: string;
-  contact: {
-    email: string;
-    phone: string;
-  };
-  requirements: string[];
-  documents: {
-    name: string;
-    url: string;
-  }[];
-  benefits: string[];
-  featured: boolean;
-  status: "Open" | "Closed";
-  visible: boolean;
-  views: number;
-  applicants?: number | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { Opportunity, OpportunityType } from "@/types";
 
 export interface CreateOpportunityInput {
   type: string;
   title: string;
   org: string;
-  shortDescription: string;
-  description: string;
-  category: string;
-  location: string;
-  employmentType?: string;
-  salary?: string;
-  budget?: string;
+  description?: string;
+  category?: string;
+  location?: string;
   date: string;
-  contactEmail: string;
-  contactPhone: string;
-  requirements?: string[];
-  benefits?: string[];
-  featured?: boolean;
-  status?: "active" | "closed";
-  visible?: boolean;
   image?: string | null;
+  imagePublicId?: string | null;
+  status?: "Open" | "Closed";
+  visible?: boolean;
 }
 
 export interface UpdateOpportunityInput {
   type?: string;
   title?: string;
   org?: string;
-  shortDescription?: string;
   description?: string;
   category?: string;
   location?: string;
-  employmentType?: string;
-  salary?: string;
-  budget?: string;
   date?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  requirements?: string[];
-  benefits?: string[];
-  featured?: boolean;
-  status?: "active" | "closed";
-  visible?: boolean;
   image?: string | null;
+  imagePublicId?: string | null;
+  status?: "Open" | "Closed";
+  visible?: boolean;
 }
 
 export const opportunityService = {
-  getAll: () =>
-    api.get<ApiResponse<{ opportunities: Opportunity[] }>>("/opportunities/admin").then((res) => res.data),
+  getAll: (params?: { page?: number; limit?: number }) =>
+    api.get<ApiResponse<{ opportunities: Opportunity[]; total: number; page: number; limit: number; totalPages: number }>>("/opportunities", { params }).then((res) => res.data),
 
   getById: (id: string) =>
     api.get<ApiResponse<{ opportunity: Opportunity }>>(`/opportunities/${id}`).then((res) => res.data),
@@ -105,8 +50,27 @@ export const opportunityService = {
   remove: (id: string) =>
     api.delete<ApiResponse<Record<string, never>>>(`/opportunities/${id}`).then((res) => res.data),
 
-  toggleStatus: (id: string, status: "active" | "closed") =>
+  toggleStatus: (id: string, status: "Open" | "Closed") =>
     api
       .patch<ApiResponse<{ opportunity: Opportunity }>>(`/opportunities/${id}/status`, { status })
       .then((res) => res.data),
+
+  getTypes: () =>
+    api.get<ApiResponse<{ types: OpportunityType[] }>>("/opportunity-types").then((res) => res.data),
+
+  createType: (name: string) =>
+    api
+      .post<ApiResponse<{ opportunityType: OpportunityType }>>("/opportunity-types", { name })
+      .then((res) => res.data),
+
+  updateType: (id: string, name: string) =>
+    api
+      .put<ApiResponse<{ opportunityType: OpportunityType }>>(`/opportunity-types/${id}`, { name })
+      .then((res) => res.data),
+
+  deleteType: (id: string) =>
+    api.delete<ApiResponse<Record<string, never>>>(`/opportunity-types/${id}`).then((res) => res.data),
+
+  deleteByType: (typeId: string) =>
+    api.delete<ApiResponse<{ deletedCount: number }>>(`/opportunities/type/${typeId}`).then((res) => res.data),
 };

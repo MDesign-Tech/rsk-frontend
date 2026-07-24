@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, X } from "lucide-react";
 import { opportunitySchema, type OpportunityInput } from "@/schemas";
-import { opportunityService, type Opportunity } from "@/services/opportunity.service";
+import { opportunityService } from "@/services/opportunity.service";
+import type { Opportunity, OpportunityType } from "@/types";
 import {
   Form,
   FormControl,
@@ -32,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StatusToggle } from "@/components/ui/status-toggle";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { toast } from "sonner";
@@ -41,35 +40,32 @@ interface OpportunityFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   opportunity?: Opportunity | null;
+  types: OpportunityType[];
+  defaultTypeId?: string | null;
   onSuccess: () => void;
 }
 
-export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSuccess }: OpportunityFormDialogProps) {
+export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, defaultTypeId, onSuccess }: OpportunityFormDialogProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageData, setImageData] = useState<{ url: string; publicId: string } | null>(null);
+
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
+  const isBusy = isSaving || isUploading;
 
   const form = useForm<OpportunityInput>({
     resolver: zodResolver(opportunitySchema),
     defaultValues: {
-      type: "Tender",
+      type: "",
       title: "",
       org: "",
-      shortDescription: "",
       description: "",
-      category: "",
+      category: "General",
       location: "",
-      employmentType: "",
-      salary: "",
-      budget: "",
       date: "",
-      contactEmail: "",
-      contactPhone: "",
-      requirements: "",
-      benefits: "",
-      featured: false,
-      status: "active",
-      visible: true,
       image: null,
+      status: "Open",
     },
   });
 
@@ -77,59 +73,47 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
     if (open) {
       if (opportunity) {
         form.reset({
-          type: opportunity.type,
+          type: typeof opportunity.type === "string" ? opportunity.type : opportunity.type._id,
           title: opportunity.title,
-          org: opportunity.organization.name,
-          shortDescription: opportunity.shortDescription,
-          description: opportunity.description,
-          category: opportunity.category,
-          location: opportunity.location,
-          employmentType: opportunity.employmentType || "",
-          salary: opportunity.salary || "",
-          budget: opportunity.budget || "",
-          date: opportunity.deadline.split('T')[0],
-          contactEmail: opportunity.contact.email,
-          contactPhone: opportunity.contact.phone,
-          requirements: opportunity.requirements.join("\n"),
-          benefits: opportunity.benefits.join("\n"),
-          featured: opportunity.featured,
-          status: opportunity.status === "Open" ? "active" : "closed",
-          visible: opportunity.visible,
+          org: opportunity.org,
+          description: opportunity.description || "",
+          category: opportunity.category || "General",
+          location: opportunity.location || "",
+          date: opportunity.date.split('T')[0],
           image: opportunity.image || null,
+          status: opportunity.status,
         });
+        setImageData(
+          opportunity.image
+            ? { url: opportunity.image, publicId: opportunity.imagePublicId || "" }
+            : null
+        );
       } else {
+        const initialType = defaultTypeId || types[0]?._id || "";
         form.reset({
-          type: "Tender",
+          type: initialType,
           title: "",
           org: "",
-          shortDescription: "",
           description: "",
-          category: "",
+          category: "General",
           location: "",
-          employmentType: "",
-          salary: "",
-          budget: "",
           date: "",
-          contactEmail: "",
-          contactPhone: "",
-          requirements: "",
-          benefits: "",
-          featured: false,
-          status: "active",
-          visible: true,
           image: null,
+          status: "Open",
         });
+        setImageData(null);
       }
     }
-  }, [open, opportunity, form]);
+  }, [open, opportunity, types, defaultTypeId, form]);
 
   const onSubmit = async (values: OpportunityInput) => {
     setIsSaving(true);
     try {
+      const uploadedImage = await imageUploadRef.current?.upload();
       const data = {
         ...values,
-        requirements: values.requirements.split("\n").filter(Boolean),
-        benefits: values.benefits.split("\n").filter(Boolean),
+        image: uploadedImage?.url ?? imageData?.url ?? null,
+        imagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
       };
 
       if (opportunity) {
@@ -139,14 +123,17 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
         await opportunityService.create(data);
         toast.success("Opportunity created successfully");
       }
-      setIsSaving(false);
+      setImageData(null);
       onOpenChange(false);
       onSuccess();
     } catch (err) {
-      setIsSaving(false);
       toast.error(err instanceof Error ? err.message : "Failed to save opportunity");
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  const isTypeLocked = !!defaultTypeId && !opportunity;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -168,22 +155,22 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isSaving}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isSaving || isTypeLocked}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Tender">Tender</SelectItem>
-                        <SelectItem value="Job">Job</SelectItem>
-                        <SelectItem value="Internship">Internship</SelectItem>
-                        <SelectItem value="Consultancy">Consultancy</SelectItem>
-                        <SelectItem value="Training">Training</SelectItem>
-                        <SelectItem value="Event">Event</SelectItem>
-                        <SelectItem value="RFP">RFP</SelectItem>
-                        <SelectItem value="RFQ">RFQ</SelectItem>
-                        <SelectItem value="EOI">EOI</SelectItem>
+                        {types.map((type) => (
+                          <SelectItem key={type._id} value={type._id}>
+                            {type.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -197,7 +184,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled={isSaving} />
+                      <Input {...field} disabled={isBusy} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -211,20 +198,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                 <FormItem>
                   <FormLabel>Organization</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={isSaving} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="shortDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Short Description</FormLabel>
-                  <FormControl>
-                    <Textarea rows={2} {...field} disabled={isSaving} />
+                    <Input {...field} disabled={isBusy} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -237,7 +211,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea rows={4} {...field} disabled={isSaving} />
+                    <Textarea rows={4} {...field} disabled={isBusy} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -251,7 +225,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                   <FormItem>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled={isSaving} />
+                      <Input {...field} disabled={isBusy} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -264,48 +238,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                   <FormItem>
                     <FormLabel>Location</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="employmentType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Employment Type</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="salary"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Salary</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="budget"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Budget</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isSaving} />
+                      <Input {...field} disabled={isBusy} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -318,97 +251,29 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                 name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deadline</FormLabel>
+                    <FormLabel>Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} disabled={isSaving} />
+                      <Input type="date" {...field} disabled={isBusy} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="contactEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="contactPhone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Phone</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isSaving} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="requirements"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Requirements (one per line)</FormLabel>
-                  <FormControl>
-                    <Textarea rows={3} {...field} disabled={isSaving} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="benefits"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Benefits (one per line)</FormLabel>
-                  <FormControl>
-                    <Textarea rows={3} {...field} disabled={isSaving} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Image</label>
-              <ImageUpload
-                value={form.watch("image") ? { url: form.watch("image") as string, publicId: "" } : null}
-                onChange={(data) => form.setValue("image", data?.url ?? null)}
-                disabled={isSaving}
-                onUploadingChange={setIsUploading}
-                label="Opportunity image"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <StatusToggle
-                  checked={form.watch("featured")}
-                  onCheckedChange={(checked) => form.setValue("featured", checked)}
-                  disabled={isSaving}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Image</label>
+                <ImageUpload
+                  ref={imageUploadRef}
+                  value={
+                    imageData
+                      ? { url: imageData.url, publicId: imageData.publicId }
+                      : null
+                  }
+                  onChange={setImageData}
+                  disabled={isBusy}
+                  onUploadingChange={setIsUploading}
+                  onProgress={setUploadProgress}
+                  label="Opportunity image"
                 />
-                <span className="text-sm text-muted-foreground">
-                  {form.watch("featured") ? "Featured" : "Not featured"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <StatusToggle
-                  checked={form.watch("visible")}
-                  onCheckedChange={(checked) => form.setValue("visible", checked)}
-                  disabled={isSaving}
-                />
-                <span className="text-sm text-muted-foreground">
-                  {form.watch("visible") ? "Visible" : "Hidden"}
-                </span>
               </div>
             </div>
             <DialogFooter>
@@ -416,11 +281,11 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, onSucce
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSaving}
+                disabled={isBusy}
               >
                 Cancel
               </Button>
-              <SubmitButton isLoading={isSaving} disabled={isSaving}>
+              <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
                 {opportunity ? "Save Changes" : "Create"}
               </SubmitButton>
             </DialogFooter>

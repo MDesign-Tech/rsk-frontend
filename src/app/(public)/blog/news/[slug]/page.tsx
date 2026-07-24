@@ -35,11 +35,6 @@ function ArticleSkeleton() {
             <div className="h-3 bg-muted rounded w-24" />
           </div>
         </div>
-        {/* Excerpt box */}
-        <div className="mb-8 p-4 bg-muted/50 rounded-xl border-l-4 border-primary/30">
-          <div className="h-4 bg-muted rounded w-full mb-2" />
-          <div className="h-4 bg-muted rounded w-5/6" />
-        </div>
         {/* Content paragraphs */}
         <div className="space-y-4">
           <div className="h-4 bg-muted rounded w-full" />
@@ -151,7 +146,9 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
           {/* Category & Date */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-              {article.category}
+              {typeof article.category === "string"
+                ? article.category
+                : article.category?.name}
             </span>
             <span className="text-sm text-muted-foreground">
               {new Date(article.publishedAt).toLocaleDateString("en-US", {
@@ -160,9 +157,7 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
                 day: "numeric",
               })}
             </span>
-            <span className="text-sm text-muted-foreground">
-              {article.readingTime} min read
-            </span>
+
           </div>
 
           {/* Title */}
@@ -200,11 +195,6 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
             </div>
           </div>
 
-          {/* Excerpt */}
-          <div className="mb-8 p-4 bg-muted/50 rounded-xl border-l-4 border-primary">
-            <p className="text-lg text-foreground/90 italic">{article.excerpt}</p>
-          </div>
-
           {/* Content */}
           <div className="prose prose-lg max-w-none">
             {typeof article.content === "string" ? (
@@ -216,15 +206,6 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
                 {JSON.stringify(article.content, null, 2)}
               </div>
             )}
-          </div>
-
-          {/* Stats */}
-          <div className="mt-10 pt-6 border-t border-border/60">
-            <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-              <span>{article.likes} likes</span>
-              <span>{article.shares} shares</span>
-              <span>{article.commentsCount} comments</span>
-            </div>
           </div>
 
           {/* Back Button */}

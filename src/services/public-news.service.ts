@@ -5,29 +5,23 @@ export interface PublicNewsArticle {
   _id: string;
   title: string;
   slug: string;
-  excerpt: string;
   content: string;
   coverImage: string | null;
-  category: string;
+  category: string | { _id: string; name: string };
   author: {
     _id: string;
     name: string;
     avatar: string | null;
     role: string | null;
   };
-  featured: boolean;
-  status: "draft" | "published" | "archived";
+  status: "draft" | "published";
   publishedAt: string;
-  readingTime: number;
-  likes: number;
-  shares: number;
-  commentsCount: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export const publicNewsService = {
-  getAll: async (params?: { page?: number; limit?: number; category?: string; featured?: boolean }) => {
+  getAll: async (params?: { page?: number; limit?: number; category?: string }) => {
     const res = await api.get<ApiResponse<{ articles: PublicNewsArticle[]; total: number; page: number; limit: number; totalPages: number }>>("/news/public", { params });
     return res.data;
   },
@@ -37,13 +31,8 @@ export const publicNewsService = {
     return res.data;
   },
 
-  getFeatured: async (limit = 3) => {
-    const res = await api.get<ApiResponse<PublicNewsArticle[]>>("/news/featured", { params: { limit } });
-    return res.data;
-  },
-
-  getByCategory: async (category: string) => {
-    const res = await api.get<ApiResponse<PublicNewsArticle[]>>(`/news/category/${category}`);
+  getByCategory: async (categoryId: string) => {
+    const res = await api.get<ApiResponse<PublicNewsArticle[]>>(`/news/category/${categoryId}`);
     return res.data;
   },
 };

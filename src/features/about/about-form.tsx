@@ -48,7 +48,10 @@ export function AboutForm() {
         x: { href: null, visible: true },
         linkedin: { href: null, visible: true },
         youtube: { href: null, visible: true },
+        tiktok: { href: null, visible: true },
+        snapchat: { href: null, visible: true },
       },
+      ourStory: { title: "", description: "" },
     },
   });
 
@@ -84,7 +87,10 @@ export function AboutForm() {
             x: { href: null, visible: true },
             linkedin: { href: null, visible: true },
             youtube: { href: null, visible: true },
+            tiktok: { href: null, visible: true },
+            snapchat: { href: null, visible: true },
           },
+          ourStory: a.ourStory ?? { title: "", description: "" },
         });
         setIsLoading(false);
       } catch (err) {
@@ -171,7 +177,6 @@ export function AboutForm() {
                 variant="outline"
                 label="Add stat"
                 icon={<Plus />}
-                onClick={() => append({ number: "", label: "", visible: true })}
               />
             </div>
             {fields.length === 0 ? (
@@ -315,6 +320,38 @@ export function AboutForm() {
               </div>
             )}
           </div>
+          {/* Our Story */}
+          <div className="space-y-3">
+            <label className="text-lg font-medium">Our Story</label>
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="ourStory.title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Story Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Our Story" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ourStory.description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Story Description</FormLabel>
+                    <FormControl>
+                      <Textarea rows={4} placeholder="Tell your story..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
           {/* Social Media */}
           <div className="space-y-3">
             <label className="text-sm font-medium">Social Media</label>
@@ -327,6 +364,8 @@ export function AboutForm() {
                   "x",
                   "linkedin",
                   "youtube",
+                  "tiktok",
+                  "snapchat",
                 ] as const
               ).map((platform) => (
                 <div

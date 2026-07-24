@@ -12,11 +12,12 @@ api.interceptors.response.use(
     if (error.response?.data) {
       const data = error.response.data;
 
-      const message =
-        data.message ||
-        (Array.isArray(data.errors) ? data.errors[0] : null) ||
-        "Request failed";
+      // If backend returns field-level validation errors, join them
+      if (Array.isArray(data.errors) && data.errors.length > 0) {
+        return Promise.reject(new Error(data.errors.join("\n")));
+      }
 
+      const message = data.message || "Request failed";
       return Promise.reject(new Error(message));
     }
 

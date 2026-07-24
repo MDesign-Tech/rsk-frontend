@@ -25,7 +25,7 @@ export function AboutUs() {
   // Filter only visible stats
   const stats: AboutStat[] = about.stats?.filter((s) => s.visible !== false) ?? [];
 
-  if (stats.length === 0) {
+  if (stats.length === 0 && !about.ourStory) {
     return null;
   }
 
@@ -65,6 +65,17 @@ export function AboutUs() {
             </h2>
 
             <p className="text-lg text-slate-200 mb-6">{about.description}</p>
+
+            {about.ourStory?.title && (
+              <div className="mt-8 p-6 rounded-xl border border-white/20 bg-white/10 backdrop-blur">
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  {about.ourStory.title}
+                </h3>
+                <p className="text-slate-200 leading-relaxed">
+                  {about.ourStory.description}
+                </p>
+              </div>
+            )}
           </motion.div>
 
           <motion.div

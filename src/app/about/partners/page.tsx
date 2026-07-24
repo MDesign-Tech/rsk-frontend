@@ -73,7 +73,7 @@ export default function PartnersPage() {
             transition={{ duration: 0.7 }}
             className="mb-10 text-center"
           >
-            <p className="text-sm uppercase tracking-[0.35em] text-sky-400">
+            <p className="text-sm uppercase tracking-[0.35em] text-primary">
               Partners logos
             </p>
             <h2 className="mt-4 text-3xl sm:text-4xl font-semibold">
@@ -90,7 +90,7 @@ export default function PartnersPage() {
                   className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-border/60 bg-card/70 p-6"
                 >
                   {p.image ? (
-                    <div className="h-20 w-full overflow-hidden rounded-2xl bg-white/5">
+                    <div className="h-20 w-full overflow-hidden rounded-2xl bg-muted">
                       <Image
                         src={p.image}
                         alt={p.name}
@@ -109,37 +109,6 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      <section className="bg-sky-950 py-20 text-white">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center rounded-4xl border border-sky-500/20 bg-sky-950/95 p-10 shadow-[0_40px_120px_-50px_rgba(14,116,232,0.65)]">
-            <div>
-              <h2 className="text-4xl font-semibold">
-                Become a partner and expand your reach.
-              </h2>
-              <p className="mt-4 text-lg text-slate-200 leading-8">
-                Engage with a corporate network that amplifies your services,
-                uncovers joint tenders, and provides a premium support
-                ecosystem.
-              </p>
-            </div>
-            <div className="flex flex-col gap-4 sm:items-end">
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
-              >
-                Partner with us
-              </Link>
-              <Link
-                href="/membership"
-                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Request partnership details
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      <SectionDivider variant="curve" />
     </main>
   );
 }
