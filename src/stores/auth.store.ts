@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { authService } from "@/services/auth.service";
-import type { AuthUser } from "@/types";
+import { permissionService } from "@/services/permission.service";
+import type { AuthUser, Permission } from "@/types";
 
 interface AuthState {
   user: AuthUser | null;
@@ -11,9 +12,10 @@ interface AuthState {
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   setUser: (user: AuthUser | null) => void;
+  hasPermission: (moduleName: string, action: "create" | "read" | "update" | "delete") => boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
@@ -34,7 +36,19 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const res = await authService.getMe();
-      set({ user: res.data.user, isAuthenticated: true, initialized: true });
+      const user = res.data.user;
+
+      // Ensure permissions are loaded (some /auth/me responses may not include them)
+      if (user && user._id && (!user.permissions || user.permissions.length === 0)) {
+        try {
+          const permRes = await permissionService.getUserPermissions(user._id);
+          user.permissions = permRes.data.permissions;
+        } catch {
+          // Permission fetch failed; continue with empty permissions
+        }
+      }
+
+      set({ user, isAuthenticated: true, initialized: true });
     } catch {
       set({ user: null, isAuthenticated: false, initialized: true });
     } finally {
@@ -42,4 +56,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   setUser: (user) => set({ user, isAuthenticated: !!user }),
+  hasPermission: (moduleName, action) => {
+    const { user } = get();
+    if (!user) return false;
+
+    // Admin has full access
+    if (user.role === "admin") return true;
+
+    const permission = user.permissions.find((p: Permission) => p.moduleName === moduleName);
+    if (!permission) return false;
+
+    const actionKey = `can${action.charAt(0).toUpperCase() + action.slice(1)}` as keyof Permission;
+    return Boolean(permission[actionKey]);
+  },
 }));

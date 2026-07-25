@@ -11,15 +11,7 @@ import {
 } from "lucide-react";
 
 import { useWebsiteStore } from "@/stores/website.store";
-
-const SERVICE_ICONS = [
-  CheckCircle,
-  TrendingUp,
-  Calculator,
-  Briefcase,
-  Shield,
-  Zap,
-];
+import Image from "next/image";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -114,8 +106,6 @@ export function OurServices() {
           viewport={{ once: true, amount: 0.2 }}
         >
           {visibleServices.map((service, index) => {
-            const Icon = SERVICE_ICONS[index % SERVICE_ICONS.length];
-
             return (
               <motion.div
                 key={service._id}
@@ -131,11 +121,19 @@ export function OurServices() {
                 <div className="absolute inset-0 bg-linear-to-br from-primary/8 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 <div className="relative">
-                  <Icon
-                    className="mb-4 h-12 w-12 text-primary transition-colors duration-300 group-hover:text-blue-600"
-                    aria-hidden="true"
-                  />
-
+                  <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-sky-950/10 text-sky-400 transition-colors group-hover:bg-sky-400/10">
+                    {service.image ? (
+                      <Image
+                        src={service.image}
+                        alt={service.title}
+                        width={28}
+                        height={28}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <CheckCircle className="h-7 w-7" />
+                    )}
+                  </div>
                   <h3 className="mb-2 text-xl font-semibold text-foreground transition-colors duration-300 group-hover:text-primary">
                     {service.title}
                   </h3>

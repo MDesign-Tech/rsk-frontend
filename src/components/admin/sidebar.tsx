@@ -18,11 +18,15 @@ import {
   Award,
   BookOpen,
   Newspaper,
+  Shield,
+  Boxes,
   ChevronDown,
   type LucideIcon,
 } from "lucide-react";
 import { NAV_ITEMS, type NavItem } from "@/lib/constants";
 import { useSidebarStore } from "@/stores/sidebar.store";
+import { useAuthStore } from "@/stores/auth.store";
+import { canReadModule } from "@/lib/permissions";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -41,14 +45,31 @@ const iconMap: Record<string, LucideIcon> = {
   Award,
   BookOpen,
   Newspaper,
+  Shield,
+  Boxes,
 };
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { user } = useAuthStore();
+
+  // Filter nav items based on permissions
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    // Admin sees everything
+    if (user?.role === "admin") return true;
+
+    // Check if user has read permission for this module
+    if (item.children) {
+      // For parent items with children, check if any child is accessible
+      return item.children.some((child) => canReadModule(child.title));
+    }
+
+    return canReadModule(item.title);
+  });
 
   return (
     <nav className="flex flex-col gap-1 px-3">
-      {NAV_ITEMS.map((item) => {
+      {visibleItems.map((item) => {
         const Icon = iconMap[item.icon] ?? LayoutDashboard;
         const active =
           item.href === "/admin"
@@ -56,7 +77,22 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             : pathname.startsWith(item.href);
 
         if (item.children) {
-          return <NavDropdown key={item.href} item={item} pathname={pathname} onNavigate={onNavigate} />;
+          // Filter children based on permissions
+          const visibleChildren = item.children.filter((child) => {
+            if (user?.role === "admin") return true;
+            return canReadModule(child.title);
+          });
+
+          if (visibleChildren.length === 0) return null;
+
+          return (
+            <NavDropdown
+              key={item.href}
+              item={{ ...item, children: visibleChildren }}
+              pathname={pathname}
+              onNavigate={onNavigate}
+            />
+          );
         }
 
         return (

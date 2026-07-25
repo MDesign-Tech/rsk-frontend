@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSidebarStore } from "@/stores/sidebar.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { toast } from "sonner";
+import type { TeamMember } from "@/types";
 
 export function Navbar() {
   const router = useRouter();
@@ -39,6 +40,11 @@ export function Navbar() {
         <div className="hidden text-right sm:block">
           <p className="text-sm font-medium leading-none">{user?.name}</p>
           <p className="text-xs text-muted-foreground">{user?.email}</p>
+          {user?.member && typeof user.member === 'object' && 'department' in user.member && (
+            <p className="text-xs text-muted-foreground">
+              {(user.member as TeamMember).department} {(user.member as TeamMember).position ? `• ${(user.member as TeamMember).position}` : ''}
+            </p>
+          )}
         </div>
         <Badge variant="secondary" className="capitalize">
           {user?.role}

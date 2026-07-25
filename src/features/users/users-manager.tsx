@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Link2, Unlink2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { userSchema, type UserInput } from "@/schemas";
 import { userService } from "@/services/user.service";
-import type { User } from "@/types";
+import { memberService } from "@/services/member.service";
+import type { User, TeamMember, AvailableMember } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,6 +27,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DataTable, type Column } from "@/components/admin/data-table";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { SearchInput } from "@/components/admin/search-input";
@@ -37,6 +45,8 @@ import { toast } from "sonner";
 
 export function UsersManager() {
   const [users, setUsers] = useState<User[]>([]);
+  const [availableMembers, setAvailableMembers] = useState<AvailableMember[]>([]);
+  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -44,23 +54,32 @@ export function UsersManager() {
   const [isSaving, setIsSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkingUser, setLinkingUser] = useState<User | null>(null);
+  const [selectedMemberId, setSelectedMemberId] = useState<string>("");
 
   const { user: currentUser } = useAuthStore();
 
   const form = useForm<UserInput>({
     resolver: zodResolver(userSchema),
-    defaultValues: { name: "", email: "", phone: "", role: "admin", password: "" },
+    defaultValues: { name: "", email: "", phone: "", role: "member", member: null, password: "" },
   });
 
   const load = async () => {
     setIsLoading(true);
     try {
-      const res = await userService.getAll();
-      setUsers(res.data.users);
+      const [usersRes, membersRes, availableRes] = await Promise.all([
+        userService.getAll(),
+        memberService.getAll(),
+        userService.getAvailableMembers(),
+      ]);
+      setUsers(usersRes.data.users);
+      setAllMembers(membersRes.data.members);
+      setAvailableMembers(availableRes.data.members);
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
-      toast.error(err instanceof Error ? err.message : "Failed to load users");
+      toast.error(err instanceof Error ? err.message : "Failed to load data");
     }
   };
 
@@ -70,39 +89,39 @@ export function UsersManager() {
 
   const openCreate = () => {
     setEditing(null);
-    form.reset({ name: "", email: "", phone: "", role: "admin", password: "" });
+    form.reset({ name: "", email: "", phone: "", role: "member", member: null, memberId: null, password: "" });
     setDialogOpen(true);
   };
 
   const openEdit = (user: User) => {
     setEditing(user);
+    const memberId = typeof user.member === 'object' && user.member ? user.member._id : (typeof user.member === 'string' ? user.member : null);
     form.reset({
       name: user.name,
       email: user.email,
       phone: user.phone ?? "",
-      role: "admin",
+      role: "member",
+      member: memberId,
+      memberId: memberId,
       password: "",
     });
     setDialogOpen(true);
   };
 
   const onSubmit = async (values: UserInput) => {
-    // Password is required when creating a new user.
-    if (!editing && !values.password) {
-      form.setError("password", { message: "Password is required" });
-      return;
-    }
+    const memberValue = values.memberId === "__none__" ? null : values.memberId;
 
     setIsSaving(true);
     try {
       if (editing) {
-        const payload = {
-          name: values.name,
+        const payload: any = {
           email: values.email,
           phone: values.phone,
-          role: "admin" as const,
           ...(values.password ? { password: values.password } : {}),
         };
+        if (memberValue !== undefined) {
+          payload.memberId = memberValue;
+        }
         const res = await userService.update(editing._id, payload);
         setUsers((prev) =>
           prev.map((u) => (u._id === editing._id ? res.data.user : u))
@@ -112,20 +131,53 @@ export function UsersManager() {
         toast.success("User updated");
       } else {
         const res = await userService.create({
-          name: values.name,
           email: values.email,
           password: values.password ?? "",
           phone: values.phone,
-          role: "admin" as const,
+          memberId: memberValue ?? undefined,
         });
         setUsers((prev) => [res.data.user, ...prev]);
         setIsSaving(false);
         setDialogOpen(false);
         toast.success("User created");
       }
+      // Refresh available members after create/update
+      const availableRes = await userService.getAvailableMembers();
+      setAvailableMembers(availableRes.data.members);
     } catch (err) {
       setIsSaving(false);
       toast.error(err instanceof Error ? err.message : "Save failed");
+    }
+  };
+
+  const openLinkDialog = (user: User) => {
+    setLinkingUser(user);
+    setSelectedMemberId("");
+    setLinkDialogOpen(true);
+  };
+
+  const handleLinkMember = async () => {
+    if (!linkingUser || !selectedMemberId) return;
+
+    try {
+      await memberService.linkUser(linkingUser._id, selectedMemberId);
+      setLinkDialogOpen(false);
+      setLinkingUser(null);
+      setSelectedMemberId("");
+      toast.success("Member linked to user successfully");
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to link member");
+    }
+  };
+
+  const handleUnlinkMember = async (user: User) => {
+    try {
+      await memberService.unlinkUser(user._id);
+      toast.success("Member unlinked from user successfully");
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to unlink member");
     }
   };
 
@@ -138,6 +190,9 @@ export function UsersManager() {
       setDeleteTarget(null);
       setIsDeleting(false);
       toast.success("User deleted");
+      // Refresh available members after delete
+      const availableRes = await userService.getAvailableMembers();
+      setAvailableMembers(availableRes.data.members);
     } catch (err) {
       setIsDeleting(false);
       toast.error(err instanceof Error ? err.message : "Delete failed");
@@ -155,11 +210,27 @@ export function UsersManager() {
     { key: "email", header: "Email" },
     { key: "phone", header: "Phone", render: (u) => u.phone || "—" },
     {
+      key: "member",
+      header: "Member",
+      render: (u) => {
+        if (u.member && typeof u.member === 'object' && 'name' in u.member) {
+          return u.member.name || "—";
+        }
+        return "—";
+      },
+    },
+    {
       key: "actions",
       header: "Actions",
       className: "text-right",
       render: (u) => (
         <div className="flex justify-end gap-2">
+          <IconButton
+            variant="outline"
+            label={u.member ? "Unlink member" : "Link member"}
+            icon={u.member ? <Unlink2 /> : <Link2 />}
+            onClick={() => (u.member ? handleUnlinkMember(u) : openLinkDialog(u))}
+          />
           <IconButton
             variant="outline"
             label="Edit user"
@@ -213,24 +284,86 @@ export function UsersManager() {
             <DialogDescription>
               {editing
                 ? "Update the details of this user. Leave password blank to keep it unchanged."
-                : "Fill in the details to create a new admin user."}
+                : "Select a team member to link, then enter the login credentials."}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!editing && (
+                <FormField
+                  control={form.control}
+                  name="memberId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team Member Profile</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Auto-fill name from selected member
+                          if (value && value !== "__none__") {
+                            const member = availableMembers.find(m => m._id === value);
+                            if (member) {
+                              form.setValue("name", member.name);
+                            }
+                          } else {
+                            form.setValue("name", "");
+                          }
+                        }}
+                        value={field.value ?? "__none__"}
+                        disabled={isSaving}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a team member (optional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="__none__">None (no profile)</SelectItem>
+                          {availableMembers.map((member) => (
+                            <SelectItem key={member._id} value={member._id}>
+                              {member.name} {member.department ? `- ${member.department}` : ""}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {editing && (
+                <FormField
+                  control={form.control}
+                  name="memberId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team Member Profile</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? "__none__"}
+                        disabled={isSaving}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a team member (optional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="__none__">None (no profile)</SelectItem>
+                          {allMembers.map((member) => (
+                            <SelectItem key={member._id} value={member._id}>
+                              {member.name} {member.department ? `- ${member.department}` : ""}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <FormField
                 control={form.control}
                 name="email"
@@ -263,7 +396,7 @@ export function UsersManager() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Password{editing ? " (optional)" : ""}
+                      Password{editing ? " (leave blank to keep current)" : ""}
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -292,6 +425,46 @@ export function UsersManager() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Member Dialog */}
+      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Link Member to User</DialogTitle>
+            <DialogDescription>
+              Select a member profile to link to "{linkingUser?.name}".
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Member</label>
+              <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a member" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allMembers.map((member) => (
+                    <SelectItem key={member._id} value={member._id}>
+                      {member.name} {member.department ? `- ${member.department}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setLinkDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleLinkMember} disabled={!selectedMemberId}>
+                Link Member
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 

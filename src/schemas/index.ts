@@ -200,10 +200,12 @@ export type TeamSectionInput = z.infer<typeof teamSectionSchema>;
 // ---------------------------------------------------------------------------
 // Password is optional: required on create, optional on update.
 export const userSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  name: z.string().min(2, "Name must be at least 2 characters").optional().default(""),
   email: z.string().min(1, "Email is required").email("Please enter a valid email"),
   phone: z.string().optional().default(""),
-  role: z.enum(["admin"]).default("admin"),
+  role: z.enum(["admin", "member"]).default("member"),
+  member: z.string().optional().nullable().default(null),
+  memberId: z.string().optional().nullable().default(null),
   password: z.string().optional().default(""),
 });
 export type UserInput = z.infer<typeof userSchema>;
@@ -288,3 +290,29 @@ export const whyBecomeMemberSchema = z.object({
 });
 
 export type WhyBecomeMemberInput = z.infer<typeof whyBecomeMemberSchema>;
+
+// ---------------------------------------------------------------------------
+// Modules
+// ---------------------------------------------------------------------------
+export const moduleSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional().default(""),
+  route: z.string().optional().default(""),
+  icon: z.string().optional().default(""),
+  order: z.number().default(0),
+  isActive: z.boolean().default(true),
+});
+
+export type ModuleInput = z.infer<typeof moduleSchema>;
+
+// ---------------------------------------------------------------------------
+// Members
+// ---------------------------------------------------------------------------
+export const memberSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  department: z.string().optional().default(""),
+  position: z.string().optional().default(""),
+  bio: z.string().optional().default(""),
+});
+
+export type MemberInput = z.infer<typeof memberSchema>;

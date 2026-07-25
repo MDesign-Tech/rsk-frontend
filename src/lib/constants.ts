@@ -40,5 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { title: "Users", href: "/admin/users", icon: "UserCog" },
+  { title: "Permissions", href: "/admin/permissions", icon: "Shield" },
+  { title: "Modules", href: "/admin/modules", icon: "Boxes" },
   { title: "Profile", href: "/admin/profile", icon: "User" },
 ];

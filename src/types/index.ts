@@ -4,7 +4,7 @@ export interface CloudinaryImage {
   publicId: string;
 }
 
-export type UserRole = "admin";
+export type UserRole = "admin" | "member";
 
 export interface AuthUser {
   _id: string;
@@ -12,6 +12,8 @@ export interface AuthUser {
   email: string;
   role: UserRole;
   phone?: string;
+  member?: TeamMember | string | null;
+  permissions: Permission[];
 }
 
 export interface User {
@@ -20,6 +22,47 @@ export interface User {
   email: string;
   phone?: string;
   role: UserRole;
+  member?: TeamMember | string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Permission {
+  module: string;
+  moduleName: string;
+  canCreate: boolean;
+  canRead: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
+export interface Module {
+  _id: string;
+  name: string;
+  description?: string;
+  route?: string;
+  icon?: string;
+  order: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TeamMember {
+  _id: string;
+  name: string;
+  department?: string;
+  position?: string;
+  bio?: string;
+  image?: string | null;
+  imagePublicId?: string | null;
+  title?: string;
+  section?: string | TeamSection;
+  socialMedia?: SocialMedia;
+  visible?: boolean;
+  order?: number;
+  user?: string | null;
+  isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -107,21 +150,6 @@ export interface FAQ {
   question: string;
   answer: string;
   visible?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface TeamMember {
-  _id: string;
-  name: string;
-  image?: string | null;
-  imagePublicId?: string | null;
-  title: string;
-  bio?: string;
-  visible?: boolean;
-  section?: TeamSection | string;
-  socialMedia?: SocialMedia;
-  order?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -252,4 +280,10 @@ export interface Category {
   name: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface AvailableMember {
+  _id: string;
+  name: string;
+  department?: string;
 }
