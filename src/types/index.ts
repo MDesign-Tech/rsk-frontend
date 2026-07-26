@@ -6,6 +6,15 @@ export interface CloudinaryImage {
 
 export type UserRole = "admin" | "member";
 
+export interface Permission {
+  _id: string;
+  moduleName: string;
+  canCreate: boolean;
+  canRead: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
 export interface AuthUser {
   _id: string;
   name: string;
@@ -13,6 +22,7 @@ export interface AuthUser {
   role: UserRole;
   phone?: string;
   member?: TeamMember | string | null;
+  permissions?: Permission[];
 }
 
 export interface User {
