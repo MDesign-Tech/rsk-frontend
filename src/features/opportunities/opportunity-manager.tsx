@@ -74,7 +74,7 @@ export function OpportunityManager() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [currentPage]);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;

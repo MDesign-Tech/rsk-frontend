@@ -226,7 +226,7 @@ export function ChatManager() {
          </div>
 
          {/* Right Chat Area */}
-         <div className="flex-1 flex flex-col bg-background min-w-0">
+         <div className="flex-1 flex flex-col bg-background min-w-0 h-full">
            {selectedConversation ? (
              <>
                {/* Chat Header */}
@@ -262,7 +262,7 @@ export function ChatManager() {
                </div>
 
                {/* Messages */}
-               <ScrollArea className="flex-1 p-3">
+               <ScrollArea className="flex-1 h-full p-3">
                  <div className="space-y-3">
                    {messages.length === 0 ? (
                      <div className="text-center py-8 text-muted-foreground">

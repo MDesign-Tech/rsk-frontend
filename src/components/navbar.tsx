@@ -5,9 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, ChevronDown } from "lucide-react";
+import { Menu, X, Moon, Sun, ChevronDown, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
+import { useAuthStore } from "@/stores/auth.store";
 
 const navLinks = [
   { href: "home", label: "Home", isHash: true },
@@ -34,6 +35,11 @@ export function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
+  const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -243,6 +249,24 @@ export function Navbar() {
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
+            {isAuthenticated && user && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <User className="size-4" />
+                <span className="font-medium text-foreground">{user.name}</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground capitalize">
+                  {user.role}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-foreground/10"
+                  aria-label="Logout"
+                  title="Logout"
+                >
+                  <LogOut className="size-4" />
+                </button>
+              </div>
+            )}
             <Button asChild size="sm" rounded="full">
               <Link href="/contact">Contact Us</Link>
             </Button>
@@ -415,7 +439,25 @@ export function Navbar() {
                 </Link>
               </div>
 
-              <div className="px-6 py-4 border-t border-border/50 bg-background flex flex-col gap-3">
+               <div className="px-6 py-4 border-t border-border/50 bg-background flex flex-col gap-3">
+                {isAuthenticated && user && (
+                  <div className="flex items-center gap-3 px-2 py-1">
+                    <User className="size-4 text-muted-foreground" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => logout()}
+                      className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-foreground/10"
+                      aria-label="Logout"
+                      title="Logout"
+                    >
+                      <LogOut className="size-4" />
+                    </button>
+                  </div>
+                )}
                 <Button
                   asChild
                   rounded="lg"

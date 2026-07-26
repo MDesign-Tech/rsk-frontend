@@ -54,6 +54,8 @@ export function UsersManager() {
   const [isSaving, setIsSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
+  const [isUnlinking, setIsUnlinking] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [linkingUser, setLinkingUser] = useState<User | null>(null);
   const [selectedMemberId, setSelectedMemberId] = useState<string>("");
@@ -159,6 +161,7 @@ export function UsersManager() {
   const handleLinkMember = async () => {
     if (!linkingUser || !selectedMemberId) return;
 
+    setIsLinking(true);
     try {
       await memberService.linkUser(linkingUser._id, selectedMemberId);
       setLinkDialogOpen(false);
@@ -168,16 +171,21 @@ export function UsersManager() {
       load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to link member");
+    } finally {
+      setIsLinking(false);
     }
   };
 
   const handleUnlinkMember = async (user: User) => {
+    setIsUnlinking(true);
     try {
       await memberService.unlinkUser(user._id);
       toast.success("Member unlinked from user successfully");
       load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to unlink member");
+    } finally {
+      setIsUnlinking(false);
     }
   };
 
@@ -230,6 +238,7 @@ export function UsersManager() {
             label={u.member ? "Unlink member" : "Link member"}
             icon={u.member ? <Unlink2 /> : <Link2 />}
             onClick={() => (u.member ? handleUnlinkMember(u) : openLinkDialog(u))}
+            disabled={isUnlinking}
           />
           <IconButton
             variant="outline"
@@ -429,7 +438,7 @@ export function UsersManager() {
       </Dialog>
 
       {/* Link Member Dialog */}
-      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+      <Dialog open={linkDialogOpen} onOpenChange={(isOpen) => { if (!isLinking) setLinkDialogOpen(isOpen); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Link Member to User</DialogTitle>
@@ -440,7 +449,7 @@ export function UsersManager() {
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Select Member</label>
-              <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+              <Select value={selectedMemberId} onValueChange={setSelectedMemberId} disabled={isLinking}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a member" />
                 </SelectTrigger>
@@ -457,10 +466,12 @@ export function UsersManager() {
               <Button
                 variant="outline"
                 onClick={() => setLinkDialogOpen(false)}
+                disabled={isLinking}
               >
                 Cancel
               </Button>
-              <Button onClick={handleLinkMember} disabled={!selectedMemberId}>
+              <Button onClick={handleLinkMember} disabled={!selectedMemberId || isLinking}>
+                {isLinking && <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
                 Link Member
               </Button>
             </DialogFooter>
@@ -470,7 +481,7 @@ export function UsersManager() {
 
       <DeleteDialog
         open={!!deleteTarget}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        onOpenChange={(o) => { if (!isDeleting) setDeleteTarget(null); }}
         onConfirm={confirmDelete}
         isDeleting={isDeleting}
         title="Delete user?"
