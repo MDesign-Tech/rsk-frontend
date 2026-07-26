@@ -26,7 +26,6 @@ import {
 import { NAV_ITEMS, type NavItem } from "@/lib/constants";
 import { useSidebarStore } from "@/stores/sidebar.store";
 import { useAuthStore } from "@/stores/auth.store";
-import { canReadModule } from "@/lib/permissions";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -50,71 +49,70 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
-  const { user } = useAuthStore();
+   const pathname = usePathname();
+   const { user } = useAuthStore();
 
-  // Filter nav items based on permissions
-  const visibleItems = NAV_ITEMS.filter((item) => {
-    // Admin sees everything
-    if (user?.role === "admin") return true;
+   // Show all nav items to all users; protect routes on the frontend only
+   const visibleItems = NAV_ITEMS.filter((item) => {
+     // Members cannot access Users or Team Members routes
+     if (user?.role === "member") {
+       if (item.title === "Users" || item.title === "Team Members") return false;
+     }
+     return true;
+     
+   });
 
-    // Check if user has read permission for this module
-    if (item.children) {
-      // For parent items with children, check if any child is accessible
-      return item.children.some((child) => canReadModule(child.title));
-    }
+   return (
+     <nav className="flex flex-col gap-1 px-3">
+       {visibleItems.map((item) => {
+         const Icon = iconMap[item.icon] ?? LayoutDashboard;
+         const active =
+           item.href === "/admin"
+             ? pathname === "/admin"
+             : pathname.startsWith(item.href);
 
-    return canReadModule(item.title);
-  });
+         if (item.children) {
+           // Filter children: members cannot see Users or Team Members
+           const visibleChildren = item.children.filter((child) => {
+             if (user?.role === "member") {
+               if (child.title === "Users" || child.title === "Team Members")
+                 return false;
+             }
+             return true;
+           });
 
-  return (
-    <nav className="flex flex-col gap-1 px-3">
-      {visibleItems.map((item) => {
-        const Icon = iconMap[item.icon] ?? LayoutDashboard;
-        const active =
-          item.href === "/admin"
-            ? pathname === "/admin"
-            : pathname.startsWith(item.href);
+           if (visibleChildren.length === 0) return null;
 
-        if (item.children) {
-          // Filter children based on permissions
-          const visibleChildren = item.children.filter((child) => {
-            if (user?.role === "admin") return true;
-            return canReadModule(child.title);
-          });
+           return (
+             <NavDropdown
+               key={item.href}
+               item={{ ...item, children: visibleChildren }}
+               pathname={pathname}
+               onNavigate={onNavigate}
+             />
+           );
+         }
 
-          if (visibleChildren.length === 0) return null;
-
-          return (
-            <NavDropdown
-              key={item.href}
-              item={{ ...item, children: visibleChildren }}
-              pathname={pathname}
-              onNavigate={onNavigate}
-            />
-          );
-        }
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              active
-                ? "bg-primary/10 text-primary"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-            )}
-          >
-            <Icon className="size-4" />
-            {item.title}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
+         return (
+           <Link
+             key={item.href}
+             href={item.href}
+             onClick={onNavigate}
+             className={cn(
+               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+               active
+                 ? "bg-primary/10 text-primary"
+                 : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+             )}
+           >
+             <Icon className="size-4" />
+             {item.title}
+           </Link>
+         );
+       })}
+     </nav>
+   );
+ }
 
 function NavDropdown({ item, pathname, onNavigate }: { item: NavItem; pathname: string; onNavigate?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);

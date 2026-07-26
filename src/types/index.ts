@@ -13,7 +13,6 @@ export interface AuthUser {
   role: UserRole;
   phone?: string;
   member?: TeamMember | string | null;
-  permissions: Permission[];
 }
 
 export interface User {
@@ -27,14 +26,6 @@ export interface User {
   updatedAt?: string;
 }
 
-export interface Permission {
-  module: string;
-  moduleName: string;
-  canCreate: boolean;
-  canRead: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-}
 
 export interface Module {
   _id: string;
@@ -178,6 +169,34 @@ export interface ContactMessage {
   reply?: string;
   replyAt?: string;
   visible?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type ConversationStatus = "open" | "closed";
+
+export interface Conversation {
+  _id: string;
+  clientName: string;
+  clientEmail: string;
+  status: ConversationStatus;
+  lastMessage?: string;
+  lastMessageAt?: string;
+  unreadCount: number;
+  isOnline: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type MessageSender = "client" | "admin";
+
+export interface ChatMessage {
+  _id: string;
+  conversation: string;
+  sender: MessageSender;
+  message: string;
+  read: boolean;
+  readAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }

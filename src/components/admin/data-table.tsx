@@ -56,8 +56,8 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="rounded-lg border">
-      <Table>
+     <div className="rounded-lg border overflow-x-auto">
+       <Table className="min-w-full">
         <TableHeader>
           <TableRow>
             {columns.map((col) => (

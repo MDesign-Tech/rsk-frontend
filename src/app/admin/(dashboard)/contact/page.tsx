@@ -1,14 +1,14 @@
 import { PageHeader } from "@/components/admin/page-header";
-import { ContactManager } from "@/features/contact/contact-manager";
+import { ChatManager } from "@/features/contact/chat-manager";
 
 export default function ContactPage() {
   return (
     <div className="space-y-6">
       <PageHeader
         title="Contact Messages"
-        description="Review messages submitted through the contact form."
+        description="Chat with clients in real-time. Messages from the contact form appear here instantly."
       />
-      <ContactManager />
+      <ChatManager />
     </div>
   );
 }

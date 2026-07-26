@@ -25,9 +25,9 @@ export default function ContactPage() {
 
       <Navbar />
 
-      <div className="pt-28 pb-16">
-        <ContactUs />
-      </div>
+       <div className="pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-28 lg:pb-20">
+         <ContactUs />
+       </div>
     </main>
   );
 }

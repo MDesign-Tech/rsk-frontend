@@ -10,8 +10,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 
 const navLinks = [
-  { href: "#home", label: "Home", isHash: true },
-  { href: "#our-services", label: "Our Services", isHash: true },
+  { href: "home", label: "Home", isHash: true },
+  { href: "our-services", label: "Our Services", isHash: true },
 ];
 
 const blogLinks = [

@@ -31,20 +31,20 @@ export function DashboardView() {
         serviceService.getAll(),
         teamService.getAll(),
         faqService.getAll(),
-        contactService.getAll(),
+        contactService.getConversations(),
       ]);
       setStats([
         { title: "Total Services", value: s.data.services.length, icon: Briefcase },
         { title: "Total Team Members", value: t.data.teamMembers.length, icon: Users },
         { title: "Total FAQs", value: f.data.faqs.length, icon: HelpCircle },
-        { title: "Total Contact Messages", value: c.data.messages.length, icon: Mail },
+        { title: "Total Conversations", value: c.data.conversations.length, icon: Mail },
       ]);
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
       setError(err instanceof Error ? err.message : "Failed to load dashboard");
       toast.error("Failed to load dashboard data");
-    } 
+    }
   };
 
   useEffect(() => {
