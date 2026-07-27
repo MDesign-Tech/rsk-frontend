@@ -8,7 +8,12 @@ export type UserRole = "admin" | "member";
 
 export interface Permission {
   _id: string;
-  moduleName: string;
+  module: {
+    _id: string;
+    name: string;
+    description?: string;
+    icon?: string;
+  };
   canCreate: boolean;
   canRead: boolean;
   canUpdate: boolean;
@@ -68,15 +73,17 @@ export interface TeamMember {
   updatedAt?: string;
 }
 
+export interface HeroServiceItem {
+  text: string;
+  visible: boolean;
+}
+
 export interface HeroContent {
   _id: string;
   title: string;
-  subtitle: string;
-  trust: string;
+  services: HeroServiceItem[];
   image?: string | null;
   imagePublicId?: string | null;
-  subtitleVisible?: boolean;
-  trustVisible?: boolean;
 }
 
 export interface Service {

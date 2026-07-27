@@ -53,8 +53,15 @@ export const useAuthStore = create<AuthState>()(
           }
 
           set({ user, isAuthenticated: true, initialized: true });
-        } catch {
-          set({ user: null, isAuthenticated: false, initialized: true });
+        } catch (error) {
+          // If we already have a user in the store (from localStorage), keep them
+          // authenticated. The backend will reject requests if the token is invalid.
+          const existingUser = get().user;
+          if (existingUser) {
+            set({ isAuthenticated: true, initialized: true });
+          } else {
+            set({ user: null, isAuthenticated: false, initialized: true });
+          }
         } finally {
           set({ isLoading: false });
         }
@@ -67,7 +74,7 @@ export const useAuthStore = create<AuthState>()(
         // Admin has full access
         if (user.role === "admin") return true;
 
-        const permission = user.permissions?.find((p: Permission) => p.moduleName === moduleName);
+        const permission = user.permissions?.find((p: Permission) => p.module?.name === moduleName);
         if (!permission) return false;
 
         const actionKey = `can${action.charAt(0).toUpperCase() + action.slice(1)}` as keyof Permission;

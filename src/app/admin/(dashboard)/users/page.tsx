@@ -8,15 +8,17 @@ import { useAuthStore } from "@/stores/auth.store";
 
 export default function UsersPage() {
   const router = useRouter();
-  const { initialized, isAuthenticated, user } = useAuthStore();
+  const { initialized, isAuthenticated, hasPermission } = useAuthStore();
+
+  const canReadUsers = hasPermission("User", "read");
 
   useEffect(() => {
-    if (initialized && isAuthenticated && user?.role !== "admin") {
+    if (initialized && isAuthenticated && !canReadUsers) {
       router.replace("/admin");
     }
-  }, [initialized, isAuthenticated, user, router]);
+  }, [initialized, isAuthenticated, canReadUsers, router]);
 
-  if (!initialized || !isAuthenticated || user?.role !== "admin") {
+  if (!initialized || !isAuthenticated || !canReadUsers) {
     return null;
   }
 

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
 import { saveResource } from "@/lib/image-save";
-import type { ApiResponse, CloudinaryImage } from "@/types";
+import type { ApiResponse, CloudinaryImage, HeroServiceItem } from "@/types";
 import {
   Form,
   FormControl,
@@ -16,7 +16,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import {
   Tooltip,
@@ -27,6 +26,8 @@ import { FormCard } from "@/components/admin/form-card";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { Button } from "@/components/ui/button";
+import { Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { HeroContent } from "@/types";
 
@@ -37,20 +38,17 @@ export function HeroForm() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
-  const [isTogglingSubtitle, setIsTogglingSubtitle] = useState(false);
-  const [isTogglingTrust, setIsTogglingTrust] = useState(false);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
 
   const form = useForm<HeroInput>({
     resolver: zodResolver(heroSchema),
     defaultValues: {
       title: "",
-      subtitle: "",
-      trust: "",
-      subtitleVisible: true,
-      trustVisible: true,
+      services: [],
     },
   });
+
+  const services = form.watch("services");
 
   useEffect(() => {
     (async () => {
@@ -60,10 +58,7 @@ export function HeroForm() {
         setHero(h);
         form.reset({
           title: h.title,
-          subtitle: h.subtitle,
-          trust: h.trust,
-          subtitleVisible: h.subtitleVisible ?? true,
-          trustVisible: h.trustVisible ?? true,
+          services: h.services || [],
         });
         setIsLoading(false);
       } catch (err) {
@@ -72,6 +67,28 @@ export function HeroForm() {
       }
     })();
   }, [form]);
+
+  const addService = () => {
+    const current = form.getValues("services");
+    form.setValue("services", [...current, { text: "", visible: true }], { shouldDirty: true });
+  };
+
+  const removeService = (index: number) => {
+    const current = form.getValues("services");
+    form.setValue(
+      "services",
+      current.filter((_, i) => i !== index),
+      { shouldDirty: true }
+    );
+  };
+
+  const toggleServiceVisibility = (index: number) => {
+    const current = form.getValues("services");
+    const updated = current.map((item, i) =>
+      i === index ? { ...item, visible: !item.visible } : item
+    );
+    form.setValue("services", updated, { shouldDirty: true });
+  };
 
   const onSubmit = async (values: HeroInput) => {
     setIsSaving(true);
@@ -82,10 +99,7 @@ export function HeroForm() {
 
       const data = {
         title: values.title,
-        subtitle: values.subtitle,
-        trust: values.trust,
-        subtitleVisible: values.subtitleVisible,
-        trustVisible: values.trustVisible,
+        services: values.services,
         image: uploadedImage?.url ?? null,
         imagePublicId: uploadedImage?.publicId ?? null,
       };
@@ -113,46 +127,6 @@ export function HeroForm() {
     }
   };
 
-  // Toggle the subtitle visibility locally and persist via PATCH /hero/visibility/subtitle.
-  const toggleSubtitleVisibility = async () => {
-    const current = form.getValues("subtitleVisible");
-    const next = !current;
-    form.setValue("subtitleVisible", next, { shouldDirty: true });
-    setIsTogglingSubtitle(true);
-    try {
-      await heroService.updateSubtitleVisibility(next);
-      toast.success("Subtitle visibility updated.");
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "Failed to update subtitle visibility",
-      );
-    } finally {
-      setIsTogglingSubtitle(false);
-    }
-  };
-
-  // Toggle the trust text visibility locally and persist via PATCH /hero/visibility/trust.
-  const toggleTrustVisibility = async () => {
-    const current = form.getValues("trustVisible");
-    const next = !current;
-    form.setValue("trustVisible", next, { shouldDirty: true });
-    setIsTogglingTrust(true);
-    try {
-      await heroService.updateTrustVisibility(next);
-      toast.success("Trust text visibility updated.");
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "Failed to update trust text visibility",
-      );
-    } finally {
-      setIsTogglingTrust(false);
-    }
-  };
-
   if (isLoading) return <LoadingSpinner label="Loading hero..." />;
 
   return (
@@ -175,85 +149,81 @@ export function HeroForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="subtitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Subtitle</FormLabel>
-                <div className="flex items-start gap-2">
-                  <FormControl>
-                    <Textarea rows={3} {...field} />
-                  </FormControl>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                      >
-                        <StatusToggle
-                          checked={form.watch("subtitleVisible") !== false}
-                          onCheckedChange={toggleSubtitleVisibility}
-                          disabled={isSaving || isTogglingSubtitle}
-                          aria-label={
-                            form.watch("subtitleVisible") === false
-                              ? "Show Subtitle"
-                              : "Hide Subtitle"
-                          }
-                        />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {form.watch("subtitleVisible") === false
-                        ? "Show Subtitle"
-                        : "Hide Subtitle"}
-                    </TooltipContent>
-                  </Tooltip>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <FormLabel className="text-sm font-medium">Sentences</FormLabel>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addService}
+                className="gap-1"
+              >
+                <Plus className="w-4 h-4" />
+                Add Sentence
+              </Button>
+            </div>
+
+            {services.map((service, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-2 p-3 border rounded-md"
+              >
+                <div className="flex-1 space-y-2">
+                  <Input
+                    placeholder="Enter a sentence..."
+                    value={service.text}
+                    onChange={(e) => {
+                      const updated = services.map((item, i) =>
+                        i === index ? { ...item, text: e.target.value } : item
+                      );
+                      form.setValue("services", updated, { shouldDirty: true });
+                    }}
+                  />
                 </div>
-                <FormMessage />
-              </FormItem>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
+                      <StatusToggle
+                        checked={service.visible !== false}
+                        onCheckedChange={() => toggleServiceVisibility(index)}
+                        disabled={isSaving}
+                        aria-label={
+                          service.visible === false
+                            ? "Show Sentence"
+                            : "Hide Sentence"
+                        }
+                      />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {service.visible === false ? "Show Sentence" : "Hide Sentence"}
+                  </TooltipContent>
+                </Tooltip>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeService(index)}
+                  disabled={isSaving}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+
+            {services.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No sentences added. Click "Add Sentence" to create one.
+              </p>
             )}
-          />
-          <FormField
-            control={form.control}
-            name="trust"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Trust Text</FormLabel>
-                <div className="flex items-start gap-2">
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                      >
-                        <StatusToggle
-                          checked={form.watch("trustVisible") !== false}
-                          onCheckedChange={toggleTrustVisibility}
-                          disabled={isSaving || isTogglingTrust}
-                          className="mt-0.5 shrink-0"
-                          aria-label={
-                            form.watch("trustVisible") === false
-                              ? "Show Trust Text"
-                              : "Hide Trust Text"
-                          }
-                        />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {form.watch("trustVisible") === false
-                        ? "Show Trust Text"
-                        : "Hide Trust Text"}
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Background Image</label>
             <ImageUpload

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useWebsiteStore } from "@/stores/website.store";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 export function Hero() {
   const shouldReduceMotion = useReducedMotion();
@@ -13,6 +14,10 @@ export function Hero() {
   const bgImage = hero?.image;
 
   if (!hero) return null;
+
+  const visibleServices = (hero.services || []).filter(
+    (s) => s.visible !== false
+  );
 
   const fadeUp = {
     initial: { opacity: 0, y: 20 },
@@ -58,34 +63,21 @@ export function Hero() {
             >
               {hero.title}
             </motion.span>
-            {hero.subtitleVisible !== false && (
-              <motion.span
-                animate={
-                  shouldReduceMotion
-                    ? {}
-                    : { y: [0, -6, 0], scale: [1, 1.01, 1] }
-                }
-                transition={{
-                  duration: 1.6,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="block text-sky-300"
-              >
-                {hero.subtitle}
-              </motion.span>
-            )}
           </motion.h1>
 
-          {/* <motion.p
-            initial={shouldReduceMotion ? {} : fadeUp.initial}
-            animate={fadeUp.animate}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto mb-8 text-pretty leading-relaxed px-2"
-          >
-            At RSK Associates, we are more than accountants; we are trusted
-            partners on the path to financial success.
-          </motion.p> */}
+          {visibleServices.length > 0 && (
+            <motion.div
+              initial={shouldReduceMotion ? {} : fadeUp.initial}
+              animate={fadeUp.animate}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mb-6 h-16 sm:h-20 flex items-center justify-center"
+            >
+              <Typewriter
+                sentences={visibleServices.map((s) => s.text)}
+                shouldReduceMotion={shouldReduceMotion}
+              />
+            </motion.div>
+          )}
 
           <motion.div
             initial={shouldReduceMotion ? {} : { opacity: 0 }}
@@ -99,19 +91,6 @@ export function Hero() {
             <span>✕</span>
             <span>◇</span>
           </motion.div>
-
-          {hero.trustVisible !== false && hero.trust && (
-            <motion.div
-              initial={shouldReduceMotion ? {} : fadeUp.initial}
-              animate={fadeUp.animate}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="mb-6"
-            >
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-                <span className="text-gradient-lime">{hero.trust}</span>
-              </p>
-            </motion.div>
-          )}
 
           <motion.div
             initial={shouldReduceMotion ? {} : fadeUp.initial}
@@ -134,5 +113,99 @@ export function Hero() {
         </div>
       </div>
     </section>
+  );
+}
+
+const TYPE_SPEED = 60;
+const DELETE_SPEED = 30;
+const PAUSE_DURATION = 2000;
+
+type TypingPhase = "typing" | "pausing" | "deleting";
+
+function Typewriter({ sentences, shouldReduceMotion }: { sentences: string[]; shouldReduceMotion: boolean }) {
+  const [displayed, setDisplayed] = useState("");
+  const [sentenceIndex, setSentenceIndex] = useState(0);
+  const phaseRef = useRef<TypingPhase>("typing");
+  const displayedRef = useRef("");
+  const sentenceIndexRef = useRef(0);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const clearTimeoutRef = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = undefined;
+    }
+  }, []);
+
+  const tick = useCallback(() => {
+    const phase = phaseRef.current;
+    const currentDisplayed = displayedRef.current;
+    const currentIndex = sentenceIndexRef.current;
+    const currentSentence = sentences[currentIndex] || "";
+
+    if (phase === "typing") {
+      if (currentDisplayed.length < currentSentence.length) {
+        const next = currentSentence.slice(0, currentDisplayed.length + 1);
+        displayedRef.current = next;
+        setDisplayed(next);
+        phaseRef.current = "typing";
+      } else {
+        phaseRef.current = "pausing";
+      }
+    } else if (phase === "pausing") {
+      phaseRef.current = "deleting";
+    } else {
+      // deleting
+      if (currentDisplayed.length > 0) {
+        const next = currentDisplayed.slice(0, -1);
+        displayedRef.current = next;
+        setDisplayed(next);
+        phaseRef.current = "deleting";
+      } else {
+        const nextIndex = (currentIndex + 1) % sentences.length;
+        sentenceIndexRef.current = nextIndex;
+        setSentenceIndex(nextIndex);
+        phaseRef.current = "typing";
+      }
+    }
+
+    const nextPhase = phaseRef.current;
+    const delay =
+      nextPhase === "typing"
+        ? TYPE_SPEED
+        : nextPhase === "deleting"
+        ? DELETE_SPEED
+        : PAUSE_DURATION;
+
+    clearTimeoutRef();
+    timeoutRef.current = setTimeout(tick, delay);
+  }, [sentences, clearTimeoutRef]);
+
+  useEffect(() => {
+    if (shouldReduceMotion) {
+      setDisplayed(sentences[0] || "");
+      return;
+    }
+
+    tick();
+
+    return () => {
+      clearTimeoutRef();
+    };
+  }, [shouldReduceMotion, sentences, tick, clearTimeoutRef]);
+
+  if (shouldReduceMotion) {
+    return (
+      <p className="text-xl sm:text-2xl lg:text-3xl font-semibold text-sky-300">
+        {sentences[0]}
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-xl sm:text-2xl lg:text-3xl font-semibold text-sky-300">
+      {displayed}
+      <span className="inline-block w-[2px] h-[0.9em] bg-sky-300 ml-0.5 align-middle animate-pulse" />
+    </p>
   );
 }

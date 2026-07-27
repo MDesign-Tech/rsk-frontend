@@ -11,8 +11,8 @@ import { useTheme } from "next-themes";
 import { useAuthStore } from "@/stores/auth.store";
 
 const navLinks = [
-  { href: "home", label: "Home", isHash: true },
-  { href: "our-services", label: "Our Services", isHash: true },
+  { href: "#home", label: "Home", isHash: true },
+  { href: "#our-services", label: "Our Services", isHash: true },
 ];
 
 const blogLinks = [

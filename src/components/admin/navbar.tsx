@@ -13,6 +13,8 @@ export function Navbar() {
   const router = useRouter();
   const { setMobileOpen } = useSidebarStore();
   const { user, logout } = useAuthStore();
+  console.log("===================")
+  console.log(user?.member)
 
   const handleLogout = async () => {
     try {

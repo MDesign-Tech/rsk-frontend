@@ -48,18 +48,51 @@ const iconMap: Record<string, LucideIcon> = {
   Boxes,
 };
 
+// Map nav item titles to module names for permission checking
+const NAV_ITEM_MODULE_MAP: Record<string, string> = {
+  "Hero": "Hero",
+  "Services": "Service",
+  "About Us": "About Us",
+  "Mission & Vision": "Mission & Vision",
+  "Partners": "Partner",
+  "FAQs": "FAQ",
+  "Team Members": "Team Member",
+  "Contact Messages": "Contact",
+  "Why Join Us": "Why Join Us",
+  "Why Become Member": "Why Become Member",
+  "News": "News",
+  "Opportunities": "Opportunity",
+  "Users": "User",
+};
+
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
    const pathname = usePathname();
-   const { user } = useAuthStore();
+   const { user, hasPermission } = useAuthStore();
 
    // Show all nav items to all users; protect routes on the frontend only
    const visibleItems = NAV_ITEMS.filter((item) => {
-     // Members cannot access Users or Team Members routes
-     if (user?.role === "member") {
-       if (item.title === "Users" || item.title === "Team Members") return false;
+     // Admin sees everything
+     if (user?.role === "admin") return true;
+
+     // Check permission for this module
+     const moduleName = NAV_ITEM_MODULE_MAP[item.title];
+     if (moduleName) {
+       if (!hasPermission(moduleName, "read")) return false;
      }
+
+     // For items with children, check if any child is accessible
+     if (item.children) {
+       const hasAccessibleChild = item.children.some((child) => {
+         const childModuleName = NAV_ITEM_MODULE_MAP[child.title];
+         if (childModuleName) {
+           return hasPermission(childModuleName, "read");
+         }
+         return true;
+       });
+       if (!hasAccessibleChild) return false;
+     }
+
      return true;
-     
    });
 
    return (
@@ -72,11 +105,13 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
              : pathname.startsWith(item.href);
 
          if (item.children) {
-           // Filter children: members cannot see Users or Team Members
+           // Filter children based on permissions
            const visibleChildren = item.children.filter((child) => {
-             if (user?.role === "member") {
-               if (child.title === "Users" || child.title === "Team Members")
-                 return false;
+             if (user?.role === "admin") return true;
+
+             const childModuleName = NAV_ITEM_MODULE_MAP[child.title];
+             if (childModuleName) {
+               return hasPermission(childModuleName, "read");
              }
              return true;
            });
