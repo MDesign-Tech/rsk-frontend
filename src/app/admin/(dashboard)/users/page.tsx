@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { UsersManager } from "@/features/users/users-manager";
 import { useAuthStore } from "@/stores/auth.store";
+import { PermissionGuard } from "@/components/admin/permission-guard";
 
 export default function UsersPage() {
   const router = useRouter();
@@ -28,7 +29,9 @@ export default function UsersPage() {
         title="Users"
         description="Manage admin users who can access this dashboard."
       />
-      <UsersManager />
+      <PermissionGuard moduleName="User" action="read">
+        <UsersManager />
+      </PermissionGuard>
     </div>
   );
 }

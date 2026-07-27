@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
+import { PermissionGuard } from "@/components/admin/permission-guard";
 import { toast } from "sonner";
 
 interface Stat {
@@ -62,23 +63,25 @@ export function DashboardView() {
     );
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {stats!.map((stat) => {
-        const Icon = stat.icon;
-        return (
-          <Card key={stat.title}>
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Icon className="size-6" />
-              </div>
-              <div>
-                <p className="text-2xl font-semibold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.title}</p>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
+    <PermissionGuard moduleName="Dashboard" action="read">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {stats!.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.title}>
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Icon className="size-6" />
+                </div>
+                <div>
+                  <p className="text-2xl font-semibold">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.title}</p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </PermissionGuard>
   );
 }

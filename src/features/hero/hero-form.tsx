@@ -29,9 +29,15 @@ import { SubmitButton } from "@/components/admin/submit-button";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/auth.store";
 import type { HeroContent } from "@/types";
 
 export function HeroForm() {
+  const { hasPermission } = useAuthStore();
+  const canCreateHero = hasPermission("Hero", "create");
+  const canUpdateHero = hasPermission("Hero", "update");
+  const canDeleteHero = hasPermission("Hero", "delete");
+
   const [hero, setHero] = useState<HeroContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -158,6 +164,7 @@ export function HeroForm() {
                 variant="outline"
                 size="sm"
                 onClick={addService}
+                disabled={!canCreateHero}
                 className="gap-1"
               >
                 <Plus className="w-4 h-4" />
@@ -191,7 +198,7 @@ export function HeroForm() {
                       <StatusToggle
                         checked={service.visible !== false}
                         onCheckedChange={() => toggleServiceVisibility(index)}
-                        disabled={isSaving}
+                        disabled={isSaving || !canUpdateHero}
                         aria-label={
                           service.visible === false
                             ? "Show Sentence"
@@ -209,7 +216,7 @@ export function HeroForm() {
                   variant="ghost"
                   size="icon"
                   onClick={() => removeService(index)}
-                  disabled={isSaving}
+                  disabled={isSaving || !canDeleteHero}
                   className="text-destructive hover:text-destructive"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -243,7 +250,7 @@ export function HeroForm() {
             </p>
           </div>
           <div className="flex justify-end">
-            <SubmitButton isLoading={isSaving}>Save Changes</SubmitButton>
+            <SubmitButton isLoading={isSaving} disabled={!canUpdateHero}>Save Changes</SubmitButton>
           </div>
         </form>
       </Form>

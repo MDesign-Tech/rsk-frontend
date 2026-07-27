@@ -8,6 +8,9 @@ export const permissionService = {
   getUserPermissions: (userId: string) =>
     api.get<ApiResponse<{ permissions: Permission[] }>>(`/permissions/user/${userId}`).then((res) => res.data),
 
+  getUserPermissionsByEmail: (email: string) =>
+    api.get<ApiResponse<{ user: { _id: string; name: string; email: string; role: string }; permissions: Permission[] }>>(`/permissions/user-by-email/${email}`).then((res) => res.data),
+
   create: (data: { user: string; module: string; canCreate?: boolean; canRead?: boolean; canUpdate?: boolean; canDelete?: boolean }) =>
     api.post<ApiResponse<{ permission: Permission }>>("/permissions", data).then((res) => res.data),
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2, Link2, Unlink2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Link2, Unlink2, ShieldCheck } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { userSchema, type UserInput } from "@/schemas";
 import { userService } from "@/services/user.service";
@@ -11,6 +11,7 @@ import { memberService } from "@/services/member.service";
 import type { User, TeamMember, AvailableMember } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -44,6 +45,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { toast } from "sonner";
 
 export function UsersManager() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [availableMembers, setAvailableMembers] = useState<AvailableMember[]>([]);
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
@@ -233,6 +235,12 @@ export function UsersManager() {
       className: "text-right",
       render: (u) => (
         <div className="flex justify-end gap-2">
+          <IconButton
+            variant="outline"
+            label="Permissions"
+            icon={<ShieldCheck />}
+            onClick={() => router.push(`/admin/users/permissions/${u.email}`)}
+          />
           <IconButton
             variant="outline"
             label={u.member ? "Unlink member" : "Link member"}
@@ -437,47 +445,47 @@ export function UsersManager() {
         </DialogContent>
       </Dialog>
 
-      {/* Link Member Dialog */}
-      <Dialog open={linkDialogOpen} onOpenChange={(isOpen) => { if (!isLinking) setLinkDialogOpen(isOpen); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Link Member to User</DialogTitle>
-            <DialogDescription>
-              Select a member profile to link to "{linkingUser?.name}".
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Member</label>
-              <Select value={selectedMemberId} onValueChange={setSelectedMemberId} disabled={isLinking}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a member" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allMembers.map((member) => (
-                    <SelectItem key={member._id} value={member._id}>
-                      {member.name} {member.department ? `- ${member.department}` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setLinkDialogOpen(false)}
-                disabled={isLinking}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleLinkMember} disabled={!selectedMemberId || isLinking}>
-                {isLinking && <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
-                Link Member
-              </Button>
-            </DialogFooter>
-          </div>
-        </DialogContent>
-      </Dialog>
+       {/* Link Member Dialog */}
+       <Dialog open={linkDialogOpen} onOpenChange={(isOpen) => { if (!isLinking) setLinkDialogOpen(isOpen); }}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle>Link Member to User</DialogTitle>
+             <DialogDescription>
+               Select a member profile to link to "{linkingUser?.name}".
+             </DialogDescription>
+           </DialogHeader>
+           <div className="space-y-4">
+             <div className="space-y-2">
+               <label className="text-sm font-medium">Select Member</label>
+               <Select value={selectedMemberId} onValueChange={setSelectedMemberId} disabled={isLinking}>
+                 <SelectTrigger>
+                   <SelectValue placeholder="Select a member" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   {allMembers.filter((m) => !m.user).map((member) => (
+                     <SelectItem key={member._id} value={member._id}>
+                       {member.name} {member.department ? `- ${member.department}` : ""}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+             </div>
+             <DialogFooter>
+               <Button
+                 variant="outline"
+                 onClick={() => setLinkDialogOpen(false)}
+                 disabled={isLinking}
+               >
+                 Cancel
+               </Button>
+               <Button onClick={handleLinkMember} disabled={!selectedMemberId || isLinking}>
+                 {isLinking && <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
+                 Link Member
+               </Button>
+             </DialogFooter>
+           </div>
+         </DialogContent>
+       </Dialog>
 
       <DeleteDialog
         open={!!deleteTarget}

@@ -1,5 +1,8 @@
+"use client";
+
 import { PageHeader } from "@/components/admin/page-header";
 import { WhyBecomeMemberForm } from "@/features/why-become-member/why-become-member-form";
+import { PermissionGuard } from "@/components/admin/permission-guard";
 
 export default function WhyBecomeMemberPage() {
   return (
@@ -8,7 +11,9 @@ export default function WhyBecomeMemberPage() {
         title="Why Become Member"
         description="Manage the Why Become Member section content and benefits."
       />
-      <WhyBecomeMemberForm />
+      <PermissionGuard moduleName="Why Become Member" action="read">
+        <WhyBecomeMemberForm />
+      </PermissionGuard>
     </div>
   );
 }

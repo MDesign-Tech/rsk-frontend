@@ -45,8 +45,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuthStore } from "@/stores/auth.store";
 
 export function ServicesManager() {
+  const { hasPermission } = useAuthStore();
+  const canCreateService = hasPermission("Service", "create");
+  const canUpdateService = hasPermission("Service", "update");
+  const canDeleteService = hasPermission("Service", "delete");
+
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -253,7 +259,7 @@ export function ServicesManager() {
                 <StatusToggle
                   checked={!!s.visible}
                   onCheckedChange={() => toggleVisibility(s)}
-                  disabled={togglingId === s._id}
+                  disabled={togglingId === s._id || !canUpdateService}
                   aria-label={s.visible ? "Hide service" : "Show service"}
                 />
               </span>
@@ -268,6 +274,7 @@ export function ServicesManager() {
               e.stopPropagation();
               openEdit(s);
             }}
+            disabled={!canUpdateService}
           />
           <IconButton
             variant="destructive"
@@ -277,6 +284,7 @@ export function ServicesManager() {
               e.stopPropagation();
               setDeleteTarget(s);
             }}
+            disabled={!canDeleteService}
           />
         </div>
       ),
@@ -296,6 +304,7 @@ export function ServicesManager() {
           label="Add service"
           icon={<Plus />}
           onClick={openCreate}
+          disabled={!canCreateService}
         />
       </div>
 
@@ -399,7 +408,7 @@ export function ServicesManager() {
                 >
                   Cancel
                 </Button>
-                <SubmitButton isLoading={isSaving} disabled={isBusy}>
+                <SubmitButton isLoading={isSaving} disabled={isBusy || !canCreateService}>
                   {editing ? "Save Changes" : "Create"}
                 </SubmitButton>
               </DialogFooter>

@@ -40,8 +40,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuthStore } from "@/stores/auth.store";
 
 export function FaqsManager() {
+  const { hasPermission } = useAuthStore();
+  const canCreateFaq = hasPermission("FAQ", "create");
+  const canUpdateFaq = hasPermission("FAQ", "update");
+  const canDeleteFaq = hasPermission("FAQ", "delete");
+
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -193,7 +199,7 @@ export function FaqsManager() {
                 <StatusToggle
                   checked={!!f.visible}
                   onCheckedChange={() => toggleVisibility(f)}
-                  disabled={togglingId === f._id}
+                  disabled={togglingId === f._id || !canUpdateFaq}
                   aria-label={f.visible ? "Hide FAQ" : "Show FAQ"}
                 />
               </span>
@@ -210,6 +216,7 @@ export function FaqsManager() {
               e.stopPropagation();
               openEdit(f);
             }}
+            disabled={!canUpdateFaq}
           />
           <IconButton
             variant="destructive"
@@ -219,6 +226,7 @@ export function FaqsManager() {
               e.stopPropagation();
               setDeleteTarget(f);
             }}
+            disabled={!canDeleteFaq}
           />
         </div>
       ),
@@ -238,6 +246,7 @@ export function FaqsManager() {
           label="Add FAQ"
           icon={<Plus />}
           onClick={openCreate}
+          disabled={!canCreateFaq}
         />
       </div>
 
@@ -308,7 +317,7 @@ export function FaqsManager() {
                 >
                   Cancel
                 </Button>
-                <SubmitButton isLoading={isSaving} disabled={isSaving}>
+                <SubmitButton isLoading={isSaving} disabled={isSaving || !canCreateFaq}>
                   {editing ? "Save Changes" : "Create"}
                 </SubmitButton>
               </DialogFooter>
