@@ -79,9 +79,9 @@ export default function WhoPage() {
       <br />
       <br />
 
-      <section className="relative overflow-hidden pt-28 pb-24 bg-muted">
+      <section className="relative overflow-hidden pt-28 pb-24 bg-muted/70">
         <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent" />
-        <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_top_left,var(--color-primary)/0.18,transparent_40%)]" />
+        <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_top_left,var(--color-primary)/0.12,transparent_50%)]" />
 
         <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
@@ -115,7 +115,7 @@ export default function WhoPage() {
               initial={shouldReduceMotion ? {} : { opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7 }}
-              className="rounded-4xl overflow-hidden border border-border bg-card shadow-[0_30px_80px_-40px_var(--color-primary)]"
+              className="rounded-4xl overflow-hidden border border-border/60 bg-card/95 shadow-2xl"
             >
               <div className="relative h-96 w-full">
                 <Image
@@ -131,7 +131,7 @@ export default function WhoPage() {
         </div>
       </section>
       {/* <SectionDivider variant="wave" /> */}
-      <section className="relative overflow-hidden border-t border-border/70 bg-muted py-20">
+      <section className="relative overflow-hidden border-t border-border/70 bg-background py-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2">
             <motion.div
@@ -139,14 +139,15 @@ export default function WhoPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
-              className="rounded-4xl border border-border bg-background/50 p-10 backdrop-blur-xl"
+              className="rounded-4xl border border-border/60 bg-card/95 p-10 backdrop-blur-xl shadow-sm"
             >
               <div className="inline-flex items-center gap-3 rounded-full bg-primary/10 px-4 py-2 text-primary text-sm font-semibold">
                 <Globe className="h-4 w-4" />
                 Our Story
               </div>
               <h2 className="mt-6 text-3xl font-semibold">
-                {about?.ourStory?.title ?? "A corporate advisory firm built for modern growth."}
+                {about?.ourStory?.title ??
+                  "A corporate advisory firm built for modern growth."}
               </h2>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
                 {about?.ourStory?.description ??
@@ -160,7 +161,7 @@ export default function WhoPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="rounded-4xl border border-border bg-background/50 p-10 backdrop-blur-xl"
+                className="rounded-4xl border border-border/60 bg-card/95 p-10 backdrop-blur-xl shadow-sm"
               >
                 <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold uppercase tracking-[0.35em] mb-4">
                   <Target className="h-4 w-4" />
@@ -203,7 +204,7 @@ export default function WhoPage() {
                 {impactStats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-3xl border border-border bg-background/50 p-6 text-center"
+                    className="rounded-3xl border border-border/60 bg-card/95 p-6 text-center shadow-sm"
                   >
                     <p className="text-4xl font-bold text-primary">
                       {stat.value}
