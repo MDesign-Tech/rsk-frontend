@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2, Link2, Unlink2, ShieldCheck } from "lucide-react";
+import { Pencil, Plus, Trash2, Link2, Unlink2, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { userSchema, type UserInput } from "@/schemas";
 import { userService } from "@/services/user.service";
@@ -54,10 +54,11 @@ export function UsersManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
-  const [isUnlinking, setIsUnlinking] = useState(false);
+  const [unlinkingUserId, setUnlinkingUserId] = useState<string | null>(null);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [linkingUser, setLinkingUser] = useState<User | null>(null);
   const [selectedMemberId, setSelectedMemberId] = useState<string>("");
@@ -95,6 +96,14 @@ export function UsersManager() {
     setEditing(null);
     form.reset({ name: "", email: "", phone: "", role: "member", member: null, memberId: null, password: "" });
     setDialogOpen(true);
+  };
+
+  // Sync password field with email when email changes (for create mode)
+  const handleEmailChange = (value: string) => {
+    form.setValue("email", value);
+    if (!editing) {
+      form.setValue("password", value);
+    }
   };
 
   const openEdit = (user: User) => {
@@ -172,14 +181,19 @@ export function UsersManager() {
       toast.success("Member linked to user successfully");
       load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to link member");
+      const message = err instanceof Error ? err.message : "Failed to link member";
+      if (message.includes("already linked")) {
+        toast.error("This member is already linked to another user account");
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsLinking(false);
     }
   };
 
   const handleUnlinkMember = async (user: User) => {
-    setIsUnlinking(true);
+    setUnlinkingUserId(user._id);
     try {
       await memberService.unlinkUser(user._id);
       toast.success("Member unlinked from user successfully");
@@ -187,7 +201,7 @@ export function UsersManager() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to unlink member");
     } finally {
-      setIsUnlinking(false);
+      setUnlinkingUserId(null);
     }
   };
 
@@ -246,7 +260,7 @@ export function UsersManager() {
             label={u.member ? "Unlink member" : "Link member"}
             icon={u.member ? <Unlink2 /> : <Link2 />}
             onClick={() => (u.member ? handleUnlinkMember(u) : openLinkDialog(u))}
-            disabled={isUnlinking}
+            disabled={unlinkingUserId === u._id}
           />
           <IconButton
             variant="outline"
@@ -388,7 +402,15 @@ export function UsersManager() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" {...field} disabled={isSaving} />
+                      <Input
+                        type="email"
+                        {...field}
+                        disabled={isSaving}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          handleEmailChange(e.target.value);
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -416,12 +438,30 @@ export function UsersManager() {
                       Password{editing ? " (leave blank to keep current)" : ""}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder={editing ? "••••••••" : "At least 6 characters"}
-                        {...field}
-                        disabled={isSaving}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder={editing ? "••••••••" : (form.watch("email") || "At least 6 characters")}
+                          {...field}
+                          disabled={isSaving}
+                          className="pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          disabled={isSaving}
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="size-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="size-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
