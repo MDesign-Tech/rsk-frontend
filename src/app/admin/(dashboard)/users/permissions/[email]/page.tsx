@@ -195,8 +195,8 @@ export default function UserPermissionsPage() {
           <Loader2 className="size-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="rounded-lg border bg-card shadow-sm overflow-x-auto">
-          <Table>
+        <div className="rounded-lg border bg-card shadow-sm overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="min-w-[180px] hidden sm:table-cell">Description</TableHead>

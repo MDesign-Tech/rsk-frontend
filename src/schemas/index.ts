@@ -229,7 +229,7 @@ export const newsSchema = z.object({
   coverImage: z.string().optional().nullable().default(null),
   coverImagePublicId: z.string().optional().nullable().default(null),
   category: z.string().min(1, "Category is required"),
-  authorId: z.string().min(1, "Author is required"),
+   authorId: z.string().min(1, "Author is required").nullable().optional(),
   status: z.enum(["draft", "published"]).default("draft"),
   editorImages: z.array(z.object({
     url: z.string(),

@@ -30,7 +30,7 @@ export interface CreateNewsInput {
   coverImage: string | null;
   coverImagePublicId: string | null;
   category: string;
-  authorId: string;
+   authorId: string | null;
   status?: "draft" | "published";
   editorImages?: EditorImage[];
 }
@@ -41,7 +41,7 @@ export interface UpdateNewsInput {
   coverImage?: string | null;
   coverImagePublicId?: string | null;
   category?: string;
-  authorId?: string;
+   authorId?: string | null;
   status?: "draft" | "published";
   editorImages?: EditorImage[];
 }

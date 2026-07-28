@@ -46,19 +46,6 @@ export function WhatsAppButton() {
     })();
   }, [phoneNumber]);
 
-  // Debug: log WhatsApp data to console
-  useEffect(() => {
-    console.log("WhatsAppButton debug:", {
-      data,
-      whatsapp,
-      whatsappHref,
-      aboutWhatsappHref,
-      whatsappVisible,
-      phoneNumber,
-      pathname,
-    });
-  }, [data, whatsapp, whatsappHref, aboutWhatsappHref, whatsappVisible, phoneNumber, pathname]);
-
   // Don't render if WhatsApp is not configured, not visible, or on admin pages
   if (!phoneNumber || !whatsappVisible || pathname.startsWith("/admin")) return null;
 

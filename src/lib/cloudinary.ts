@@ -30,9 +30,6 @@ export async function uploadToCloudinary(
 
   const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
-  console.log("[Cloudinary] Uploading to:", url);
-  console.log("[Cloudinary] Using upload preset:", CLOUDINARY_UPLOAD_PRESET);
-
   try {
     const response = await axios.post(url, formData, {
       onUploadProgress: (progressEvent) => {
@@ -42,8 +39,6 @@ export async function uploadToCloudinary(
         }
       },
     });
-
-    console.log("[Cloudinary] Upload successful:", response.data.secure_url);
 
     return {
       url: response.data.secure_url,
@@ -67,8 +62,6 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
   }
 
   const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/destroy`;
-
-  console.log("[Cloudinary] Deleting image:", publicId);
 
   try {
     // If API secret is available, use authenticated deletion (more reliable)
@@ -109,8 +102,6 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
         }
       );
     }
-
-    console.log("[Cloudinary] Delete successful:", publicId);
   } catch (networkError) {
     console.error("[Cloudinary] Delete error:", networkError);
     const message = networkError instanceof Error ? networkError.message : "Unknown error";

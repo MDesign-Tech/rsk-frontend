@@ -328,9 +328,7 @@ export function Navbar() {
                 </AnimatePresence>
               </div>
             ) : (
-              <Button asChild variant="outline" size="sm" rounded="full">
-                <Link href="/admin/login">Member Sign-In</Link>
-              </Button>
+              <></>
             )}
             <Button asChild size="sm" rounded="full">
               <Link href="/contact">Contact Us</Link>
@@ -557,19 +555,7 @@ export function Navbar() {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    asChild
-                    variant="outline"
-                    rounded="lg"
-                    className="justify-center text-base py-6 w-full"
-                  >
-                    <Link
-                      href="/admin/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Member Sign-In
-                    </Link>
-                  </Button>
+                  <></>
                 )}
                 <Button
                   asChild

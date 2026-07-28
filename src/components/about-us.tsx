@@ -1,19 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import {
-  Users,
-  Award,
-  Target,
-  Globe,
-  Briefcase,
-  TrendingUp,
-} from "lucide-react";
-
-import { useWebsiteStore } from "@/stores/website.store";
-import type { AboutStat } from "@/types";
-
-const STAT_ICONS = [Users, Award, Target, Globe, Briefcase, TrendingUp];
+ import { motion } from "framer-motion";
+ import { CheckCircle } from "lucide-react";
+ 
+ import { useWebsiteStore } from "@/stores/website.store";
+ import type { AboutStat } from "@/types";
 
 export function AboutUs() {
   const about = useWebsiteStore((state) => state.data?.about);
@@ -65,17 +56,6 @@ export function AboutUs() {
             </h2>
 
             <p className="text-lg text-slate-200 mb-6">{about.description}</p>
-
-            {about.ourStory?.title && (
-              <div className="mt-8 p-6 rounded-xl border border-white/20 bg-white/10 backdrop-blur">
-                <h3 className="text-2xl font-bold text-white mb-3">
-                  {about.ourStory.title}
-                </h3>
-                <p className="text-slate-200 leading-relaxed">
-                  {about.ourStory.description}
-                </p>
-              </div>
-            )}
           </motion.div>
 
           <motion.div
@@ -95,25 +75,23 @@ export function AboutUs() {
               once: true,
             }}
           >
-            {stats.map((stat, index) => {
-              const Icon = STAT_ICONS[index % STAT_ICONS.length];
-
-              return (
-                <motion.div
-                  key={stat._id || index}
-                  className="p-6 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-center shadow-lg shadow-slate-950/20"
-                  whileHover={{
-                    y: -5,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                  }}
-                >
-                  <Icon
-                    className="w-8 h-8 text-blue-300 mx-auto mb-3"
-                    aria-hidden="true"
-                  />
+             {stats.map((stat) => {
+               return (
+                 <motion.div
+                   key={stat._id}
+                   className="p-6 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-center shadow-lg shadow-slate-950/20"
+                   whileHover={{
+                     y: -5,
+                   }}
+                   transition={{
+                     type: "spring",
+                     stiffness: 300,
+                   }}
+                 >
+                   <CheckCircle
+                     className="w-8 h-8 text-blue-300 mx-auto mb-3"
+                     aria-hidden="true"
+                   />
 
                   <div className="text-3xl font-bold mb-1 text-white">
                     {stat.number}

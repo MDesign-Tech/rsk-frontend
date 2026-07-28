@@ -11,7 +11,6 @@ export function BecomeMember() {
   const shouldReduceMotion = useReducedMotion();
   const whyBecomeMember = useWebsiteStore((state) => state.data?.whyBecomeMember);
   const visiblePoints = whyBecomeMember?.points ?? [];
-console.log(visiblePoints)
   return (
     <section
       id="become-a-member"
