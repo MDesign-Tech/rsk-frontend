@@ -9,6 +9,7 @@ import { Menu, X, Moon, Sun, ChevronDown, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useAuthStore } from "@/stores/auth.store";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const navLinks = [
   { href: "#home", label: "Home", isHash: true },
@@ -30,6 +31,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mediaMenuOpen, setMediaMenuOpen] = useState(false);
   const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeHref, setActiveHref] = useState("#home");
   const router = useRouter();
   const pathname = usePathname();
@@ -75,6 +77,7 @@ export function Navbar() {
     setMobileMenuOpen(false);
     setMediaMenuOpen(false);
     setAboutMenuOpen(false);
+    setUserMenuOpen(false);
 
     if (window.location.pathname === "/") {
       const homeSection = document.getElementById("home");
@@ -118,6 +121,21 @@ export function Navbar() {
     if (href === "/blog") return pathname.startsWith("/blog");
     if (href === "/about") return pathname.startsWith("/about");
     return activeHref === href;
+  };
+
+  const getUserImage = () => {
+    if (!user) return null;
+    return (user.member as { image?: string | null } | undefined)?.image || null;
+  };
+
+  const getUserInitials = () => {
+    if (!user) return "";
+    return user.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -249,23 +267,70 @@ export function Navbar() {
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
-            {isAuthenticated && user && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <User className="size-4" />
-                <span className="font-medium text-foreground">{user.name}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground capitalize">
-                  {user.role}
-                </span>
+            {isAuthenticated && user ? (
+              <div className="relative">
                 <button
                   type="button"
-                  onClick={() => logout()}
-                  className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-foreground/10"
-                  aria-label="Logout"
-                  title="Logout"
+                  onClick={() => setUserMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 rounded-full p-0.5 transition-colors hover:bg-foreground/10"
+                  aria-expanded={userMenuOpen}
+                  aria-haspopup="true"
                 >
-                  <LogOut className="size-4" />
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={getUserImage() || undefined}
+                      alt={user.name}
+                    />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-3 w-48 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg"
+                    >
+                      <div className="px-3 py-2 border-b border-border/50 mb-1">
+                        <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                      </div>
+                      <Link
+                        href="/admin"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          navigateToHome();
+                        }}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+                      >
+                        Go to dashboard
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          logout();
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
+            ) : (
+              <Button asChild variant="outline" size="sm" rounded="full">
+                <Link href="/admin/login">Member Sign-In</Link>
+              </Button>
             )}
             <Button asChild size="sm" rounded="full">
               <Link href="/contact">Contact Us</Link>
@@ -439,24 +504,71 @@ export function Navbar() {
                 </Link>
               </div>
 
-               <div className="px-6 py-4 border-t border-border/50 bg-background flex flex-col gap-3">
-                {isAuthenticated && user && (
-                  <div className="flex items-center gap-3 px-2 py-1">
-                    <User className="size-4 text-muted-foreground" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+              <div className="px-6 py-4 border-t border-border/50 bg-background flex flex-col gap-3">
+                {isAuthenticated && user ? (
+                  <>
+                    <div className="flex items-center gap-3 px-2 py-1">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage
+                          src={getUserImage() || undefined}
+                          alt={user.name}
+                        />
+                        <AvatarFallback>
+                          <User className="h-5 w-5" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => logout()}
-                      className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-foreground/10"
-                      aria-label="Logout"
-                      title="Logout"
+                    <Button
+                      asChild
+                      rounded="lg"
+                      className="justify-center text-base py-6 w-full"
                     >
-                      <LogOut className="size-4" />
-                    </button>
-                  </div>
+                      <Link
+                        href="/admin"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          navigateToHome();
+                        }}
+                      >
+                        Go to dashboard
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      rounded="lg"
+                      className="justify-center text-base py-6 w-full"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          logout();
+                        }}
+                        className="flex items-center justify-center gap-2"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    asChild
+                    rounded="lg"
+                    className="justify-center text-base py-6 w-full"
+                  >
+                    <Link
+                      href="/admin/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Member Sign-In
+                    </Link>
+                  </Button>
                 )}
                 <Button
                   asChild

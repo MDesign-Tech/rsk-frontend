@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Menu, LogOut } from "lucide-react";
+import Link from "next/link";
+import { Menu, LogOut, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSidebarStore } from "@/stores/sidebar.store";
@@ -13,8 +14,6 @@ export function Navbar() {
   const router = useRouter();
   const { setMobileOpen } = useSidebarStore();
   const { user, logout } = useAuthStore();
-  console.log("===================")
-  console.log(user?.member)
 
   const handleLogout = async () => {
     try {
@@ -51,6 +50,12 @@ export function Navbar() {
         <Badge variant="secondary" className="capitalize">
           {user?.role}
         </Badge>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/">
+            <ExternalLink className="h-4 w-4" />
+            Go to client
+          </Link>
+        </Button>
         <Button variant="outline" size="sm" onClick={handleLogout}>
           <LogOut />
           Logout

@@ -25,7 +25,7 @@ export default function UserPermissionsPage() {
   const router = useRouter();
   const params = useParams();
   const { initialized, isAuthenticated, hasPermission, user: currentUser } = useAuthStore();
-  const email = params.email as string;
+  const email = decodeURIComponent(params.email as string);
 
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
@@ -177,8 +177,8 @@ export default function UserPermissionsPage() {
       />
 
       {isAdminUser && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <p className="text-sm text-amber-800">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
             <strong>Note:</strong> Admin users have permanent full access to all modules. Their permissions cannot be modified.
           </p>
         </div>
@@ -189,7 +189,7 @@ export default function UserPermissionsPage() {
           <Loader2 className="size-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
+        <div className="rounded-lg border bg-card shadow-sm overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -225,7 +225,7 @@ export default function UserPermissionsPage() {
               {modules.map((mod) => {
                 const perm = permissionMap.get(mod.name);
                 return (
-                  <TableRow key={mod._id} className="hover:bg-muted/50">
+                  <TableRow key={mod._id} className="hover:bg-muted/50 transition-colors">
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {mod.icon && <span className="text-lg">{mod.icon}</span>}
@@ -240,7 +240,7 @@ export default function UserPermissionsPage() {
                         checked={perm?.canCreate ?? false}
                         onCheckedChange={() => togglePermission(mod.name, "canCreate")}
                         disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-white hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                     </TableCell>
                     <TableCell className="text-center">
@@ -248,7 +248,7 @@ export default function UserPermissionsPage() {
                         checked={perm?.canRead ?? false}
                         onCheckedChange={() => togglePermission(mod.name, "canRead")}
                         disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-white hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                     </TableCell>
                     <TableCell className="text-center">
@@ -256,7 +256,7 @@ export default function UserPermissionsPage() {
                         checked={perm?.canUpdate ?? false}
                         onCheckedChange={() => togglePermission(mod.name, "canUpdate")}
                         disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-white hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                     </TableCell>
                     <TableCell className="text-center">
@@ -264,7 +264,7 @@ export default function UserPermissionsPage() {
                         checked={perm?.canDelete ?? false}
                         onCheckedChange={() => togglePermission(mod.name, "canDelete")}
                         disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-white hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                     </TableCell>
                   </TableRow>

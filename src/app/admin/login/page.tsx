@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/schemas";
@@ -77,6 +78,14 @@ function LoginPageInner() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <Button variant="ghost" size="icon" asChild className="h-8 w-8">
+              <Link href="/" aria-label="Back to home">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <span className="text-sm text-muted-foreground">Back to home</span>
+          </div>
           <CardTitle className="text-2xl">RSK Associates Admin</CardTitle>
           <CardDescription>Sign in to manage your website content.</CardDescription>
         </CardHeader>
