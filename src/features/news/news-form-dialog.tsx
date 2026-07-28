@@ -162,6 +162,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
          coverImagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
          category: values.category,
          authorId: useRskAssociates ? null : (values.authorId ?? null),
+         isRsk: useRskAssociates,
          status: values.status,
          editorImages,
        };
