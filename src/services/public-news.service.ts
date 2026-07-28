@@ -1,5 +1,5 @@
 import api from "./api";
-import type { ApiResponse } from "@/types";
+import type { ApiResponse, EditorImage } from "@/types";
 
 export interface PublicNewsArticle {
   _id: string;
@@ -18,6 +18,7 @@ export interface PublicNewsArticle {
   publishedAt: string;
   createdAt: string;
   updatedAt: string;
+  editorImages: EditorImage[];
 }
 
 export const publicNewsService = {

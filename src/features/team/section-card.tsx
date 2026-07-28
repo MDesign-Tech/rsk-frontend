@@ -11,14 +11,13 @@ import {
 import { Reorder, useDragControls } from "framer-motion";
 import type { TeamMember, TeamSection } from "@/types";
 
-function MemberDragHandle() {
-  const controls = useDragControls();
+function MemberDragHandle({ dragControls }: { dragControls: ReturnType<typeof useDragControls> }) {
   return (
     <IconButton
       variant="ghost"
       label="Drag to reorder"
       icon={<GripVertical className="size-4 text-muted-foreground" />}
-      onPointerDown={(e) => controls.start(e)}
+      onPointerDown={(e) => dragControls.start(e)}
     />
   );
 }
@@ -52,14 +51,16 @@ export function SectionCard({
   togglingSectionId?: string | null;
   onReorderMembers?: (sectionId: string, newOrder: TeamMember[]) => void;
 }) {
+  const memberDragControls = useDragControls();
+
   return (
     <div className="space-y-3 rounded-xl border border-border/60 bg-card p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">{section.name}</h3>
-          {section.description ? <p className="text-sm text-muted-foreground">{section.description}</p> : null}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h3 className="text-lg font-semibold truncate">{section.name}</h3>
+          {section.description ? <p className="text-sm text-muted-foreground line-clamp-2">{section.description}</p> : null}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <span
@@ -80,14 +81,14 @@ export function SectionCard({
           </Tooltip>
           <IconButton variant="outline" label="Edit section" icon={<Pencil />} onClick={() => onEditSection(section)} />
           <IconButton variant="destructive" label="Delete section" icon={<Trash2 />} onClick={() => onDeleteSection(section)} />
-          <IconButton variant="default" label="Add member" icon={<Plus />} onClick={() => onAddMember(section._id)} />
         </div>
       </div>
       {members.length === 0 ? (
         <p className="text-sm text-muted-foreground">No members in this section.</p>
       ) : (
-        <div className="rounded-lg border">
-          <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b">
+        <div className="rounded-lg border overflow-x-auto">
+          {/* Header - hidden on mobile */}
+          <div className="hidden md:grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b">
             <div className="w-10" />
             <div>Name</div>
             <div>Title</div>
@@ -102,20 +103,29 @@ export function SectionCard({
               <Reorder.Item
                 key={m._id}
                 value={m}
+                dragControls={memberDragControls}
                 className="cursor-grab active:cursor-grabbing"
               >
                 <div
-                  className="grid grid-cols-[auto_1fr_1fr_auto] gap-4 items-center px-4 py-3 border-b last:border-b-0"
+                  className="grid grid-cols-1 md:grid-cols-[auto_1fr_1fr_auto] gap-3 md:gap-4 items-center px-4 py-3 border-b last:border-b-0"
                 >
-                  <div>
-                    <MemberDragHandle />
+                  <div className="flex md:block items-center gap-3">
+                    <MemberDragHandle dragControls={memberDragControls} />
+                    <div className="flex items-center gap-3 md:hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={m.image ?? "/placeholder-user.jpg"} alt={m.name} className="size-9 rounded-full object-cover" />
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{m.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{m.title}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="hidden md:flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={m.image ?? "/placeholder-user.jpg"} alt={m.name} className="size-9 rounded-full object-cover" />
                     <span className="font-medium">{m.name}</span>
                   </div>
-                  <div>{m.title}</div>
+                  <div className="hidden md:block">{m.title}</div>
                   <div className="flex justify-end gap-2">
                     <Tooltip>
                       <TooltipTrigger asChild>

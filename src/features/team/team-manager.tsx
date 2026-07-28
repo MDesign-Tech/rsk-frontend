@@ -22,28 +22,30 @@ import { SectionFormDialog } from "./section-form";
 import { useTeamManager } from "./use-team-manager";
 import type { TeamSection } from "@/types";
 
-function DragHandle() {
-  const controls = useDragControls();
+function DragHandle({ dragControls }: { dragControls: ReturnType<typeof useDragControls> }) {
   return (
     <IconButton
       variant="ghost"
       label="Drag to reorder"
       icon={<GripVertical className="size-4 text-muted-foreground" />}
-      onPointerDown={(e) => controls.start(e)}
+      onPointerDown={(e) => dragControls.start(e)}
     />
   );
 }
 
 export function TeamManager() {
   const t = useTeamManager();
+  const sectionDragControls = useDragControls();
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SearchInput value={t.search} onChange={t.setSearch} placeholder="Search team..." />
-        <div className="flex gap-4">
-          <span>Add section <IconButton variant="outline" label="Add section" icon={<Plus />} onClick={t.openCreateSection} /></span>
-          <span>Add member <IconButton variant="default" label="Add team member" icon={<Plus />} onClick={t.openCreate} /></span>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-muted-foreground">Add section</span>
+          <IconButton variant="outline" label="Add section" icon={<Plus />} onClick={t.openCreateSection} />
+          <span className="text-sm text-muted-foreground">Add member</span>
+          <IconButton variant="default" label="Add team member" icon={<Plus />} onClick={t.openCreate} />
         </div>
       </div>
 
@@ -62,13 +64,14 @@ export function TeamManager() {
             <Reorder.Item
               key={s._id}
               value={s}
+              dragControls={sectionDragControls}
               className="cursor-grab active:cursor-grabbing"
             >
               <div className="flex items-start gap-2">
                 <div className="pt-1">
-                  <DragHandle />
+                  <DragHandle dragControls={sectionDragControls} />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <SectionCard
                     section={s}
                     members={t.filtered(s._id)}

@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, X } from "lucide-react";
 import { newsSchema, type NewsInput } from "@/schemas";
 import { newsService, type NewsArticle } from "@/services/news.service";
 import { categoryService } from "@/services/category.service";
 import { teamService } from "@/services/team.service";
-import type { Category, CloudinaryImage } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
+import type { Category, CloudinaryImage, EditorImage, TeamMember } from "@/types";
 import {
   Form,
   FormControl,
@@ -18,8 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { toast } from "sonner";
 
 interface NewsFormDialogProps {
@@ -52,13 +53,22 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
-  const [authors, setAuthors] = useState<{ _id: string; name: string; title: string }[]>([]);
+  const [authors, setAuthors] = useState<TeamMember[]>([] as TeamMember[]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingAuthors, setLoadingAuthors] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [useRskAssociates, setUseRskAssociates] = useState(true);
+  const [editorImages, setEditorImages] = useState<EditorImage[]>([]);
 
   const imageUploadRef = useRef<ImageUploadHandle>(null);
   const isBusy = isSaving || isUploading;
+
+  const { user, hasPermission } = useAuthStore();
+  const isAdmin = user?.role === "admin";
+  const canSelectAuthor = hasPermission("news", "create") || hasPermission("news", "update");
+
+  const rskAssociatesAuthor = authors.find(a => a.name === "RSK Associates");
+  const rskAssociatesId = rskAssociatesAuthor?._id ?? "";
 
   const form = useForm<NewsInput>({
     resolver: zodResolver(newsSchema),
@@ -69,6 +79,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
       category: "",
       authorId: "",
       status: "draft",
+      editorImages: [],
     },
   });
 
@@ -79,6 +90,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
           typeof article.category === "string"
             ? article.category
             : article.category?.name ?? "";
+        const isRskAuthor = article.author.name === "RSK Associates";
         form.reset({
           title: article.title,
           content: typeof article.content === "string" ? article.content : JSON.stringify(article.content),
@@ -86,27 +98,38 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
           category: categoryName,
           authorId: article.author._id,
           status: article.status,
+          editorImages: article.editorImages || [],
         });
+        setUseRskAssociates(isRskAuthor);
+        setEditorImages(article.editorImages || []);
         setImageData(
           article.coverImage
             ? { url: article.coverImage, publicId: article.coverImagePublicId || "" }
             : null,
         );
       } else {
+        const defaultAuthorId = !isAdmin && canSelectAuthor
+          ? (user?.member && typeof user.member === 'object' && '_id' in user.member
+              ? (user.member as { _id: string })._id
+              : rskAssociatesId)
+          : rskAssociatesId;
         form.reset({
           title: "",
           content: "",
           coverImage: "",
           category: defaultCategory ?? "",
-          authorId: "",
+          authorId: defaultAuthorId || "",
           status: "draft",
+          editorImages: [],
         });
+        setUseRskAssociates(true);
+        setEditorImages([]);
         setImageData(null);
       }
       loadAuthors();
       loadCategories();
     }
-  }, [open, article, defaultCategory, form]);
+  }, [open, article, defaultCategory, form, rskAssociatesId, isAdmin, canSelectAuthor, user]);
 
   const loadAuthors = async () => {
     setLoadingAuthors(true);
@@ -142,6 +165,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
         ...values,
         coverImage: uploadedImage?.url ?? imageData?.url ?? null,
         coverImagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
+        editorImages,
       };
 
       if (article) {
@@ -152,6 +176,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
         toast.success("Article created successfully");
       }
       setImageData(null);
+      setEditorImages([]);
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -159,6 +184,20 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleRskAssociatesChange = (checked: boolean) => {
+    setUseRskAssociates(checked);
+    if (checked && rskAssociatesId) {
+      form.setValue("authorId", rskAssociatesId);
+    } else if (!checked) {
+      form.setValue("authorId", "");
+    }
+  };
+
+  const handleEditorChange = (html: string, images: EditorImage[]) => {
+    form.setValue("content", html);
+    setEditorImages(images);
   };
 
   return (
@@ -200,7 +239,12 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
                 <FormItem>
                   <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <Textarea rows={8} {...field} disabled={isBusy} />
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={handleEditorChange}
+                      editorImages={editorImages}
+                      disabled={isBusy}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -247,29 +291,69 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
                   </FormItem>
                 )}
               />
+              {isAdmin && canSelectAuthor && (
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="use-rsk-associates"
+                    checked={useRskAssociates}
+                    onCheckedChange={handleRskAssociatesChange}
+                    disabled={isBusy}
+                  />
+                  <label
+                    htmlFor="use-rsk-associates"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    RSK Associates
+                  </label>
+                </div>
+              )}
               <FormField
                 control={form.control}
                 name="authorId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Author</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isBusy || loadingAuthors}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={loadingAuthors ? "Loading..." : "Select author"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {authors.map((author) => (
-                          <SelectItem key={author._id} value={author._id}>
-                            {author.name} - {author.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const isDisabled = isBusy || loadingAuthors || (!isAdmin && !canSelectAuthor) || (isAdmin && useRskAssociates);
+                  const selectedAuthor = authors.find(a => a._id === field.value);
+                  const displayValue = selectedAuthor
+                    ? `${selectedAuthor.name} - ${selectedAuthor.title}`
+                    : field.value;
+
+                  if (!isAdmin && canSelectAuthor) {
+                    return (
+                      <FormItem>
+                        <FormLabel>Author</FormLabel>
+                        <FormControl>
+                          <Input
+                            value={displayValue || (user?.member && typeof user.member === 'object' && 'name' in user.member ? (user.member as { name: string }).name : "RSK Associates")}
+                            disabled={true}
+                            readOnly
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Author</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isDisabled}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={loadingAuthors ? "Loading..." : "Select author"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {authors.map((author) => (
+                            <SelectItem key={author._id} value={author._id}>
+                              {author.name} - {author.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

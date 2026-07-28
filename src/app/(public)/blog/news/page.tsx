@@ -12,6 +12,19 @@ import { toast } from "sonner";
 
 const RSK_LOGO = "/rsk-logo.svg";
 
+const stripHtml = (html: string): string => {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&/g, "&")
+    .replace(/</g, "<")
+    .replace(/>/g, ">")
+    .replace(/"/g, '"')
+    .replace(/'/g, "'")
+    .trim();
+};
+
 // Skeleton loader for news cards - looks like real data layout
 function NewsCardSkeleton() {
   return (
@@ -225,7 +238,7 @@ export default function NewsPage() {
                           </div>
                           <p className="mt-3 text-xs text-muted-foreground line-clamp-2">
                             {article.content
-                              ? article.content.slice(0, 150) + "..."
+                              ? stripHtml(article.content).slice(0, 150) + "..."
                               : ""}
                           </p>
                           <Link

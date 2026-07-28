@@ -63,7 +63,7 @@ export function useTeamManager() {
         sectionIdOf(m) === sid &&
         (!q ||
           m.name.toLowerCase().includes(q) ||
-          m.title.toLowerCase().includes(q))
+          m.title?.toLowerCase().includes(q))
       );
     });
 

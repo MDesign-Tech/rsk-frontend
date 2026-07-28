@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Eye, Pencil, Trash2, Plus, GripVertical } from "lucide-react";
 import { newsService, type NewsArticle } from "@/services/news.service";
 import { categoryService, type Category } from "@/services/category.service";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { IconButton } from "@/components/admin/icon-button";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { SearchInput } from "@/components/admin/search-input";
@@ -28,6 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Image from "next/image";
+import DOMPurify from "isomorphic-dompurify";
 import { NewsFormDialog } from "./news-form-dialog";
 
 const RSK_LOGO = "/rsk-logo.svg";
@@ -36,6 +38,19 @@ const truncateText = (text: string, maxLength: number) => {
   if (!text) return "";
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trim() + "...";
+};
+
+const stripHtml = (html: string): string => {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&/g, "&")
+    .replace(/</g, "<")
+    .replace(/>/g, ">")
+    .replace(/"/g, '"')
+    .replace(/'/g, "'")
+    .trim();
 };
 
 const getCategoryName = (category: string | { _id: string; name: string } | null | undefined): string => {
@@ -93,8 +108,27 @@ export function NewsManager() {
     setIsDeleting(true);
     try {
       if ("title" in deleteTarget) {
-        await newsService.remove(deleteTarget._id);
-        setArticles((prev) => prev.filter((a) => a._id !== deleteTarget._id));
+        const article = deleteTarget as NewsArticle;
+        // Delete cover image from Cloudinary
+        if (article.coverImagePublicId) {
+          try {
+            await deleteFromCloudinary(article.coverImagePublicId);
+          } catch {
+            console.error("Failed to delete cover image from Cloudinary");
+          }
+        }
+        // Delete editor images from Cloudinary
+        if (article.editorImages && article.editorImages.length > 0) {
+          await Promise.allSettled(
+            article.editorImages.map((img) =>
+              deleteFromCloudinary(img.publicId).catch((err) => {
+                console.error("Failed to delete editor image from Cloudinary:", err);
+              })
+            )
+          );
+        }
+        await newsService.remove(article._id);
+        setArticles((prev) => prev.filter((a) => a._id !== article._id));
         toast.success("Article deleted");
       } else {
         await categoryService.remove(deleteTarget._id);
@@ -308,7 +342,7 @@ export function NewsManager() {
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">
-                        {truncateText(article.content, 150)}
+                        {truncateText(stripHtml(article.content), 150)}
                       </p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{article.author.name}</span>
@@ -512,11 +546,14 @@ export function NewsManager() {
           <div className="space-y-4">
             <div>
               <h4 className="text-sm font-medium text-muted-foreground">Content</h4>
-              <div className="text-sm text-foreground whitespace-pre-wrap">
-                {viewArticle?.content && typeof viewArticle.content === 'string'
-                  ? viewArticle.content
-                  : JSON.stringify(viewArticle?.content, null, 2)}
-              </div>
+              <div
+                className="text-sm text-foreground prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    typeof viewArticle?.content === "string" ? viewArticle.content : ""
+                  ),
+                }}
+              />
             </div>
             {viewArticle?.gallery && viewArticle.gallery.length > 0 && (
               <div>

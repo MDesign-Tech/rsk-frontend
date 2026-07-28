@@ -231,6 +231,10 @@ export const newsSchema = z.object({
   category: z.string().min(1, "Category is required"),
   authorId: z.string().min(1, "Author is required"),
   status: z.enum(["draft", "published"]).default("draft"),
+  editorImages: z.array(z.object({
+    url: z.string(),
+    publicId: z.string(),
+  })).optional().default([]),
 });
 export type NewsInput = z.infer<typeof newsSchema>;
 

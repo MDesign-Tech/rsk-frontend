@@ -34,6 +34,12 @@ export default function UserPermissionsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Related modules: when one is toggled, the related one is also toggled
+  const relatedModules: Record<string, string[]> = {
+    "Opportunity": ["Opportunity Type"],
+    "Category": [],
+  };
+
   const canManagePermissions = hasPermission("Permission", "update");
   const isEditingOwnPermissions = user?._id === currentUser?._id;
   const isAdminUser = user?.role === "admin";
@@ -92,12 +98,12 @@ export default function UserPermissionsPage() {
       }
       // No existing permission - create a new one with the toggled field
       const newPerm: Permission = {
-        _id: `new-${moduleName}`,
-        module: { _id: "", name: moduleName, description: "", icon: "" },
-        canCreate: field === "canCreate",
-        canRead: field === "canRead",
-        canUpdate: field === "canUpdate",
-        canDelete: field === "canDelete",
+          _id: `new-${moduleName}`,
+          module: { _id: "", name: moduleName, description: "", icon: "" },
+          canCreate: field === "canCreate",
+          canRead: field === "canRead",
+          canUpdate: field === "canUpdate",
+          canDelete: field === "canDelete",
       };
       return [...prev, newPerm];
     });
@@ -193,7 +199,6 @@ export default function UserPermissionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="min-w-[140px]">Module</TableHead>
                 <TableHead className="min-w-[180px] hidden sm:table-cell">Description</TableHead>
                 <TableHead className="text-center min-w-[80px]">
                   <div className="flex items-center justify-center gap-1">
@@ -226,12 +231,6 @@ export default function UserPermissionsPage() {
                 const perm = permissionMap.get(mod.name);
                 return (
                   <TableRow key={mod._id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        {mod.icon && <span className="text-lg">{mod.icon}</span>}
-                        <span>{mod.name}</span>
-                      </div>
-                    </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {mod.description || "No description"}
                     </TableCell>
@@ -272,7 +271,7 @@ export default function UserPermissionsPage() {
               })}
               {modules.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     No modules found.
                   </TableCell>
                 </TableRow>

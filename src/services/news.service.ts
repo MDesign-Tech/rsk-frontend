@@ -1,4 +1,5 @@
 import api from "./api";
+import type { EditorImage } from "@/types";
 
 export interface NewsArticle {
   _id: string;
@@ -20,6 +21,7 @@ export interface NewsArticle {
   publishedAt: string;
   createdAt: string;
   updatedAt: string;
+  editorImages: EditorImage[];
 }
 
 export interface CreateNewsInput {
@@ -30,6 +32,7 @@ export interface CreateNewsInput {
   category: string;
   authorId: string;
   status?: "draft" | "published";
+  editorImages?: EditorImage[];
 }
 
 export interface UpdateNewsInput {
@@ -40,6 +43,7 @@ export interface UpdateNewsInput {
   category?: string;
   authorId?: string;
   status?: "draft" | "published";
+  editorImages?: EditorImage[];
 }
 
 export const newsService = {

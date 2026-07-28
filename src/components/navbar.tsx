@@ -559,6 +559,7 @@ export function Navbar() {
                 ) : (
                   <Button
                     asChild
+                    variant="outline"
                     rounded="lg"
                     className="justify-center text-base py-6 w-full"
                   >

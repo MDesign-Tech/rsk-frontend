@@ -6,6 +6,7 @@ import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { publicNewsService, type PublicNewsArticle } from "@/services/public-news.service";
 import { toast } from "sonner";
+import DOMPurify from "isomorphic-dompurify";
 
 const RSK_LOGO = "/rsk-logo.svg";
 
@@ -196,17 +197,14 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
           </div>
 
           {/* Content */}
-          <div className="prose prose-lg max-w-none">
-            {typeof article.content === "string" ? (
-              <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed">
-                {article.content}
-              </div>
-            ) : (
-              <div className="text-foreground/90 leading-relaxed">
-                {JSON.stringify(article.content, null, 2)}
-              </div>
-            )}
-          </div>
+          <div
+            className="prose prose-lg max-w-none text-foreground/90 leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                typeof article.content === "string" ? article.content : ""
+              ),
+            }}
+          />
 
           {/* Back Button */}
           <div className="mt-8">

@@ -4,6 +4,11 @@ export interface CloudinaryImage {
   publicId: string;
 }
 
+export interface EditorImage {
+  url: string;
+  publicId: string;
+}
+
 export type UserRole = "admin" | "member";
 
 export interface Permission {
