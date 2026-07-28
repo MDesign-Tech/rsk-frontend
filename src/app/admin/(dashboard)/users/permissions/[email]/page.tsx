@@ -16,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Save, Shield } from "lucide-react";
 import type { Permission, Module } from "@/types";
@@ -157,10 +156,17 @@ export default function UserPermissionsPage() {
 
   const isEditingDisabled = isEditingOwnPermissions || isAdminUser;
 
+  const permissionFields: { key: keyof Pick<Permission, "canCreate" | "canRead" | "canUpdate" | "canDelete">; label: string }[] = [
+    { key: "canCreate", label: "Create" },
+    { key: "canRead", label: "Read" },
+    { key: "canUpdate", label: "Update" },
+    { key: "canDelete", label: "Delete" },
+  ];
+
   return (
     <div className="space-y-6 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <Button variant="outline" size="sm" onClick={() => router.back()} className="h-10 px-4">
+        <Button variant="outline" size="sm" onClick={() => router.back()} className="h-10 px-4 w-full sm:w-auto">
           <ArrowLeft className="size-4 mr-2" />
           Back
         </Button>
@@ -169,7 +175,7 @@ export default function UserPermissionsPage() {
             size="sm"
             onClick={handleSave}
             disabled={!hasChanges || isSaving}
-            className="h-10 px-6"
+            className="h-10 px-6 w-full sm:w-auto"
           >
             <Save className="size-4 mr-2" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -195,90 +201,126 @@ export default function UserPermissionsPage() {
           <Loader2 className="size-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="rounded-lg border bg-card shadow-sm overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-          <Table className="min-w-[600px]">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="min-w-[180px] hidden sm:table-cell">Description</TableHead>
-                <TableHead className="text-center min-w-[80px]">
-                  <div className="flex items-center justify-center gap-1">
-                    <Shield className="size-3" />
-                    Create
-                  </div>
-                </TableHead>
-                <TableHead className="text-center min-w-[80px]">
-                  <div className="flex items-center justify-center gap-1">
-                    <Shield className="size-3" />
-                    Read
-                  </div>
-                </TableHead>
-                <TableHead className="text-center min-w-[80px]">
-                  <div className="flex items-center justify-center gap-1">
-                    <Shield className="size-3" />
-                    Update
-                  </div>
-                </TableHead>
-                <TableHead className="text-center min-w-[80px]">
-                  <div className="flex items-center justify-center gap-1">
-                    <Shield className="size-3" />
-                    Delete
-                  </div>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {modules.map((mod) => {
-                const perm = permissionMap.get(mod.name);
-                return (
-                  <TableRow key={mod._id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">
-                      {mod.description || "No description"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Checkbox
-                        checked={perm?.canCreate ?? false}
-                        onCheckedChange={() => togglePermission(mod.name, "canCreate")}
-                        disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Checkbox
-                        checked={perm?.canRead ?? false}
-                        onCheckedChange={() => togglePermission(mod.name, "canRead")}
-                        disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Checkbox
-                        checked={perm?.canUpdate ?? false}
-                        onCheckedChange={() => togglePermission(mod.name, "canUpdate")}
-                        disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Checkbox
-                        checked={perm?.canDelete ?? false}
-                        onCheckedChange={() => togglePermission(mod.name, "canDelete")}
-                        disabled={!canManagePermissions || isEditingDisabled}
-                        className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                      />
+        <>
+          {/* Desktop Table */}
+          <div className="hidden md:block rounded-lg border bg-card shadow-sm p-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[180px]">Description</TableHead>
+                  <TableHead className="text-center min-w-[80px]">
+                    <div className="flex items-center justify-center gap-1">
+                      <Shield className="size-3" />
+                      Create
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center min-w-[80px]">
+                    <div className="flex items-center justify-center gap-1">
+                      <Shield className="size-3" />
+                      Read
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center min-w-[80px]">
+                    <div className="flex items-center justify-center gap-1">
+                      <Shield className="size-3" />
+                      Update
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center min-w-[80px]">
+                    <div className="flex items-center justify-center gap-1">
+                      <Shield className="size-3" />
+                      Delete
+                    </div>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {modules.map((mod) => {
+                  const perm = permissionMap.get(mod.name);
+                  return (
+                    <TableRow key={mod._id} className="hover:bg-muted/50 transition-colors">
+                      <TableCell className="text-muted-foreground">
+                        {mod.description || "No description"}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={perm?.canCreate ?? false}
+                          onCheckedChange={() => togglePermission(mod.name, "canCreate")}
+                          disabled={!canManagePermissions || isEditingDisabled}
+                          className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={perm?.canRead ?? false}
+                          onCheckedChange={() => togglePermission(mod.name, "canRead")}
+                          disabled={!canManagePermissions || isEditingDisabled}
+                          className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={perm?.canUpdate ?? false}
+                          onCheckedChange={() => togglePermission(mod.name, "canUpdate")}
+                          disabled={!canManagePermissions || isEditingDisabled}
+                          className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={perm?.canDelete ?? false}
+                          onCheckedChange={() => togglePermission(mod.name, "canDelete")}
+                          disabled={!canManagePermissions || isEditingDisabled}
+                          className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {modules.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      No modules found.
                     </TableCell>
                   </TableRow>
-                );
-              })}
-              {modules.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No modules found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {modules.map((mod) => {
+              const perm = permissionMap.get(mod.name);
+              return (
+                <div key={mod._id} className="rounded-lg border bg-card shadow-sm p-3">
+                  <div className="mb-3">
+                    <h3 className="text-sm font-semibold text-foreground">{mod.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{mod.description || "No description"}</p>
+                  </div>
+                  <div className="space-y-2.5">
+                    {permissionFields.map(({ key, label }) => (
+                      <div key={key} className="flex items-center justify-between">
+                        <span className="text-sm text-foreground">{label}</span>
+                        <Checkbox
+                          checked={perm?.[key] ?? false}
+                          onCheckedChange={() => togglePermission(mod.name, key)}
+                          disabled={!canManagePermissions || isEditingDisabled}
+                          className="size-5 border-border hover:border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {modules.length === 0 && (
+              <div className="rounded-lg border bg-card shadow-sm p-6 text-center text-sm text-muted-foreground">
+                No modules found.
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
