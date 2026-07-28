@@ -59,9 +59,10 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [useRskAssociates, setUseRskAssociates] = useState(true);
   const [editorImages, setEditorImages] = useState<EditorImage[]>([]);
+  const [isEditorUploading, setIsEditorUploading] = useState(false);
 
   const imageUploadRef = useRef<ImageUploadHandle>(null);
-  const isBusy = isSaving || isUploading;
+  const isBusy = isSaving || isUploading || isEditorUploading;
 
   const { user, hasPermission } = useAuthStore();
   const isAdmin = user?.role === "admin";
@@ -244,6 +245,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
                       onChange={handleEditorChange}
                       editorImages={editorImages}
                       disabled={isBusy}
+                      onUploadingChange={setIsEditorUploading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -311,7 +313,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
                 control={form.control}
                 name="authorId"
                 render={({ field }) => {
-                  const isDisabled = isBusy || loadingAuthors || (!isAdmin && !canSelectAuthor) || (isAdmin && useRskAssociates);
+                  const isDisabled = isBusy || loadingAuthors || (!isAdmin && !canSelectAuthor);
                   const selectedAuthor = authors.find(a => a._id === field.value);
                   const displayValue = selectedAuthor
                     ? `${selectedAuthor.name} - ${selectedAuthor.title}`

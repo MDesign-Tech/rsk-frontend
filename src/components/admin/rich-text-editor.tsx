@@ -32,6 +32,7 @@ interface RichTextEditorProps {
   editorImages?: CloudinaryImage[];
   placeholder?: string;
   disabled?: boolean;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 export function RichTextEditor({
@@ -40,10 +41,12 @@ export function RichTextEditor({
   editorImages = [],
   placeholder = "Start writing...",
   disabled = false,
+  onUploadingChange,
 }: RichTextEditorProps) {
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const editorRef = useRef<ReturnType<typeof useEditor> | null>(null);
 
@@ -121,23 +124,35 @@ export function RichTextEditor({
     async (file: File) => {
       if (isUploading || !editorRef.current) return;
       setIsUploading(true);
+      setUploadProgress(0);
+      onUploadingChange?.(true);
       try {
         const result = await uploadToCloudinary(file, (progress) => {
-          // Could show progress in UI if needed
+          setUploadProgress(progress);
         });
         editorRef.current.chain().focus().setImage({ src: result.url }).run();
-        onChange(editorRef.current.getHTML(), [
-          ...(editorRef.current.getAttributes("img") ? [] : []),
-          { url: result.url, publicId: result.publicId },
-        ]);
+        const images: CloudinaryImage[] = [];
+        editorRef.current.state.doc.descendants((node: any) => {
+          if (node.type.name === "image") {
+            const src = node.attrs.src as string;
+            if (src && editorImagesMap.has(src)) {
+              images.push(editorImagesMap.get(src)!);
+            } else if (src === result.url) {
+              images.push({ url: result.url, publicId: result.publicId });
+            }
+          }
+        });
+        onChange(editorRef.current.getHTML(), images);
         toast.success("Image uploaded");
-      } catch {
-        toast.error("Failed to upload image");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to upload image");
       } finally {
         setIsUploading(false);
+        setUploadProgress(0);
+        onUploadingChange?.(false);
       }
     },
-    [isUploading, onChange]
+    [isUploading, onChange, onUploadingChange, editorImagesMap]
   );
 
   // Sync external value changes
@@ -292,7 +307,7 @@ export function RichTextEditor({
           disabled={disabled || isUploading}
         />
         {isUploading && (
-          <span className="text-xs text-muted-foreground ml-2">Uploading...</span>
+          <span className="text-xs text-muted-foreground ml-2">Uploading... {uploadProgress}%</span>
         )}
       </div>
 

@@ -19,6 +19,11 @@ export async function uploadToCloudinary(
     throw new Error("CLOUDINARY_CLOUD_NAME is not configured in environment variables");
   }
 
+  const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`Image size exceeds 3MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+  }
+
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
