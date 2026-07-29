@@ -91,18 +91,18 @@ export function WhatsAppButton() {
   const hasSocials = socialLinks.length > 0;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2">
+    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-8">
       {/* Social Media Dropdown */}
       {hasSocials && (
         <div
-          className="relative"
+          className="relative flex flex-col items-start"
           onMouseEnter={() => setShowSocials(true)}
           onMouseLeave={() => setShowSocials(false)}
         >
           {/* Dropdown Menu */}
           <div
             className={`
-              flex flex-col items-center gap-2 mb-2
+              flex flex-col items-start gap-2 mb-2
               transition-all duration-300 ease-out
               ${showSocials ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}
             `}
@@ -118,8 +118,6 @@ export function WhatsAppButton() {
                 className="
                   flex items-center justify-center
                   w-10 h-10
-                  absolute
-                  bottom-16
                   bg-white dark:bg-gray-800
                   rounded-full shadow-md
                   hover:shadow-lg
@@ -156,8 +154,6 @@ export function WhatsAppButton() {
             className={`
               flex items-center justify-center
               w-8 h-8
-               absolute
-              bottom-12
               bg-white dark:bg-gray-800
               rounded-full shadow-md
               hover:shadow-lg
@@ -166,6 +162,7 @@ export function WhatsAppButton() {
               hover:text-foreground
               border border-gray-200 dark:border-gray-700
               cursor-pointer
+              mt-1
             `}
             aria-label="Toggle social media links"
             aria-expanded={showSocials}
