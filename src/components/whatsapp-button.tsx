@@ -95,14 +95,14 @@ export function WhatsAppButton() {
       {/* Social Media Dropdown */}
       {hasSocials && (
         <div
-          className="relative flex flex-col items-end"
+          className="relative flex flex-col items-center"
           onMouseEnter={() => setShowSocials(true)}
           onMouseLeave={() => setShowSocials(false)}
         >
           {/* Dropdown Menu */}
           <div
             className={`
-              flex flex-col items-center gap-2 mb-5
+              flex flex-col items-center gap-2 mb-2
               transition-all duration-300 ease-out
               ${showSocials ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}
             `}
