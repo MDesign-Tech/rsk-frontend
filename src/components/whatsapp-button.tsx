@@ -118,6 +118,8 @@ export function WhatsAppButton() {
                 className="
                   flex items-center justify-center
                   w-10 h-10
+                  absolute
+                  bottom-16
                   bg-white dark:bg-gray-800
                   rounded-full shadow-md
                   hover:shadow-lg
@@ -155,7 +157,7 @@ export function WhatsAppButton() {
               flex items-center justify-center
               w-8 h-8
                absolute
-              bottom-16 
+              bottom-12
               bg-white dark:bg-gray-800
               rounded-full shadow-md
               hover:shadow-lg
