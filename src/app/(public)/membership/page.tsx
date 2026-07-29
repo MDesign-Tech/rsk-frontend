@@ -67,8 +67,8 @@ export default function MembershipPage() {
       <br />
       <br />
 
-      <SectionDivider variant="wave" />
-      <section className="py-20 bg-muted/60">
+      {/* <SectionDivider variant="wave" /> */}
+      <section className="py-20 bg-muted/8">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <motion.div
             initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}

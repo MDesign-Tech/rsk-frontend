@@ -25,11 +25,13 @@ const footerLinks = {
     { label: "Our Team", href: "#our-team" },
     { label: "Contact", href: "/contact" },
   ],
-  Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-  ],
 };
+
+const pageLinks = [
+  { label: "News", href: "/blog/news" },
+  { label: "Opportunities", href: "/blog/opportunities" },
+  { label: "Membership", href: "/membership" },
+];
 
 // Social media platforms rendered in the footer, driven entirely by the
 // `about.socialMedia` data (no hardcoded URLs).
@@ -77,9 +79,6 @@ export function Footer() {
   const data = useWebsiteStore((state) => state.data);
 
   const about = data?.about;
-  const services = (data?.services ?? []).filter(
-    (service) => service.visible !== false,
-  );
 
   const socialMedia = about?.socialMedia;
   const socialLinks = SOCIAL_PLATFORMS.map((platform) => {
@@ -94,9 +93,9 @@ export function Footer() {
   return (
     <footer className="relative border-t border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* Company Info */}
-          <div>
+          <div className="lg:justify-self-start">
             <Link href="/" className="flex items-center gap-3 mb-4">
               <Image
                 src="/rsk-logo.svg"
@@ -109,55 +108,55 @@ export function Footer() {
                 className="font-bold text-foreground text-xs"
                 style={{ letterSpacing: "-0.05em" }}
               >
-                RSK
+                RSK Associates
               </span>
             </Link>
-            <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+            {/*  <p className="text-xs sm:text-sm text-muted-foreground mb-4">
               Trusted partners in audit, tax advisory, and financial consulting.
-            </p>
+            </p> */}
             <div className="space-y-2">
               {about?.contactMethods
                 ?.filter((item) => item.visible !== false)
                 .map((item, index) => {
-                const Icon = getContactIcon(item.label);
+                  const Icon = getContactIcon(item.label);
 
-                return (
-                  <div
-                    key={index}
-                    className="flex items-start gap-2 text-xs text-muted-foreground"
-                  >
-                    <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-start gap-2 text-xs text-muted-foreground"
+                    >
+                      <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
 
-                    {item.href ? (
-                      <a
-                        href={item.href}
-                        className="hover:text-foreground transition-colors"
-                      >
-                        {item.value}
-                      </a>
-                    ) : (
-                      <span>{item.value}</span>
-                    )}
-                  </div>
-                );
-              })}
+                      {item.href ? (
+                        <a
+                          href={item.href}
+                          className="hover:text-foreground transition-colors"
+                        >
+                          {item.value}
+                        </a>
+                      ) : (
+                        <span>{item.value}</span>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           </div>
 
-          {/* Services */}
-          <div>
+          {/* Pages */}
+          <div className="lg:justify-self-center">
             <h4 className="text-xs font-medium tracking-wider uppercase text-muted-foreground mb-4">
-              Services
+              Pages
             </h4>
             <ul className="space-y-2">
-              {services.map((service) => (
-                <li key={service._id}>
-                  <a
-                    href="#our-services"
+              {pageLinks.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
                     className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {service.title}
-                  </a>
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -165,7 +164,7 @@ export function Footer() {
 
           {/* Link columns */}
           {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
+            <div key={category} className="lg:justify-self-end">
               <h4 className="text-xs font-medium tracking-wider uppercase text-muted-foreground mb-4">
                 {category}
               </h4>
@@ -188,7 +187,7 @@ export function Footer() {
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[10px] sm:text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} RSK Associates. All rights
-            reserved.
+            reserved. Designed & Developed by M Design.
           </p>
           <div className="flex items-center gap-6">
             {socialLinks.map(({ platform, href }) => (

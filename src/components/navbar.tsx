@@ -23,7 +23,7 @@ const blogLinks = [
 
 const aboutLinks = [
   { href: "/about/who", label: "Who are we" },
-  { href: "/about/partners", label: "Our partners" },
+  // { href: "/about/partners", label: "Our partners" },
   { href: "/about/team", label: "Our team" },
 ];
 

@@ -30,13 +30,14 @@ export default function Home() {
       <OurServices />
       <SectionDivider variant="gradient" />
       <BecomeMember />
-      <SectionDivider variant="curve" />
+      {/* <SectionDivider variant="curve" /> */}
       <MissionVision />
-      <SectionDivider variant="wave" />
+      {/* <SectionDivider variant="wave" /> */}
       {/* <LogoCloud /> */}
       <FAQ />
-      {/* <SectionDivider variant="diagonal" /> */}
+      {/* <SectionDivider variant="wave" /> */}
       <HomeContactUs />
+      <SectionDivider variant="wave" />
       {/* <FinalCTA /> */}
     </main>
   );
