@@ -56,6 +56,7 @@ export function AboutUs() {
             </h2>
 
             <p className="text-lg text-slate-200 mb-6">{about.description}</p>
+
           </motion.div>
 
           <motion.div

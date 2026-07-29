@@ -2,21 +2,18 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import {
-  ArrowLeft,
-  CheckCircle2,
-} from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { FAQ } from "@/components/faq";
-import { Testimonials } from "@/components/testimonials";
 import { SectionDivider } from "@/components/section-divider";
 import { useWebsiteStore } from "@/stores/website.store";
 
-
 export default function MembershipPage() {
   const shouldReduceMotion = useReducedMotion();
-  const whyBecomeMember = useWebsiteStore((state) => state.data?.whyBecomeMember);
+  const whyBecomeMember = useWebsiteStore(
+    (state) => state.data?.whyBecomeMember,
+  );
   const visibleBenefits = whyBecomeMember?.points ?? [];
 
   return (
@@ -25,8 +22,8 @@ export default function MembershipPage() {
 
       <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
-          <div className="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
-            <span className="badge badge-primary shrink-0 rounded-full">
+          <div className="bg-primary/10 border border-primary/20 flex w-fit items-center gap-2.5 rounded-full px-3 py-2">
+            <span className="text-sm font-semibold text-primary">
               Join RSK and grow with confidence.
             </span>
           </div>
@@ -70,8 +67,8 @@ export default function MembershipPage() {
       <br />
       <br />
 
-      <SectionDivider variant="wave" />
-      <section className="py-20">
+      {/* <SectionDivider variant="wave" /> */}
+      <section className="py-20 bg-muted/8">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <motion.div
             initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
@@ -80,12 +77,16 @@ export default function MembershipPage() {
             transition={{ duration: 0.7 }}
             className="mb-12 text-center"
           >
-            <p className="text-sm uppercase tracking-[0.35em] text-sky-400">
+            <p className="text-sm uppercase tracking-[0.35em] text-primary">
               Why become a member
             </p>
-            <h2 className="mt-4 text-3xl sm:text-4xl font-semibold">
+            <h2 className="mt-4 text-3xl sm:text-4xl font-semibold text-foreground">
               Member benefits designed for modern businesses.
             </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+              Access streamlined support, strategic introductions, and business
+              services crafted to help leaders move faster and scale smarter.
+            </p>
           </motion.div>
 
           {visibleBenefits.length > 0 && (
@@ -98,9 +99,9 @@ export default function MembershipPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.05 * index }}
-                    className="rounded-4xl border border-sky-500/20 bg-sky-950/95 p-10 text-white shadow-[0_40px_120px_-50px_rgba(14,116,232,0.65)]"
+                    className="rounded-4xl border border-border/70 bg-card/90 p-10 shadow-lg"
                   >
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-500/10 text-sky-400">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-primary/10 text-primary">
                       <CheckCircle2 className="h-6 w-6" />
                     </div>
                     <h3 className="mt-6 text-xl font-semibold text-foreground">
@@ -122,26 +123,21 @@ export default function MembershipPage() {
       {/* <SectionDivider variant="gradient" /> */}
       {/* <Testimonials /> */}
 
-
-
-
-
       <section className="py-20">
-        
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <motion.div
             initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="rounded-4xl border border-sky-500/20 bg-sky-950/95 p-10 text-white shadow-[0_40px_120px_-50px_rgba(14,116,232,0.65)]"
+            className="rounded-4xl border border-border/70 bg-card/90 p-10 shadow-lg"
           >
             <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-center">
               <div>
-                <h2 className="text-4xl font-semibold">
+                <h2 className="text-4xl font-semibold text-foreground">
                   Apply now to join the next intake.
                 </h2>
-                <p className="mt-4 text-lg leading-8 text-slate-200">
+                <p className="mt-4 text-lg leading-8 text-muted-foreground">
                   Secure your membership and receive priority access to RSK's
                   corporate programs, partner introductions, and advisory
                   resources.
@@ -151,7 +147,7 @@ export default function MembershipPage() {
                 asChild
                 size="lg"
                 rounded="full"
-                className="min-w-55 bg-white text-slate-950 hover:bg-slate-100"
+                className="min-w-55 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Link href="/contact">Apply now</Link>
               </Button>

@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useWebsiteStore } from "@/stores/website.store";
 
-
 export function HomeWhyJoin() {
   const shouldReduceMotion = useReducedMotion();
   const whyJoinUs = useWebsiteStore((state) => state.data?.whyJoinUs);
@@ -30,7 +29,8 @@ export function HomeWhyJoin() {
             {whyJoinUs?.title || "Why Join RSK"}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            {whyJoinUs?.description || "Join a premium corporate community designed for growth. Move faster with trusted partners, business support, and member-only opportunities for teams and leaders."}
+            {whyJoinUs?.description ||
+              "Join a premium corporate community designed for growth. Move faster with trusted partners, business support, and member-only opportunities for teams and leaders."}
           </p>
         </motion.div>
 
@@ -48,7 +48,13 @@ export function HomeWhyJoin() {
                 >
                   <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-sky-950/10 text-sky-400 transition-colors group-hover:bg-sky-400/10">
                     {point.image ? (
-                      <Image src={point.image} alt={point.title} width={28} height={28} className="rounded-full object-cover" />
+                      <Image
+                        src={point.image}
+                        alt={point.title}
+                        width={28}
+                        height={28}
+                        className="rounded-full object-cover"
+                      />
                     ) : (
                       <CheckCircle className="h-7 w-7" />
                     )}

@@ -1,4 +1,4 @@
-  @import "tailwindcss";
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -118,12 +118,33 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    min-width: 0;
+    width: 100%;
   }
 
-  * {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
+    min-width: 0;
+    width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  iframe,
+  embed,
+  object {
+    max-width: 100%;
+    height: auto;
   }
 }

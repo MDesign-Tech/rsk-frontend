@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,7 +23,7 @@ const blogLinks = [
 
 const aboutLinks = [
   { href: "/about/who", label: "Who are we" },
-  { href: "/about/partners", label: "Our partners" },
+  // { href: "/about/partners", label: "Our partners" },
   { href: "/about/team", label: "Our team" },
 ];
 
@@ -35,9 +35,10 @@ export function Navbar() {
   const [activeHref, setActiveHref] = useState("#home");
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  const isDark = (theme || resolvedTheme) === "dark";
   const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
+  const navRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -68,6 +69,33 @@ export function Navbar() {
       setActiveHref("/contact");
     }
   }, [pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setMediaMenuOpen(false);
+        setAboutMenuOpen(false);
+        setUserMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMediaMenuOpen(false);
+        setAboutMenuOpen(false);
+        setUserMenuOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   const toggleTheme = () => {
     setTheme(isDark ? "light" : "dark");
@@ -125,7 +153,9 @@ export function Navbar() {
 
   const getUserImage = () => {
     if (!user) return null;
-    return (user.member as { image?: string | null } | undefined)?.image || null;
+    return (
+      (user.member as { image?: string | null } | undefined)?.image || null
+    );
   };
 
   const getUserInitials = () => {
@@ -141,6 +171,7 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       <nav
+        ref={navRef}
         className="mx-auto max-w-6xl px-2 sm:px-4 lg:px-8 py-4"
         aria-label="Main navigation"
       >
@@ -184,7 +215,11 @@ export function Navbar() {
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setMediaMenuOpen((prev) => !prev)}
+                onClick={() => {
+                  setMediaMenuOpen((prev) => !prev);
+                  setAboutMenuOpen(false);
+                  setUserMenuOpen(false);
+                }}
                 className={`flex items-center gap-1 text-sm transition-colors ${isActiveLink("/blog") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
               >
                 Blog
@@ -222,7 +257,11 @@ export function Navbar() {
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setAboutMenuOpen((prev) => !prev)}
+                onClick={() => {
+                  setAboutMenuOpen((prev) => !prev);
+                  setMediaMenuOpen(false);
+                  setUserMenuOpen(false);
+                }}
                 className={`flex items-center gap-1 text-sm transition-colors ${isActiveLink("/about") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
               >
                 About
@@ -271,7 +310,11 @@ export function Navbar() {
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setUserMenuOpen((prev) => !prev)}
+                  onClick={() => {
+                    setUserMenuOpen((prev) => !prev);
+                    setMediaMenuOpen(false);
+                    setAboutMenuOpen(false);
+                  }}
                   className="flex items-center gap-2 rounded-full p-0.5 transition-colors hover:bg-foreground/10"
                   aria-expanded={userMenuOpen}
                   aria-haspopup="true"
@@ -299,8 +342,12 @@ export function Navbar() {
                       className="absolute right-0 top-full mt-3 w-48 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg"
                     >
                       <div className="px-3 py-2 border-b border-border/50 mb-1">
-                        <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {user.role}
+                        </p>
                       </div>
                       <Link
                         href="/admin"
@@ -516,8 +563,12 @@ export function Navbar() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {user.role}
+                        </p>
                       </div>
                     </div>
                     <Button
