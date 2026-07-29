@@ -99,7 +99,7 @@ export default function OpportunitiesPage() {
       <br />
       <br />
 
-      <SectionDivider variant="wave" />
+      {/* <SectionDivider variant="wave" /> */}
 
       {isLoading ? (
         <section className="py-16">
@@ -129,13 +129,7 @@ export default function OpportunitiesPage() {
         <>
           <section className="py-16">
             <div className="mx-auto max-w-6xl px-6 lg:px-8">
-              <div className="mb-8">
-                <h2 className="text-3xl font-semibold">All Opportunities</h2>
-                <p className="mt-2 text-muted-foreground">
-                  Carefully selected openings and programs that match our
-                  corporate audience.
-                </p>
-              </div>
+              
               <div className="grid gap-6 md:grid-cols-2">
                 {opportunities.map((item) => (
                   <motion.article

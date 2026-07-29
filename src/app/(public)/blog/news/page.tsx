@@ -28,23 +28,11 @@ const stripHtml = (html: string): string => {
 // Skeleton loader for news cards - looks like real data layout
 function NewsCardSkeleton() {
   return (
-    <div className="rounded-2xl overflow-hidden border border-border/60 bg-card shadow-sm animate-pulse">
-      <div className="relative h-40 w-full bg-muted flex items-center justify-center">
-        <div className="w-16 h-16 bg-muted-foreground/10 rounded-full" />
-      </div>
-      <div className="p-5 space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="h-5 bg-muted rounded w-20" />
-          <div className="h-4 bg-muted rounded w-16" />
-        </div>
-        <div className="h-5 bg-muted rounded w-full" />
-        <div className="h-5 bg-muted rounded w-4/5" />
-        <div className="h-3 bg-muted rounded w-full" />
-        <div className="h-3 bg-muted rounded w-5/6" />
-        <div className="flex items-center justify-between pt-2">
-          <div className="h-3 bg-muted rounded w-24" />
-          <div className="h-3 bg-muted rounded w-12" />
-        </div>
+    <div className="rounded-2xl overflow-hidden bg-card shadow-sm animate-pulse">
+      <div className="h-64 md:h-56 w-full bg-muted" />
+      <div className="p-3">
+        <div className="h-5 bg-muted rounded w-4/5 mb-2" />
+        <div className="h-4 bg-muted rounded w-2/3" />
       </div>
     </div>
   );
@@ -83,7 +71,7 @@ export default function NewsPage() {
 
   useEffect(() => {
     loadArticles();
-  }, [currentPage, tab]);
+  }, [currentPage]);
 
   // Scroll to top of content when page changes
   useEffect(() => {
@@ -121,8 +109,24 @@ export default function NewsPage() {
     return true;
   });
 
-  const currentArticles = filteredArticles;
+  const currentArticles = articles;
 
+  function getCategoryClasses(category: string | undefined) {
+    const name = (typeof category === "string" ? category : "").toLowerCase();
+    switch (name) {
+      case "technology":
+      case "tech":
+        return "bg-purple-600 text-white";
+      case "finance":
+        return "bg-blue-600 text-white";
+      case "business":
+        return "bg-green-600 text-white";
+      case "marketing":
+        return "bg-pink-600 text-white";
+      default:
+        return "bg-sky-500 text-white";
+    }
+  }
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
@@ -160,7 +164,7 @@ export default function NewsPage() {
               </defs>
             </svg>
           </h1>
-          <p className="text-base-content/80 max-w-3xl">
+          <p className="text-lg text-base-content/80 max-w-3xl">
             Latest updates & stories from RSK Associates.
           </p>
         </div>
@@ -170,8 +174,8 @@ export default function NewsPage() {
 
       <section className="pt-28 pb-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="md:col-span-2 space-y-6">
+          <div className="grid gap-8">
+            <div className="space-y-6">
               {isLoading ? (
                 <div className="grid gap-6 md:grid-cols-2">
                   {Array.from({ length: 6 }).map((_, i) => (
@@ -186,14 +190,17 @@ export default function NewsPage() {
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-6 md:grid-cols-2">
+                  <div className="grid gap-5 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {currentArticles.map((article) => (
                       <article
                         key={article._id}
-                        className="rounded-2xl overflow-hidden border border-border/60 bg-card shadow-sm hover:shadow-md transition-shadow"
+                        className="rounded-2xl overflow-hidden bg-card shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <Link href={`/blog/news/${article.slug}`}>
-                          <div className="relative h-40 w-full bg-muted">
+                        <div className="relative overflow-hidden rounded-t-2xl h-64 md:h-56">
+                          <Link
+                            href={`/blog/news/${article.slug}`}
+                            className="absolute inset-0 block h-full w-full"
+                          >
                             {article.coverImage ? (
                               <Image
                                 src={article.coverImage}
@@ -202,7 +209,7 @@ export default function NewsPage() {
                                 className="object-cover"
                               />
                             ) : (
-                              <div className="flex items-center justify-center h-full bg-muted">
+                              <div className="flex h-full w-full items-center justify-center bg-muted">
                                 <Image
                                   src={RSK_LOGO}
                                   alt="RSK Associates"
@@ -212,47 +219,64 @@ export default function NewsPage() {
                                 />
                               </div>
                             )}
+                          </Link>
+
+                          <div
+                            className={`absolute left-3 top-3 px-2 py-1 rounded-full text-xs font-semibold ${getCategoryClasses(typeof article.category === "string" ? article.category : article.category?.name)}`}
+                          >
+                            {typeof article.category === "string"
+                              ? article.category
+                              : article.category?.name}
                           </div>
-                        </Link>
-                        <div className="p-4">
-                          <div className="flex justify-between gap-4">
-                            <Link href={`/blog/news/${article.slug}`}>
-                              <h2 className="text-lg font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors">
-                                {article.title}
-                              </h2>
-                            </Link>
-                            <span className="inline-flex items-center h-max px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                              {typeof article.category === "string"
-                                ? article.category
-                                : article.category?.name}
+
+                          <div
+                            className="absolute left-0 bottom-0 w-full h-12 bg-linear-to-t from-black/50 to-transparent"
+                            aria-hidden
+                          />
+                          <div className="absolute left-3 bottom-3 inline-flex items-center gap-2 text-xs text-white">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              className="h-3 w-3"
+                              fill="none"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 8v4l2 2"
+                              />
+                              <path
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <span className="text-sm font-medium">
+                              {article.author?.name ?? ""}
                             </span>
-                          </div>
-                          <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                            <span>{article.author.name}</span>
-                            <span>•</span>
-                            <time dateTime={article.publishedAt}>
+                            <span className="text-sm opacity-80">•</span>
+                            <time className="text-sm">
                               {new Date(
                                 article.publishedAt,
                               ).toLocaleDateString()}
                             </time>
                           </div>
-                          <p className="mt-3 text-xs text-muted-foreground line-clamp-2">
-                            {article.content
-                              ? stripHtml(article.content).slice(0, 150) + "..."
-                              : ""}
-                          </p>
-                          <Link
-                            href={`/blog/news/${article.slug}`}
-                            className="mt-3 inline-block text-primary font-medium text-xs hover:underline"
-                          >
-                            View Details →
+                        </div>
+
+                        <div className="p-3">
+                          <Link href={`/blog/news/${article.slug}`}>
+                            <h2 className="text-lg font-bold text-foreground line-clamp-2 hover:text-primary transition-colors">
+                              {article.title}
+                            </h2>
                           </Link>
                         </div>
                       </article>
                     ))}
                   </div>
 
-                  {/* Pagination Controls */}
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-border/60">
                       <button
@@ -298,64 +322,6 @@ export default function NewsPage() {
                 </>
               )}
             </div>
-
-            <aside className="md:col-span-1">
-              <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
-                <h3 className="text-lg font-semibold">Articles</h3>
-                <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={() => {
-                      setTab("week");
-                      setCurrentPage(1);
-                    }}
-                    className={`rounded-full px-3 py-1 text-sm ${tab === "week" ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
-                  >
-                    This week
-                  </button>
-                  <button
-                    onClick={() => {
-                      setTab("month");
-                      setCurrentPage(1);
-                    }}
-                    className={`rounded-full px-3 py-1 text-sm ${tab === "month" ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
-                  >
-                    This month
-                  </button>
-                  <button
-                    onClick={() => {
-                      setTab("all");
-                      setCurrentPage(1);
-                    }}
-                    className={`rounded-full px-3 py-1 text-sm ${tab === "all" ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
-                  >
-                    All the time
-                  </button>
-                </div>
-
-                <ul className="mt-4 space-y-3">
-                  {isLoading
-                    ? [1, 2, 3, 4, 5].map((i) => (
-                        <li
-                          key={i}
-                          className="h-4 bg-muted rounded animate-pulse"
-                        />
-                      ))
-                    : filteredArticles.slice(0, 10).map((article) => (
-                        <li
-                          key={article._id}
-                          className="text-sm text-foreground/90 hover:text-primary transition-colors"
-                        >
-                          <Link
-                            href={`/blog/news/${article.slug}`}
-                            className="line-clamp-2"
-                          >
-                            {article.title}
-                          </Link>
-                        </li>
-                      ))}
-                </ul>
-              </div>
-            </aside>
           </div>
         </div>
       </section>
