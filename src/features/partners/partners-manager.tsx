@@ -35,14 +35,13 @@ import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-up
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
 
 export function PartnersManager() {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -122,7 +121,7 @@ export function PartnersManager() {
         setIsDeletingImage(true);
         setDeleteImageProgress(0);
         try {
-          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          await deleteImage(removedPublicId);
           imageUrl = null;
           imagePublicId = null;
         } catch (err) {
@@ -351,16 +350,10 @@ export function PartnersManager() {
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
+                  isRemoving={isDeletingImage}
+                  removeProgress={deleteImageProgress}
                   label="Partner logo"
                 />
-                {isDeletingImage && (
-                  <div className="w-full">
-                    <Progress value={deleteImageProgress} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Deleting image {deleteImageProgress}%
-                    </p>
-                  </div>
-                )}
                 <p className="text-sm text-muted-foreground">
                   Select a new image and save to update the logo.
                 </p>

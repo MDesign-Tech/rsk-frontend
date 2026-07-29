@@ -116,6 +116,24 @@ export async function deleteFromCloudinary(
   }
 }
 
+/**
+ * Deletes an image from Cloudinary via the backend API route.
+ * This should be used from client-side code, as it delegates to the
+ * server-side /api/cloudinary/delete endpoint which has access to
+ * CLOUDINARY_API_SECRET for authenticated deletion.
+ */
+export async function deleteImage(publicId: string): Promise<void> {
+  if (!publicId) {
+    throw new Error("publicId is required");
+  }
+
+  const response = await axios.post("/api/cloudinary/delete", { publicId });
+
+  if (response.status !== 200) {
+    throw new Error("Failed to delete image from Cloudinary");
+  }
+}
+
 function generateSignature(params: Record<string, string | number>): string {
   if (!CLOUDINARY_API_SECRET) {
     throw new Error("CLOUDINARY_API_SECRET is not configured");

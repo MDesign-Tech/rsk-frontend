@@ -38,9 +38,8 @@ import {
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
 
 interface NewsFormDialogProps {
   open: boolean;
@@ -172,7 +171,7 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
         setIsDeletingImage(true);
         setDeleteImageProgress(0);
         try {
-          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          await deleteImage(removedPublicId);
           coverImageUrl = null;
           coverImagePublicId = null;
         } catch (err) {
@@ -305,16 +304,10 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
+                  isRemoving={isDeletingImage}
+                  removeProgress={deleteImageProgress}
                   label="Article cover image"
                 />
-                {isDeletingImage && (
-                  <div className="w-full">
-                    <Progress value={deleteImageProgress} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Deleting image {deleteImageProgress}%
-                    </p>
-                  </div>
-                )}
               </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField

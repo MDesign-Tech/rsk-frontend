@@ -12,7 +12,7 @@ import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -23,7 +23,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 
 type Point = {
@@ -134,7 +133,7 @@ export function WhyBecomeMemberForm() {
         setIsDeletingImage(true);
         setDeleteImageProgress(0);
         try {
-          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          await deleteImage(removedPublicId);
           imageUrl = null;
           imagePublicId = null;
         } catch (err) {
@@ -373,31 +372,25 @@ export function WhyBecomeMemberForm() {
           <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Image</label>
-              <ImageUpload
-                ref={imageUploadRef}
-                value={
-                  editingPoint?.image && editingPoint?.imagePublicId && !imageRemoved
-                    ? { url: editingPoint.image, publicId: editingPoint.imagePublicId }
-                    : imageData
-                }
-                onChange={setImageData}
-                onRemoved={(publicId) => {
-                  setImageRemoved(true);
-                  setRemovedPublicId(publicId);
-                }}
-                disabled={isBusy}
-                onUploadingChange={setIsUploading}
-                onProgress={setUploadProgress}
-                label="Benefit image"
-              />
-              {isDeletingImage && (
-                <div className="w-full">
-                  <Progress value={deleteImageProgress} className="h-2" />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Deleting image {deleteImageProgress}%
-                  </p>
-                </div>
-              )}
+                <ImageUpload
+                  ref={imageUploadRef}
+                  value={
+                    editingPoint?.image && editingPoint?.imagePublicId && !imageRemoved
+                      ? { url: editingPoint.image, publicId: editingPoint.imagePublicId }
+                      : imageData
+                  }
+                  onChange={setImageData}
+                  onRemoved={(publicId) => {
+                    setImageRemoved(true);
+                    setRemovedPublicId(publicId);
+                  }}
+                  disabled={isBusy}
+                  onUploadingChange={setIsUploading}
+                  onProgress={setUploadProgress}
+                  isRemoving={isDeletingImage}
+                  removeProgress={deleteImageProgress}
+                  label="Benefit image"
+                />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Title</label>

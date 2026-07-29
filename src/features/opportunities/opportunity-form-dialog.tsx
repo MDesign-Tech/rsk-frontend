@@ -34,9 +34,8 @@ import {
 } from "@/components/ui/select";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
 
 interface OpportunityFormDialogProps {
   open: boolean;
@@ -128,7 +127,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
         setIsDeletingImage(true);
         setDeleteImageProgress(0);
         try {
-          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          await deleteImage(removedPublicId);
           imageUrl = null;
           imagePublicId = null;
         } catch (err) {
@@ -309,16 +308,10 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
+                  isRemoving={isDeletingImage}
+                  removeProgress={deleteImageProgress}
                   label="Opportunity image"
                 />
-                {isDeletingImage && (
-                  <div className="w-full">
-                    <Progress value={deleteImageProgress} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Deleting image {deleteImageProgress}%
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
             <DialogFooter>

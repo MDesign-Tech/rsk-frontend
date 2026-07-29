@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
 import { saveResource } from "@/lib/image-save";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import type { ApiResponse, CloudinaryImage, HeroServiceItem } from "@/types";
 import {
   Form,
@@ -30,7 +30,6 @@ import { SubmitButton } from "@/components/admin/submit-button";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
 import { useAuthStore } from "@/stores/auth.store";
 import type { HeroContent } from "@/types";
 
@@ -118,7 +117,7 @@ export function HeroForm() {
         setIsDeletingImage(true);
         setDeleteImageProgress(0);
         try {
-          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          await deleteImage(removedPublicId);
           imageUrl = null;
           imagePublicId = null;
         } catch (err) {
@@ -278,15 +277,9 @@ export function HeroForm() {
               disabled={isSaving}
               onUploadingChange={setIsUploading}
               onProgress={setUploadProgress}
+              isRemoving={isDeletingImage}
+              removeProgress={deleteImageProgress}
             />
-            {isDeletingImage && (
-              <div className="w-full">
-                <Progress value={deleteImageProgress} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Deleting image {deleteImageProgress}%
-                </p>
-              </div>
-            )}
             <p className="text-sm text-muted-foreground">
               Select a new image and save to update the background.
             </p>

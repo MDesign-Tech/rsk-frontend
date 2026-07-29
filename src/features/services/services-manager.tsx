@@ -39,14 +39,13 @@ import {
 } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
 import { useAuthStore } from "@/stores/auth.store";
 
 export function ServicesManager() {
@@ -132,7 +131,7 @@ export function ServicesManager() {
         setIsDeletingImage(true);
         setDeleteImageProgress(0);
         try {
-          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          await deleteImage(removedPublicId);
           imageUrl = null;
           imagePublicId = null;
         } catch (err) {
@@ -402,16 +401,10 @@ export function ServicesManager() {
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
+                  isRemoving={isDeletingImage}
+                  removeProgress={deleteImageProgress}
                   label="Service icon"
                 />
-                {isDeletingImage && (
-                  <div className="w-full">
-                    <Progress value={deleteImageProgress} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Deleting image {deleteImageProgress}%
-                    </p>
-                  </div>
-                )}
                 <p className="text-sm text-muted-foreground">
                   Upload an icon for this service. A default icon will be shown
                   if none is provided.

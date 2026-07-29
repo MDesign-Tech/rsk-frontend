@@ -28,6 +28,12 @@ interface ImageUploadProps {
   onUploadingChange?: (isUploading: boolean) => void;
   // Called with upload progress percentage (0-100).
   onProgress?: (progress: number) => void;
+  // Whether the image is currently being removed (deleted from Cloudinary).
+  isRemoving?: boolean;
+  // Removal progress percentage (0-100).
+  removeProgress?: number;
+  // Called with removal progress percentage (0-100).
+  onRemoveProgress?: (progress: number) => void;
   label?: string;
   className?: string;
 }
@@ -41,6 +47,9 @@ export const ImageUpload = forwardRef<ImageUploadHandle, ImageUploadProps>(
       disabled,
       onUploadingChange,
       onProgress,
+      isRemoving,
+      removeProgress,
+      onRemoveProgress,
       label = "Image",
       className,
     },
@@ -181,6 +190,14 @@ export const ImageUpload = forwardRef<ImageUploadHandle, ImageUploadProps>(
                 <Progress value={uploadProgress} className="h-2" />
                 <p className="text-xs text-muted-foreground mt-1">
                   Uploading {uploadProgress}%
+                </p>
+              </div>
+            )}
+            {isRemoving && (
+              <div className="w-full">
+                <Progress value={removeProgress} className="h-2" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Removing {removeProgress}%
                 </p>
               </div>
             )}

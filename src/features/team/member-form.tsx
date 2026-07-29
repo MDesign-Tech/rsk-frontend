@@ -17,9 +17,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
 import { SocialMediaField } from "./social-media-field";
 
 export function MemberFormDialog({
@@ -108,12 +107,11 @@ export function MemberFormDialog({
         setIsDeletingImage(true);
         setDeleteImageProgress(0);
         try {
-          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          await deleteImage(removedPublicId);
           imageUrl = null;
           imagePublicId = null;
         } catch (err) {
           toast.error(err instanceof Error ? err.message : "Failed to delete image");
-          setIsSaving(false);
           setIsDeletingImage(false);
           return;
         } finally {
@@ -193,31 +191,25 @@ export function MemberFormDialog({
             <SocialMediaField control={form.control} />
             <div className="space-y-2">
               <label className="text-sm font-medium">Photo</label>
-              <ImageUpload
-                ref={imageUploadRef}
-                value={
-                  editing?.image && editing?.imagePublicId && !imageRemoved
-                    ? { url: editing.image, publicId: editing.imagePublicId }
-                    : imageData
-                }
-                onChange={setImageData}
-                onRemoved={(publicId) => {
-                  setImageRemoved(true);
-                  setRemovedPublicId(publicId);
-                }}
-                disabled={isBusy}
-                onUploadingChange={setIsUploading}
-                onProgress={setUploadProgress}
-                label="Team member photo"
-              />
-              {isDeletingImage && (
-                <div className="w-full">
-                  <Progress value={deleteImageProgress} className="h-2" />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Deleting image {deleteImageProgress}%
-                  </p>
-                </div>
-              )}
+                <ImageUpload
+                  ref={imageUploadRef}
+                  value={
+                    editing?.image && editing?.imagePublicId && !imageRemoved
+                      ? { url: editing.image, publicId: editing.imagePublicId }
+                      : imageData
+                  }
+                  onChange={setImageData}
+                  onRemoved={(publicId) => {
+                    setImageRemoved(true);
+                    setRemovedPublicId(publicId);
+                  }}
+                  disabled={isBusy}
+                  onUploadingChange={setIsUploading}
+                  onProgress={setUploadProgress}
+                  isRemoving={isDeletingImage}
+                  removeProgress={deleteImageProgress}
+                  label="Team member photo"
+                />
               <p className="text-sm text-muted-foreground">Select a new image and save to update the photo.</p>
             </div>
             <DialogFooter>

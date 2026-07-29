@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Eye, Pencil, Trash2, Plus, GripVertical } from "lucide-react";
 import { newsService, type NewsArticle } from "@/services/news.service";
 import { categoryService, type Category } from "@/services/category.service";
-import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 import { IconButton } from "@/components/admin/icon-button";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { SearchInput } from "@/components/admin/search-input";
@@ -112,7 +112,7 @@ export function NewsManager() {
         // Delete cover image from Cloudinary
         if (article.coverImagePublicId) {
           try {
-            await deleteFromCloudinary(article.coverImagePublicId);
+            await deleteImage(article.coverImagePublicId);
           } catch {
             console.error("Failed to delete cover image from Cloudinary");
           }
@@ -121,7 +121,7 @@ export function NewsManager() {
         if (article.editorImages && article.editorImages.length > 0) {
           await Promise.allSettled(
             article.editorImages.map((img) =>
-              deleteFromCloudinary(img.publicId).catch((err) => {
+              deleteImage(img.publicId).catch((err) => {
                 console.error("Failed to delete editor image from Cloudinary:", err);
               })
             )
