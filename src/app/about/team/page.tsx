@@ -79,7 +79,7 @@ function SectionHeaderSkeleton() {
 // Skeleton for team member card - matches the actual card layout
 function TeamMemberCardSkeleton() {
   return (
-    <div className="rounded-3xl bg-card/80 p-5 animate-pulse">
+    <div className="rounded-3xl bg-card/80 p-5 animate-pulse flex-[0_1_300px]">
       <div className="relative aspect-4/5 w-full overflow-hidden rounded-3xl bg-muted" />
       <div className="mt-4 h-5 bg-muted rounded w-3/4" />
       <div className="mt-2 h-4 bg-muted rounded w-1/2" />
@@ -180,7 +180,7 @@ export default function TeamPage() {
           {loading ? (
             <>
               <SectionHeaderSkeleton />
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-wrap justify-center gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <TeamMemberCardSkeleton key={i} />
                 ))}
@@ -212,7 +212,7 @@ export default function TeamPage() {
                       </p>
                     ) : null}
                   </div>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ">
+                  <div className="flex flex-wrap justify-center gap-6">
                     {grp.members.map((m) => (
                       <motion.div
                         key={m._id}
@@ -222,7 +222,7 @@ export default function TeamPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.55 }}
-                        className="rounded-3xl  bg-card/80 p-5"
+                        className="rounded-3xl bg-card/80 p-5 flex-[0_1_300px]"
                       >
                         <div className="relative aspect-4/5 w-full overflow-hidden rounded-3xl bg-muted">
                           {m.image ? (
