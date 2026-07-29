@@ -39,12 +39,14 @@ import {
 } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 import { useAuthStore } from "@/stores/auth.store";
 
 export function ServicesManager() {
@@ -62,6 +64,10 @@ export function ServicesManager() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -97,6 +103,8 @@ export function ServicesManager() {
   const openCreate = () => {
     setEditing(null);
     setImageData(null);
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     form.reset({ title: "", description: "" });
     setDialogOpen(true);
   };
@@ -104,6 +112,8 @@ export function ServicesManager() {
   const openEdit = (service: Service) => {
     setEditing(service);
     setImageData(null);
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     form.reset({ title: service.title, description: service.description });
     setDialogOpen(true);
   };
@@ -115,11 +125,31 @@ export function ServicesManager() {
       // Upload any pending image first
       const uploadedImage = await imageUploadRef.current?.upload();
 
+      let imageUrl = uploadedImage?.url ?? null;
+      let imagePublicId = uploadedImage?.publicId ?? null;
+
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          imageUrl = null;
+          imagePublicId = null;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+        }
+      }
+
       const data = {
         title: values.title,
         description: values.description,
-        image: uploadedImage?.url ?? null,
-        imagePublicId: uploadedImage?.publicId ?? null,
+        image: imageUrl,
+        imagePublicId: imagePublicId,
       };
 
       const result = await saveResource<
@@ -143,6 +173,8 @@ export function ServicesManager() {
         );
         if (!editing) setServices((prev) => [result, ...prev]);
         setImageData(null);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
         setDialogOpen(false);
         toast.success(
           editing
@@ -331,7 +363,7 @@ export function ServicesManager() {
       <Dialog
         open={dialogOpen}
         onOpenChange={(isOpen) => {
-          if (!isOpen && imageData && !isBusy) {
+          if (!isOpen && (imageData || imageRemoved) && !isBusy) {
             toast.error(
               "Please save the data or remove the image before closing.",
             );
@@ -358,16 +390,28 @@ export function ServicesManager() {
                 <ImageUpload
                   ref={imageUploadRef}
                   value={
-                    editing?.image && editing?.imagePublicId
+                    editing?.image && editing?.imagePublicId && !imageRemoved
                       ? { url: editing.image, publicId: editing.imagePublicId }
-                      : null
+                      : imageData
                   }
                   onChange={setImageData}
+                  onRemoved={(publicId) => {
+                    setImageRemoved(true);
+                    setRemovedPublicId(publicId);
+                  }}
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
                   label="Service icon"
                 />
+                {isDeletingImage && (
+                  <div className="w-full">
+                    <Progress value={deleteImageProgress} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Deleting image {deleteImageProgress}%
+                    </p>
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground">
                   Upload an icon for this service. A default icon will be shown
                   if none is provided.

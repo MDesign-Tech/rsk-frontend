@@ -17,7 +17,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 import { SocialMediaField } from "./social-media-field";
 
 export function MemberFormDialog({
@@ -39,6 +41,10 @@ export function MemberFormDialog({
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
   const form = useForm<TeamMemberInput>({
     resolver: zodResolver(teamMemberSchema),
@@ -75,6 +81,8 @@ export function MemberFormDialog({
           youtube: toSocialInput(sm.youtube),
         },
       });
+      setImageRemoved(false);
+      setRemovedPublicId(null);
     } else {
       form.reset({
         name: "",
@@ -83,6 +91,8 @@ export function MemberFormDialog({
         section: "",
         socialMedia: {},
       });
+      setImageRemoved(false);
+      setRemovedPublicId(null);
     }
   }, [editing, form]);
 
@@ -91,14 +101,34 @@ export function MemberFormDialog({
       // Upload any pending image first
       const uploadedImage = await imageUploadRef.current?.upload();
 
+      let imageUrl = uploadedImage?.url ?? null;
+      let imagePublicId = uploadedImage?.publicId ?? null;
+
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          imageUrl = null;
+          imagePublicId = null;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+        }
+      }
+
       const data = {
         name: values.name,
         title: values.title,
         bio: values.bio,
         section: values.section,
         socialMedia: values.socialMedia ?? {},
-        image: uploadedImage?.url ?? null,
-        imagePublicId: uploadedImage?.publicId ?? null,
+        image: imageUrl,
+        imagePublicId: imagePublicId,
       };
 
       const result = await saveResource<ApiResponse<{ teamMember: TeamMember }>, TeamMember>({
@@ -112,6 +142,8 @@ export function MemberFormDialog({
       if (result) {
         onSaved(result);
         setImageData(null);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
         onOpenChange(false);
         toast.success(editing ? "Team member updated successfully" : "Team member created successfully");
       }
@@ -121,7 +153,7 @@ export function MemberFormDialog({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen && imageData && !isBusy) {
+    if (!isOpen && (imageData || imageRemoved) && !isBusy) {
       toast.error("Please save the data or remove the image before closing.");
       return;
     }
@@ -164,16 +196,28 @@ export function MemberFormDialog({
               <ImageUpload
                 ref={imageUploadRef}
                 value={
-                  editing?.image && editing?.imagePublicId
+                  editing?.image && editing?.imagePublicId && !imageRemoved
                     ? { url: editing.image, publicId: editing.imagePublicId }
-                    : null
+                    : imageData
                 }
                 onChange={setImageData}
+                onRemoved={(publicId) => {
+                  setImageRemoved(true);
+                  setRemovedPublicId(publicId);
+                }}
                 disabled={isBusy}
                 onUploadingChange={setIsUploading}
                 onProgress={setUploadProgress}
                 label="Team member photo"
               />
+              {isDeletingImage && (
+                <div className="w-full">
+                  <Progress value={deleteImageProgress} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Deleting image {deleteImageProgress}%
+                  </p>
+                </div>
+              )}
               <p className="text-sm text-muted-foreground">Select a new image and save to update the photo.</p>
             </div>
             <DialogFooter>

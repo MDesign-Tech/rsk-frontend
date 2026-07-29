@@ -52,7 +52,10 @@ export async function uploadToCloudinary(
   }
 }
 
-export async function deleteFromCloudinary(publicId: string): Promise<void> {
+export async function deleteFromCloudinary(
+  publicId: string,
+  onProgress?: (progress: number) => void
+): Promise<void> {
   if (!CLOUDINARY_CLOUD_NAME) {
     throw new Error("CLOUDINARY_CLOUD_NAME is not configured in environment variables");
   }
@@ -64,6 +67,8 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
   const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/destroy`;
 
   try {
+    onProgress?.(10);
+
     // If API secret is available, use authenticated deletion (more reliable)
     if (CLOUDINARY_API_SECRET) {
       const timestamp = Math.round(Date.now() / 1000);
@@ -102,6 +107,8 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
         }
       );
     }
+
+    onProgress?.(100);
   } catch (networkError) {
     console.error("[Cloudinary] Delete error:", networkError);
     const message = networkError instanceof Error ? networkError.message : "Unknown error";

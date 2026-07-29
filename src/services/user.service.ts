@@ -30,4 +30,7 @@ export const userService = {
 
   remove: (id: string) =>
     api.delete<ApiResponse<Record<string, never>>>(`/users/${id}`).then((res) => res.data),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    api.post<ApiResponse<Record<string, never>>>("/auth/change-password", data).then((res) => res.data),
 };

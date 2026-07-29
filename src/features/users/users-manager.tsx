@@ -54,7 +54,7 @@ export function UsersManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
@@ -99,10 +99,15 @@ export function UsersManager() {
   };
 
   // Sync password field with email when email changes (for create mode)
+  // Also pre-fill name with email prefix if name is empty
   const handleEmailChange = (value: string) => {
     form.setValue("email", value);
     if (!editing) {
       form.setValue("password", value);
+      const currentName = form.getValues("name");
+      if (!currentName) {
+        form.setValue("name", value.split("@")[0]);
+      }
     }
   };
 
@@ -326,11 +331,11 @@ export function UsersManager() {
                   name="memberId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Team Member Profile</FormLabel>
+                      <FormLabel>Link team Member Profile</FormLabel>
                       <Select
                         onValueChange={(value) => {
                           field.onChange(value);
-                          // Auto-fill name from selected member
+                          // Auto-fill name from selected member, hide name field when member selected
                           if (value && value !== "__none__") {
                             const member = availableMembers.find(m => m._id === value);
                             if (member) {
@@ -369,7 +374,7 @@ export function UsersManager() {
                   name="memberId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Team Member Profile</FormLabel>
+                      <FormLabel>Link team Member Profile</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value ?? "__none__"}
@@ -389,6 +394,23 @@ export function UsersManager() {
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* Show name field only when no member is selected (create mode) */}
+              {!editing && form.watch("memberId") === "__none__" && (
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled={isSaving} placeholder="Enter full name" />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -24,7 +24,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Services", href: "/admin/services", icon: "Briefcase" },
   { title: "About Us", href: "/admin/about", icon: "Info" },
   { title: "Mission & Vision", href: "/admin/mission-vision", icon: "Target" },
-  { title: "Partners", href: "/admin/partners", icon: "Handshake" },
+  // { title: "Partners", href: "/admin/partners", icon: "Handshake" },
   { title: "FAQs", href: "/admin/faqs", icon: "HelpCircle" },
   { title: "Team Members", href: "/admin/team", icon: "Users" },
   { title: "Contact Messages", href: "/admin/contact", icon: "Mail" },
@@ -40,5 +40,4 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { title: "Users", href: "/admin/users", icon: "UserCog" },
-  { title: "Profile", href: "/admin/profile", icon: "User" },
 ];

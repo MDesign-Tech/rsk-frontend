@@ -2,9 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Menu, LogOut, ExternalLink } from "lucide-react";
+import { Menu, LogOut, User, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSidebarStore } from "@/stores/sidebar.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { toast } from "sonner";
@@ -25,6 +33,9 @@ export function Navbar() {
     }
   };
 
+  const memberInfo = user?.member && typeof user.member === "object" ? (user.member as TeamMember) : null;
+  const avatarSrc = memberInfo?.image || null;
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur md:px-6">
       <Button
@@ -38,15 +49,43 @@ export function Navbar() {
       </Button>
       <div className="flex-1" />
       <div className="flex items-center gap-3">
-        <div className="hidden text-right sm:block">
-          <p className="text-sm font-medium leading-none">{user?.name}</p>
-          <p className="text-xs text-muted-foreground">{user?.email}</p>
-          {user?.member && typeof user.member === 'object' && 'department' in user.member && (
-            <p className="text-xs text-muted-foreground">
-              {(user.member as TeamMember).department} {(user.member as TeamMember).position ? `• ${(user.member as TeamMember).position}` : ''}
-            </p>
-          )}
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-10 w-10">
+                {avatarSrc ? (
+                  <AvatarImage src={avatarSrc} alt={user?.name || "User"} />
+                ) : (
+                  <AvatarFallback>
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <div className="flex items-center gap-2 p-2">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium">{user?.name}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
+                {memberInfo && (
+                  <p className="text-xs text-muted-foreground">
+                    {memberInfo.department} {memberInfo.position ? `• ${memberInfo.position}` : ""}
+                  </p>
+                )}
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
+              Go to Profile
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Badge variant="secondary" className="capitalize">
           {user?.role}
         </Badge>
@@ -55,10 +94,6 @@ export function Navbar() {
             <ExternalLink className="h-4 w-4" />
             Go to client
           </Link>
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleLogout}>
-          <LogOut />
-          Logout
         </Button>
       </div>
     </header>

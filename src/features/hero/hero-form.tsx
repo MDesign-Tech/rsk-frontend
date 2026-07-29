@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
 import { saveResource } from "@/lib/image-save";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import type { ApiResponse, CloudinaryImage, HeroServiceItem } from "@/types";
 import {
   Form,
@@ -29,6 +30,7 @@ import { SubmitButton } from "@/components/admin/submit-button";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 import { useAuthStore } from "@/stores/auth.store";
 import type { HeroContent } from "@/types";
 
@@ -44,6 +46,10 @@ export function HeroForm() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
 
   const form = useForm<HeroInput>({
@@ -62,6 +68,8 @@ export function HeroForm() {
         const res = await heroService.get();
         const h = res.data.hero;
         setHero(h);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
         form.reset({
           title: h.title,
           services: h.services || [],
@@ -103,11 +111,31 @@ export function HeroForm() {
       // Upload any pending image first
       const uploadedImage = await imageUploadRef.current?.upload();
 
+      let imageUrl = uploadedImage?.url ?? null;
+      let imagePublicId = uploadedImage?.publicId ?? null;
+
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          imageUrl = null;
+          imagePublicId = null;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+        }
+      }
+
       const data = {
         title: values.title,
         services: values.services,
-        image: uploadedImage?.url ?? null,
-        imagePublicId: uploadedImage?.publicId ?? null,
+        image: imageUrl,
+        imagePublicId: imagePublicId,
       };
 
       const result = await saveResource<
@@ -124,6 +152,8 @@ export function HeroForm() {
       if (result) {
         setHero(result);
         setImageData(null);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
         toast.success("Hero updated successfully");
       }
     } catch (err) {
@@ -236,15 +266,27 @@ export function HeroForm() {
             <ImageUpload
               ref={imageUploadRef}
               value={
-                hero?.image && hero?.imagePublicId
+                hero?.image && hero?.imagePublicId && !imageRemoved
                   ? { url: hero.image, publicId: hero.imagePublicId }
-                  : null
+                  : imageData
               }
               onChange={setImageData}
+              onRemoved={(publicId) => {
+                setImageRemoved(true);
+                setRemovedPublicId(publicId);
+              }}
               disabled={isSaving}
               onUploadingChange={setIsUploading}
               onProgress={setUploadProgress}
             />
+            {isDeletingImage && (
+              <div className="w-full">
+                <Progress value={deleteImageProgress} className="h-2" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Deleting image {deleteImageProgress}%
+                </p>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground">
               Select a new image and save to update the background.
             </p>

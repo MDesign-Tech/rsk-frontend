@@ -1,6 +1,5 @@
 import { PageHeader } from "@/components/admin/page-header";
 import { ProfileForm } from "@/features/profile/profile-form";
-import { PermissionGuard } from "@/components/admin/permission-guard";
 
 export default function ProfilePage() {
   return (
@@ -9,9 +8,7 @@ export default function ProfilePage() {
         title="Profile"
         description="Manage your personal account settings."
       />
-      <PermissionGuard moduleName="Profile" action="read">
-        <ProfileForm />
-      </PermissionGuard>
+      <ProfileForm />
     </div>
   );
 }

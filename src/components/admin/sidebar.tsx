@@ -54,7 +54,7 @@ const NAV_ITEM_MODULE_MAP: Record<string, string> = {
   "Services": "Service",
   "About Us": "About Us",
   "Mission & Vision": "Mission & Vision",
-  "Partners": "Partner",
+  // "Partners": "Partner",
   "FAQs": "FAQ",
   "Team Members": "Team Member",
   "Contact Messages": "Contact",

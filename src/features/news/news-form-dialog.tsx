@@ -38,7 +38,9 @@ import {
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 interface NewsFormDialogProps {
   open: boolean;
@@ -53,6 +55,10 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
   const [authors, setAuthors] = useState<TeamMember[]>([] as TeamMember[]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingAuthors, setLoadingAuthors] = useState(false);
@@ -100,6 +106,8 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
          });
          setUseRskAssociates(isRskAuthor);
         setEditorImages(article.editorImages || []);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
         setImageData(
           article.coverImage
             ? { url: article.coverImage, publicId: article.coverImagePublicId || "" }
@@ -118,6 +126,8 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
          setUseRskAssociates(true);
         setEditorImages([]);
         setImageData(null);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
       }
       loadAuthors();
       loadCategories();
@@ -155,11 +165,31 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
     try {
       const uploadedImage = await imageUploadRef.current?.upload();
 
+      let coverImageUrl = uploadedImage?.url ?? imageData?.url ?? null;
+      let coverImagePublicId = uploadedImage?.publicId ?? imageData?.publicId ?? null;
+
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          coverImageUrl = null;
+          coverImagePublicId = null;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+        }
+      }
+
        const data: CreateNewsInput = {
          title: values.title,
          content: values.content,
-         coverImage: uploadedImage?.url ?? imageData?.url ?? null,
-         coverImagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
+         coverImage: coverImageUrl,
+         coverImagePublicId: coverImagePublicId,
          category: values.category,
          authorId: useRskAssociates ? null : (values.authorId ?? null),
          isRsk: useRskAssociates,
@@ -175,6 +205,8 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
         toast.success("Article created successfully");
       }
       setImageData(null);
+      setImageRemoved(false);
+      setRemovedPublicId(null);
       setEditorImages([]);
       onOpenChange(false);
       onSuccess();
@@ -206,13 +238,13 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen && imageData && !isBusy) {
-        toast.error("Please save the data or remove the image before closing.");
-        return;
-      }
-      onOpenChange(isOpen);
-    }}>
+   <Dialog open={open} onOpenChange={(isOpen) => {
+     if (!isOpen && (imageData || imageRemoved) && !isBusy) {
+       toast.error("Please save the data or remove the image before closing.");
+       return;
+     }
+     onOpenChange(isOpen);
+   }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{article ? "Edit Article" : "Create Article"}</DialogTitle>
@@ -261,16 +293,28 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
                 <ImageUpload
                   ref={imageUploadRef}
                   value={
-                    imageData
+                    imageData && !imageRemoved
                       ? { url: imageData.url, publicId: imageData.publicId }
                       : null
                   }
                   onChange={setImageData}
+                  onRemoved={(publicId) => {
+                    setImageRemoved(true);
+                    setRemovedPublicId(publicId);
+                  }}
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
                   label="Article cover image"
                 />
+                {isDeletingImage && (
+                  <div className="w-full">
+                    <Progress value={deleteImageProgress} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Deleting image {deleteImageProgress}%
+                    </p>
+                  </div>
+                )}
               </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField

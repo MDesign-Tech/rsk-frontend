@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -22,13 +23,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 
 type Point = {
   _id?: string;
   title: string;
   description: string;
-  image: string | null;
+  image: string | null;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
   imagePublicId: string | null;
   visible: boolean;
 };
@@ -45,6 +47,10 @@ export function WhyBecomeMemberForm() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [imageData, setImageData] = useState<{ url: string; publicId: string } | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
   const [sectionTitle, setSectionTitle] = useState("");
   const [sectionDescription, setSectionDescription] = useState("");
   const [sectionVisible, setSectionVisible] = useState(true);
@@ -53,7 +59,7 @@ export function WhyBecomeMemberForm() {
   const [pointErrors, setPointErrors] = useState<{ title?: string; description?: string }>({});
 
   const imageUploadRef = useRef<ImageUploadHandle>(null);
-  const isBusy = isSaving || isUploading;
+  const isBusy = isSaving || isUploading || isDeletingImage;
 
   const load = async () => {
     setIsLoading(true);
@@ -84,6 +90,8 @@ export function WhyBecomeMemberForm() {
   const openCreate = () => {
     setEditingPoint(null);
     setImageData(null);
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     setPointTitle("");
     setPointDescription("");
     setPointErrors({});
@@ -92,6 +100,8 @@ export function WhyBecomeMemberForm() {
 
   const openEdit = (point: Point) => {
     setEditingPoint(point);
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     setImageData(
       point.image && point.imagePublicId
         ? { url: point.image, publicId: point.imagePublicId }
@@ -116,11 +126,32 @@ export function WhyBecomeMemberForm() {
     setIsSaving(true);
     try {
       const uploadedImage = await imageUploadRef.current?.upload();
+
+      let imageUrl = uploadedImage?.url ?? imageData?.url ?? null;
+      let imagePublicId = uploadedImage?.publicId ?? imageData?.publicId ?? null;
+
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          imageUrl = null;
+          imagePublicId = null;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+        }
+      }
+
       const data = {
         title: pointTitle,
         description: pointDescription,
-        image: uploadedImage?.url ?? imageData?.url ?? null,
-        imagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
+        image: imageUrl,
+        imagePublicId: imagePublicId,
       };
 
       if (editingPoint) {
@@ -145,6 +176,8 @@ export function WhyBecomeMemberForm() {
         toast.success("Benefit created");
       }
       setImageData(null);
+      setImageRemoved(false);
+      setRemovedPublicId(null);
       setDialogOpen(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save benefit");
@@ -343,16 +376,28 @@ export function WhyBecomeMemberForm() {
               <ImageUpload
                 ref={imageUploadRef}
                 value={
-                  editingPoint?.image && editingPoint?.imagePublicId
+                  editingPoint?.image && editingPoint?.imagePublicId && !imageRemoved
                     ? { url: editingPoint.image, publicId: editingPoint.imagePublicId }
                     : imageData
                 }
                 onChange={setImageData}
+                onRemoved={(publicId) => {
+                  setImageRemoved(true);
+                  setRemovedPublicId(publicId);
+                }}
                 disabled={isBusy}
                 onUploadingChange={setIsUploading}
                 onProgress={setUploadProgress}
                 label="Benefit image"
               />
+              {isDeletingImage && (
+                <div className="w-full">
+                  <Progress value={deleteImageProgress} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Deleting image {deleteImageProgress}%
+                  </p>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Title</label>

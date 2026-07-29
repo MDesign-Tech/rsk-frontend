@@ -34,7 +34,9 @@ import {
 } from "@/components/ui/select";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 interface OpportunityFormDialogProps {
   open: boolean;
@@ -50,6 +52,10 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageData, setImageData] = useState<{ url: string; publicId: string } | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
 
   const imageUploadRef = useRef<ImageUploadHandle>(null);
   const isBusy = isSaving || isUploading;
@@ -83,6 +89,8 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
           image: opportunity.image || null,
           status: opportunity.status,
         });
+        setImageRemoved(false);
+        setRemovedPublicId(null);
         setImageData(
           opportunity.image
             ? { url: opportunity.image, publicId: opportunity.imagePublicId || "" }
@@ -102,6 +110,8 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
           status: "Open",
         });
         setImageData(null);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
       }
     }
   }, [open, opportunity, types, defaultTypeId, form]);
@@ -110,10 +120,31 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
     setIsSaving(true);
     try {
       const uploadedImage = await imageUploadRef.current?.upload();
+
+      let imageUrl = uploadedImage?.url ?? imageData?.url ?? null;
+      let imagePublicId = uploadedImage?.publicId ?? imageData?.publicId ?? null;
+
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          imageUrl = null;
+          imagePublicId = null;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+        }
+      }
+
       const data = {
         ...values,
-        image: uploadedImage?.url ?? imageData?.url ?? null,
-        imagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
+        image: imageUrl,
+        imagePublicId: imagePublicId,
       };
 
       if (opportunity) {
@@ -124,6 +155,8 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
         toast.success("Opportunity created successfully");
       }
       setImageData(null);
+      setImageRemoved(false);
+      setRemovedPublicId(null);
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -264,16 +297,28 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
                 <ImageUpload
                   ref={imageUploadRef}
                   value={
-                    imageData
+                    imageData && !imageRemoved
                       ? { url: imageData.url, publicId: imageData.publicId }
                       : null
                   }
                   onChange={setImageData}
+                  onRemoved={(publicId) => {
+                    setImageRemoved(true);
+                    setRemovedPublicId(publicId);
+                  }}
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
                   label="Opportunity image"
                 />
+                {isDeletingImage && (
+                  <div className="w-full">
+                    <Progress value={deleteImageProgress} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Deleting image {deleteImageProgress}%
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             <DialogFooter>

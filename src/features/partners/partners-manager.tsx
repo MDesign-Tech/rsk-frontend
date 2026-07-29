@@ -35,12 +35,14 @@ import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-up
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { saveResource } from "@/lib/image-save";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 
 export function PartnersManager() {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -52,6 +54,10 @@ export function PartnersManager() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<Partner | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -84,6 +90,8 @@ export function PartnersManager() {
   const openCreate = () => {
     setEditing(null);
     setImageData(null);
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     form.reset({ name: "", visible: true });
     setDialogOpen(true);
   };
@@ -91,6 +99,8 @@ export function PartnersManager() {
   const openEdit = (partner: Partner) => {
     setEditing(partner);
     setImageData(null);
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     form.reset({
       name: partner.name,
       visible: partner.visible ?? true,
@@ -105,11 +115,31 @@ export function PartnersManager() {
       // Upload any pending image first
       const uploadedImage = await imageUploadRef.current?.upload();
 
+      let imageUrl = uploadedImage?.url ?? null;
+      let imagePublicId = uploadedImage?.publicId ?? null;
+
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => setDeleteImageProgress(progress));
+          imageUrl = null;
+          imagePublicId = null;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+        }
+      }
+
       const data = {
         name: values.name,
         visible: values.visible,
-        image: uploadedImage?.url ?? null,
-        imagePublicId: uploadedImage?.publicId ?? null,
+        image: imageUrl,
+        imagePublicId: imagePublicId,
       };
 
       const result = await saveResource<ApiResponse<{ partner: Partner }>, Partner>({
@@ -132,6 +162,8 @@ export function PartnersManager() {
         );
         if (!editing) setPartners((prev) => [result, ...prev]);
         setImageData(null);
+        setImageRemoved(false);
+        setRemovedPublicId(null);
         setDialogOpen(false);
         toast.success(editing ? "Partner updated successfully" : "Partner created successfully");
       }
@@ -272,7 +304,7 @@ export function PartnersManager() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={(isOpen) => {
-        if (!isOpen && imageData && !isBusy) {
+        if (!isOpen && (imageData || imageRemoved) && !isBusy) {
           toast.error("Please save the data or remove the image before closing.");
           return;
         }
@@ -307,16 +339,28 @@ export function PartnersManager() {
                 <ImageUpload
                   ref={imageUploadRef}
                   value={
-                    editing?.image && editing?.imagePublicId
+                    editing?.image && editing?.imagePublicId && !imageRemoved
                       ? { url: editing.image, publicId: editing.imagePublicId }
-                      : null
+                      : imageData
                   }
                   onChange={setImageData}
+                  onRemoved={(publicId) => {
+                    setImageRemoved(true);
+                    setRemovedPublicId(publicId);
+                  }}
                   disabled={isBusy}
                   onUploadingChange={setIsUploading}
                   onProgress={setUploadProgress}
                   label="Partner logo"
                 />
+                {isDeletingImage && (
+                  <div className="w-full">
+                    <Progress value={deleteImageProgress} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Deleting image {deleteImageProgress}%
+                    </p>
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground">
                   Select a new image and save to update the logo.
                 </p>

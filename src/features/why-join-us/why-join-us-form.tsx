@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -45,6 +46,10 @@ export function WhyJoinUsForm() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [imageData, setImageData] = useState<{ url: string; publicId: string } | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
+  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
   const [sectionTitle, setSectionTitle] = useState("");
   const [sectionDescription, setSectionDescription] = useState("");
   const [sectionVisible, setSectionVisible] = useState(true);
@@ -53,7 +58,7 @@ export function WhyJoinUsForm() {
   const [pointErrors, setPointErrors] = useState<{ title?: string; description?: string }>({});
 
   const imageUploadRef = useRef<ImageUploadHandle>(null);
-  const isBusy = isSaving || isUploading;
+  const isBusy = isSaving || isUploading || isDeletingImage;
 
   const load = async () => {
     setIsLoading(true);
@@ -84,6 +89,8 @@ export function WhyJoinUsForm() {
   const openCreate = () => {
     setEditingPoint(null);
     setImageData(null);
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     setPointTitle("");
     setPointDescription("");
     setPointErrors({});
@@ -97,6 +104,8 @@ export function WhyJoinUsForm() {
         ? { url: point.image, publicId: point.imagePublicId }
         : null
     );
+    setImageRemoved(false);
+    setRemovedPublicId(null);
     setPointTitle(point.title);
     setPointDescription(point.description);
     setPointErrors({});
@@ -115,12 +124,31 @@ export function WhyJoinUsForm() {
     if (!validatePoint()) return;
     setIsSaving(true);
     try {
+      // If image was marked for removal, delete from Cloudinary first
+      if (imageRemoved && removedPublicId) {
+        setIsDeletingImage(true);
+        setDeleteImageProgress(0);
+        try {
+          await deleteFromCloudinary(removedPublicId, (progress) => {
+            setDeleteImageProgress(progress);
+          });
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to delete image from Cloudinary");
+          setIsSaving(false);
+          setIsDeletingImage(false);
+          return;
+        } finally {
+          setIsDeletingImage(false);
+          setDeleteImageProgress(0);
+        }
+      }
+
       const uploadedImage = await imageUploadRef.current?.upload();
       const data = {
         title: pointTitle,
         description: pointDescription,
-        image: uploadedImage?.url ?? imageData?.url ?? null,
-        imagePublicId: uploadedImage?.publicId ?? imageData?.publicId ?? null,
+        image: uploadedImage?.url ?? (imageRemoved ? null : imageData?.url ?? null),
+        imagePublicId: uploadedImage?.publicId ?? (imageRemoved ? null : imageData?.publicId ?? null),
       };
 
       if (editingPoint) {
@@ -145,6 +173,8 @@ export function WhyJoinUsForm() {
         toast.success("Point created");
       }
       setImageData(null);
+      setImageRemoved(false);
+      setRemovedPublicId(null);
       setDialogOpen(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save point");
@@ -325,7 +355,7 @@ export function WhyJoinUsForm() {
 
       {/* Edit/Create Point Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(isOpen) => {
-        if (!isOpen && imageData && !isBusy) {
+        if (!isOpen && (imageData || imageRemoved) && !isBusy) {
           toast.error("Please save the data or remove the image before closing.");
           return;
         }
@@ -344,16 +374,28 @@ export function WhyJoinUsForm() {
               <ImageUpload
                 ref={imageUploadRef}
                 value={
-                  editingPoint?.image && editingPoint?.imagePublicId
+                  editingPoint?.image && editingPoint?.imagePublicId && !imageRemoved
                     ? { url: editingPoint.image, publicId: editingPoint.imagePublicId }
                     : imageData
                 }
                 onChange={setImageData}
+                onRemoved={(publicId) => {
+                  setImageRemoved(true);
+                  setRemovedPublicId(publicId);
+                }}
                 disabled={isBusy}
                 onUploadingChange={setIsUploading}
                 onProgress={setUploadProgress}
                 label="Point image"
               />
+              {isDeletingImage && (
+                <div className="w-full">
+                  <Progress value={deleteImageProgress} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Deleting image {deleteImageProgress}%
+                  </p>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Title</label>
