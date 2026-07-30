@@ -5,6 +5,7 @@ import { Eye, Trash2, Reply, EyeOff } from "lucide-react";
 import { contactService } from "@/services/contact.service";
 import type { ContactMessage, ContactStatus } from "@/types";
 import { Button } from "@/components/ui/button";
+import DOMPurify from "isomorphic-dompurify";
 import { IconButton } from "@/components/admin/icon-button";
 import { Badge } from "@/components/ui/badge";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
@@ -159,7 +160,14 @@ export function ContactManager() {
     {
       key: "message",
       header: "Message",
-      render: (m) => <span className="line-clamp-1">{m.message}</span>,
+      render: (m) => (
+        <div
+          className="line-clamp-1 text-sm"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(m.message),
+          }}
+        />
+      ),
     },
     {
       key: "status",
@@ -243,15 +251,25 @@ export function ContactManager() {
             <p className="text-sm text-muted-foreground">
               Received {formatDate(viewTarget?.createdAt)}
             </p>
-            <p className="whitespace-pre-wrap rounded-md border bg-muted/40 p-3 text-sm">
-              {viewTarget?.message}
-            </p>
-            {viewTarget?.reply && (
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Reply</p>
-                <p className="whitespace-pre-wrap rounded-md border border-primary/30 bg-primary/5 p-3 text-sm">
-                  {viewTarget.reply}
-                </p>
+            <div
+               className="whitespace-pre-wrap rounded-md border bg-muted/40 p-3 text-sm prose prose-sm max-w-none"
+               dangerouslySetInnerHTML={{
+                 __html: DOMPurify.sanitize(
+                   typeof viewTarget?.message === "string" ? viewTarget.message : "",
+                 ),
+               }}
+             />
+             {viewTarget?.reply && (
+               <div className="space-y-1">
+                 <p className="text-sm font-medium">Reply</p>
+                 <div
+                   className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm prose prose-sm max-w-none"
+                   dangerouslySetInnerHTML={{
+                     __html: DOMPurify.sanitize(
+                       typeof viewTarget.reply === "string" ? viewTarget.reply : "",
+                     ),
+                   }}
+                 />
                 <p className="text-xs text-muted-foreground">
                   Replied {formatDate(viewTarget.replyAt)}
                 </p>

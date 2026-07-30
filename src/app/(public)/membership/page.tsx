@@ -70,24 +70,6 @@ export default function MembershipPage() {
       {/* <SectionDivider variant="wave" /> */}
       <section className="py-20 bg-muted/8">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <motion.div
-            initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="mb-12 text-center"
-          >
-            <p className="text-sm uppercase tracking-[0.35em] text-primary">
-              Why become a member
-            </p>
-            <h2 className="mt-4 text-3xl sm:text-4xl font-semibold text-foreground">
-              Member benefits designed for modern businesses.
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Access streamlined support, strategic introductions, and business
-              services crafted to help leaders move faster and scale smarter.
-            </p>
-          </motion.div>
 
           {visibleBenefits.length > 0 && (
             <div className="grid gap-6 lg:grid-cols-3">
