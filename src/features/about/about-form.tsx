@@ -52,6 +52,7 @@ export function AboutForm() {
         snapchat: { href: null, visible: true },
       },
       ourStory: { title: "", description: "" },
+      whatsappNumber: "",
     },
   });
 
@@ -69,11 +70,22 @@ export function AboutForm() {
     name: "contactMethods",
   });
 
+  const extractWhatsappNumber = (href: string | null | undefined): string => {
+    if (!href) return "";
+    const waMatch = href.match(/wa\.me\/(\d+)/);
+    if (waMatch) return waMatch[1];
+    const apiMatch = href.match(/phone=(\d+)/);
+    if (apiMatch) return apiMatch[1];
+    if (/^\d+$/.test(href)) return href;
+    return "";
+  };
+
   useEffect(() => {
     (async () => {
       try {
         const res = await aboutService.get();
         const a = res.data.about;
+        const existingWhatsappHref = a.socialMedia?.whatsapp?.href;
         form.reset({
           title: a.title,
           description: a.description,
@@ -91,6 +103,7 @@ export function AboutForm() {
             snapchat: { href: null, visible: true },
           },
           ourStory: a.ourStory ?? { title: "", description: "" },
+          whatsappNumber: extractWhatsappNumber(existingWhatsappHref),
         });
         setIsLoading(false);
       } catch (err) {
@@ -103,7 +116,25 @@ export function AboutForm() {
   const onSubmit = async (values: AboutInput) => {
     setIsSaving(true);
     try {
-      await aboutService.update(values);
+      const payload: AboutInput = {
+        title: values.title,
+        description: values.description,
+        visible: values.visible,
+        stats: values.stats,
+        contactMethods: values.contactMethods,
+        socialMedia: {
+          ...values.socialMedia,
+          whatsapp: {
+            ...values.socialMedia.whatsapp,
+            href: values.whatsappNumber
+              ? `https://wa.me/${values.whatsappNumber}`
+              : null,
+          },
+        },
+        ourStory: values.ourStory,
+        whatsappNumber: "",
+      };
+      await aboutService.update(payload);
       setIsSaving(false);
       toast.success("About content updated");
     } catch (err) {
@@ -381,22 +412,41 @@ export function AboutForm() {
                   key={platform}
                   className="grid grid-cols-[1fr_auto_auto] items-start gap-3"
                 >
-                  <FormField
-                    control={form.control}
-                    name={`socialMedia.${platform}.href`}
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormControl>
-                          <Input
-                            placeholder={`${platform} URL`}
-                            {...field}
-                            value={field.value ?? ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {platform === "whatsapp" ? (
+                    <FormField
+                      control={form.control}
+                      name="whatsappNumber"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormControl>
+                            <Input
+                              placeholder="250788492529"
+                              {...field}
+                              value={field.value ?? ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name={`socialMedia.${platform}.href`}
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormControl>
+                            <Input
+                              placeholder={`${platform} URL`}
+                              {...field}
+                              value={field.value ?? ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                   <Tooltip>
                     <TooltipTrigger asChild>
                        <span

@@ -125,6 +125,8 @@ export const aboutSchema = z.object({
     title: z.string().min(1, "Our story title is required"),
     description: z.string().min(1, "Our story description is required"),
   }).optional().default({ title: "", description: "" }),
+
+  whatsappNumber: z.string().optional().default(""),
 });
 
 
