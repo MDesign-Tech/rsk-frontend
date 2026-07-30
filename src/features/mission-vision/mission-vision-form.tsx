@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import DOMPurify from "isomorphic-dompurify";
 import { missionVisionSchema, type MissionVisionInput } from "@/schemas";
 import { missionVisionService } from "@/services/missionVision.service";
 
@@ -56,9 +57,13 @@ export function MissionVisionForm() {
 
         form.reset({
           missionTitle: mv.missionTitle ?? "",
-          missionDescription: mv.missionDescription ?? "",
+          missionDescription: mv.missionDescription
+            ? DOMPurify.sanitize(mv.missionDescription)
+            : "",
           visionTitle: mv.visionTitle ?? "",
-          visionDescription: mv.visionDescription ?? "",
+          visionDescription: mv.visionDescription
+            ? DOMPurify.sanitize(mv.visionDescription)
+            : "",
           visible: mv.visible ?? true,
         });
         setIsLoading(false);
@@ -76,7 +81,16 @@ export function MissionVisionForm() {
   const onSubmit = async (values: MissionVisionInput) => {
     setIsSaving(true);
     try {
-      await missionVisionService.update(values);
+      const sanitizedValues: MissionVisionInput = {
+        ...values,
+        missionDescription: values.missionDescription
+          ? DOMPurify.sanitize(values.missionDescription)
+          : "",
+        visionDescription: values.visionDescription
+          ? DOMPurify.sanitize(values.visionDescription)
+          : "",
+      };
+      await missionVisionService.update(sanitizedValues);
       setIsSaving(false);
       toast.success("Mission & Vision updated");
     } catch (err) {
@@ -91,7 +105,17 @@ export function MissionVisionForm() {
     form.setValue("visible", next, { shouldDirty: true });
     setIsToggling(true);
     try {
-      await missionVisionService.update({ ...form.getValues(), visible: next });
+      const values = form.getValues();
+      await missionVisionService.update({
+        ...values,
+        missionDescription: values.missionDescription
+          ? DOMPurify.sanitize(values.missionDescription)
+          : "",
+        visionDescription: values.visionDescription
+          ? DOMPurify.sanitize(values.visionDescription)
+          : "",
+        visible: next,
+      });
       toast.success(next ? "Mission & Vision shown" : "Mission & Vision hidden");
     } catch (err) {
       form.setValue("visible", current, { shouldDirty: true });
