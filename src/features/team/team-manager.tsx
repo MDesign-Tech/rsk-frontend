@@ -20,7 +20,7 @@ import { SectionCard } from "./section-card";
 import { MemberFormDialog } from "./member-form";
 import { SectionFormDialog } from "./section-form";
 import { useTeamManager } from "./use-team-manager";
-import type { TeamSection } from "@/types";
+import type { TeamMember, TeamSection } from "@/types";
 
 function DragHandle({ dragControls }: { dragControls: ReturnType<typeof useDragControls> }) {
   return (
@@ -33,9 +33,76 @@ function DragHandle({ dragControls }: { dragControls: ReturnType<typeof useDragC
   );
 }
 
+function SortableSection({
+  section,
+  members,
+  onAddMember,
+  onEditMember,
+  onDeleteMember,
+  onToggleMember,
+  onEditSection,
+  onDeleteSection,
+  onToggleSection,
+  onViewMember,
+  togglingMemberId,
+  togglingSectionId,
+  onReorderMembers,
+  onMoveMember,
+}: {
+  section: TeamSection;
+  members: TeamMember[];
+  onAddMember: (sectionId: string) => void;
+  onEditMember: (m: TeamMember) => void;
+  onDeleteMember: (m: TeamMember) => void;
+  onToggleMember: (m: TeamMember) => void;
+  onEditSection: (s: TeamSection) => void;
+  onDeleteSection: (s: TeamSection) => void;
+  onToggleSection: (s: TeamSection) => void;
+  onViewMember?: (m: TeamMember) => void;
+  togglingMemberId?: string | null;
+  togglingSectionId?: string | null;
+  onReorderMembers?: (sectionId: string, newOrder: TeamMember[]) => void;
+  onMoveMember?: (memberId: string, targetSectionId: string) => void;
+}) {
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      key={section._id}
+      value={section}
+      dragControls={dragControls}
+      dragListener={false}
+      className="cursor-default"
+    >
+      <div className="flex items-start gap-2">
+        <div className="pt-1">
+          <DragHandle dragControls={dragControls} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <SectionCard
+            section={section}
+            members={members}
+            onAddMember={onAddMember}
+            onEditMember={onEditMember}
+            onDeleteMember={onDeleteMember}
+            onToggleMember={onToggleMember}
+            onEditSection={onEditSection}
+            onDeleteSection={onDeleteSection}
+            onToggleSection={onToggleSection}
+            onViewMember={onViewMember}
+            togglingMemberId={togglingMemberId}
+            togglingSectionId={togglingSectionId}
+            onReorderMembers={onReorderMembers}
+            onMoveMember={onMoveMember}
+          />
+        </div>
+      </div>
+    </Reorder.Item>
+  );
+}
+
 export function TeamManager() {
   const t = useTeamManager();
-  const sectionDragControls = useDragControls();
 
   return (
     <div className="space-y-6">
@@ -61,36 +128,23 @@ export function TeamManager() {
           className="space-y-4"
         >
           {t.sections.map((s) => (
-            <Reorder.Item
+            <SortableSection
               key={s._id}
-              value={s}
-              dragControls={sectionDragControls}
-              className="cursor-grab active:cursor-grabbing"
-            >
-              <div className="flex items-start gap-2">
-                <div className="pt-1">
-                  <DragHandle dragControls={sectionDragControls} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <SectionCard
-                    section={s}
-                    members={t.filtered(s._id)}
-                    onAddMember={t.openCreate}
-                    onEditMember={t.openEdit}
-                    onDeleteMember={t.setDeleteTarget}
-                    onToggleMember={t.toggleMember}
-                    onEditSection={t.openEditSection}
-                    onDeleteSection={t.setDeleteSectionTarget}
-                    onToggleSection={t.toggleSection}
-                    onViewMember={t.handleViewMember}
-                    togglingMemberId={t.togglingMemberId}
-                    togglingSectionId={t.togglingSectionId}
-                    onReorderMembers={t.reorderMembers}
-                    onMoveMember={t.moveMember}
-                  />
-                </div>
-              </div>
-            </Reorder.Item>
+              section={s}
+              members={t.filtered(s._id)}
+              onAddMember={t.openCreate}
+              onEditMember={t.openEdit}
+              onDeleteMember={t.setDeleteTarget}
+              onToggleMember={t.toggleMember}
+              onEditSection={t.openEditSection}
+              onDeleteSection={t.setDeleteSectionTarget}
+              onToggleSection={t.toggleSection}
+              onViewMember={t.handleViewMember}
+              togglingMemberId={t.togglingMemberId}
+              togglingSectionId={t.togglingSectionId}
+              onReorderMembers={t.reorderMembers}
+              onMoveMember={t.moveMember}
+            />
           ))}
         </Reorder.Group>
       )}

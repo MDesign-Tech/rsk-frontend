@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import DOMPurify from "isomorphic-dompurify";
 import type { ChatMessage } from "@/types";
 
 interface MessageBubbleProps {
@@ -15,6 +16,12 @@ function formatTime(value?: string) {
 }
 
 export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+  // Sanitize and render rich text content
+  const sanitizedHtml = DOMPurify.sanitize(message.message, {
+    ALLOWED_TAGS: ["b", "i", "u", "strong", "em", "br", "p", "span"],
+    ALLOWED_ATTR: [],
+  });
+
   return (
     <div
       className={cn(
@@ -30,9 +37,10 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             : "bg-muted text-foreground"
         )}
       >
-        <p className="text-sm whitespace-pre-wrap break-words">
-          {message.message}
-        </p>
+        <div
+          className="text-sm whitespace-pre-wrap break-words prose-sm"
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        />
         <p
           className={cn(
             "text-xs mt-1",

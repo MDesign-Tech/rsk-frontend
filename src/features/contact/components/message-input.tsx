@@ -2,7 +2,7 @@
 
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { ChatMessageEditor } from "./chat-message-editor";
 
 interface MessageInputProps {
   value: string;
@@ -19,14 +19,15 @@ export function MessageInput({
 }: MessageInputProps) {
   return (
     <div className="shrink-0 border-t border-border px-3 py-2.5">
-      <div className="flex gap-2">
-        <RichTextEditor
+      <div className="flex gap-2 items-end">
+        <ChatMessageEditor
           value={value}
           onChange={(html) => onChange(html)}
+          onSend={onSend}
           placeholder="Type your message..."
           disabled={isSending}
-          showToolbar={false}
           minHeight="44px"
+          maxHeight="160px"
         />
         <Button
           onClick={onSend}

@@ -23,19 +23,10 @@ function SixDotHandle({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className="flex cursor-grab active:cursor-grabbing select-none items-center"
+      className="inline-flex cursor-grab active:cursor-grabbing select-none items-center justify-center text-muted-foreground leading-none w-5 h-5 flex-shrink-0"
       title="Drag to move"
     >
-      <span className="flex flex-col gap-0.5 leading-none">
-        <span className="w-1 h-1 rounded-full bg-muted-foreground">⋮</span>
-        <span className="w-1 h-1 rounded-full bg-muted-foreground">⋮</span>
-        <span className="w-1 h-1 rounded-full bg-muted-foreground">⋮</span>
-      </span>
-      <span className="flex flex-col gap-0.5 leading-none ml-0.5">
-        <span className="w-1 h-1 rounded-full bg-muted-foreground">⋮</span>
-        <span className="w-1 h-1 rounded-full bg-muted-foreground">⋮</span>
-        <span className="w-1 h-1 rounded-full bg-muted-foreground">⋮</span>
-      </span>
+      ⋮⋮
     </span>
   );
 }

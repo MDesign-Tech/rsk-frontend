@@ -11,6 +11,7 @@ import { MessageList } from "./components/message-list";
 import { MessageInput } from "./components/message-input";
 import { EmptyState } from "./components/empty-state";
 import { LoadingState } from "./components/loading-state";
+import DOMPurify from "isomorphic-dompurify";
 
 export function ChatManager() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -84,21 +85,20 @@ export function ChatManager() {
     setMessages([]);
   }, []);
 
-  // Strip HTML tags to get plain text for chat messages
-  const stripHtml = useCallback((html: string): string => {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    return doc.body.textContent || "";
-  }, []);
-
   // Send a message
   const sendMessage = useCallback(async () => {
     if (!selectedConversation || !messageText.trim() || isSending) return;
 
     setIsSending(true);
     try {
+      // Send rich text content directly, sanitized for safety
+      const sanitizedHtml = DOMPurify.sanitize(messageText, {
+        ALLOWED_TAGS: ["b", "i", "u", "strong", "em", "br", "p", "span"],
+        ALLOWED_ATTR: [],
+      });
       await contactService.sendMessage(
         selectedConversation._id,
-        stripHtml(messageText).trim()
+        sanitizedHtml
       );
 
       // Reload messages after sending
@@ -121,6 +121,7 @@ export function ChatManager() {
     isSending,
     loadMessages,
     loadConversations,
+    DOMPurify,
   ]);
 
   // Initial load
