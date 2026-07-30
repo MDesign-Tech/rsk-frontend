@@ -94,7 +94,7 @@ export function UsersManager() {
 
   const openCreate = () => {
     setEditing(null);
-    form.reset({ name: "", email: "", phone: "", role: "member", member: null, memberId: "__none__", password: "" });
+    form.reset({ name: "", email: "", phone: "", role: "member", member: null, password: "" });
     setDialogOpen(true);
   };
 
@@ -318,9 +318,9 @@ export function UsersManager() {
            <DialogHeader className="shrink-0">
              <DialogTitle>{editing ? "Edit User" : "Add User"}</DialogTitle>
              <DialogDescription>
-               {editing
-                 ? "Update the details of this user. Leave password blank to keep it unchanged."
-                 : "Select a team member to link, then enter the login credentials."}
+                 {editing
+                   ? "Update the details of this user. Leave password blank to keep it unchanged."
+                   : "Enter the user's login credentials. You can link a team member profile later."}
              </DialogDescription>
            </DialogHeader>
            <div className="flex-1 overflow-y-auto">
@@ -329,39 +329,13 @@ export function UsersManager() {
                  {!editing && (
                    <FormField
                      control={form.control}
-                     name="memberId"
+                     name="name"
                      render={({ field }) => (
                        <FormItem>
-                         <FormLabel>Link team Member Profile</FormLabel>
-                         <Select
-                           onValueChange={(value) => {
-                             field.onChange(value);
-                             if (value && value !== "__none__") {
-                               const member = availableMembers.find(m => m._id === value);
-                               if (member) {
-                                 form.setValue("name", member.name);
-                               }
-                             } else {
-                               form.setValue("name", "");
-                             }
-                           }}
-                           value={field.value ?? "__none__"}
-                           disabled={isSaving}
-                         >
-                           <FormControl>
-                             <SelectTrigger>
-                               <SelectValue placeholder="Select a team member (optional)" />
-                             </SelectTrigger>
-                           </FormControl>
-                           <SelectContent>
-                             <SelectItem value="__none__">None (no profile)</SelectItem>
-                             {availableMembers.map((member) => (
-                               <SelectItem key={member._id} value={member._id}>
-                                 {member.name} {member.department ? `- ${member.department}` : ""}
-                               </SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
+                         <FormLabel>Name</FormLabel>
+                         <FormControl>
+                           <Input {...field} disabled={isSaving} placeholder="Enter full name" />
+                         </FormControl>
                          <FormMessage />
                        </FormItem>
                      )}
@@ -394,22 +368,6 @@ export function UsersManager() {
                              ))}
                            </SelectContent>
                          </Select>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                 )}
- 
-                 {!editing && form.watch("memberId") === "__none__" && (
-                   <FormField
-                     control={form.control}
-                     name="name"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel>Name</FormLabel>
-                         <FormControl>
-                           <Input {...field} disabled={isSaving} placeholder="Enter full name" />
-                         </FormControl>
                          <FormMessage />
                        </FormItem>
                      )}

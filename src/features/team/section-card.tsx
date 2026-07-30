@@ -1,5 +1,6 @@
 "use client";
 
+import DOMPurify from "isomorphic-dompurify";
 import { Pencil, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/admin/icon-button";
 import { StatusToggle } from "@/components/ui/status-toggle";
@@ -150,9 +151,12 @@ export function SectionCard({
         <div className="min-w-0">
           <h3 className="text-lg font-semibold truncate">{section.name}</h3>
           {section.description ? (
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {section.description}
-            </p>
+            <p
+              className="text-sm text-muted-foreground line-clamp-2"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(section.description),
+              }}
+            />
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
