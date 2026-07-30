@@ -30,8 +30,8 @@ function ArticleSkeleton() {
         </div>
         {/* Metadata skeleton */}
         <div className="flex items-center justify-between mt-10 pt-6 border-t border-border/60">
-          <div className="h-4 bg-muted rounded w-32" />
           <div className="h-4 bg-muted rounded w-48" />
+          <div className="h-4 bg-muted rounded w-64" />
         </div>
         {/* Back button skeleton */}
         <div className="mt-8">
@@ -105,13 +105,28 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
     day: "numeric",
   });
 
+  const authorRole = article.author.role;
+
+  const articleAge = (() => {
+    const now = new Date();
+    const published = new Date(article.publishedAt);
+    const diffMs = now.getTime() - published.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? "s" : ""} ago`;
+    return `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) > 1 ? "s" : ""} ago`;
+  })();
+
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
 
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-20">
         {/* Article Image */}
-        {article.coverImage && (
+        {article.coverImage ? (
           <div className="mb-8">
             <Image
               src={article.coverImage}
@@ -120,6 +135,16 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
               height={600}
               className="w-full h-auto rounded-lg object-cover"
               priority
+            />
+          </div>
+        ) : (
+          <div className="mb-8 flex items-center justify-center rounded-lg bg-muted py-12">
+            <Image
+              src={RSK_LOGO}
+              alt="RSK Associates"
+              width={120}
+              height={120}
+              className="opacity-60"
             />
           </div>
         )}
@@ -141,11 +166,18 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
 
         {/* Metadata Row */}
         <div className="flex items-center justify-between pt-6 border-t border-border/60 mb-8">
-          <span className="text-sm font-medium text-foreground">
-            {article.author.name}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">
+              {article.author.name}
+            </span>
+            {authorRole && (
+              <span className="text-sm text-muted-foreground">
+                · {authorRole}
+              </span>
+            )}
+          </div>
           <span className="text-sm text-muted-foreground">
-            {categoryName} · {publishedDate}
+            {categoryName} · {publishedDate} · {articleAge}
           </span>
         </div>
 
