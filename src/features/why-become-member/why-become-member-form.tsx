@@ -418,21 +418,21 @@ export function WhyBecomeMemberForm() {
                   <p className="text-sm text-destructive">{pointErrors.description}</p>
                 )}
               </div>
+              <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isBusy}
+                >
+                  Cancel
+                </Button>
+                <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
+                  {editingPoint ? "Save Changes" : "Create"}
+                </SubmitButton>
+              </DialogFooter>
             </form>
           </div>
-          <DialogFooter className="shrink-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={isBusy}
-            >
-              Cancel
-            </Button>
-            <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
-              {editingPoint ? "Save Changes" : "Create"}
-            </SubmitButton>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

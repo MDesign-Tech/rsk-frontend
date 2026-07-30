@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Pencil, Trash2, Plus, GripVertical } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { opportunityService } from "@/services/opportunity.service";
 import type { Opportunity, OpportunityType } from "@/types";
 import { IconButton } from "@/components/admin/icon-button";
@@ -170,6 +171,10 @@ export function OpportunityManager() {
     }
   };
 
+  const sanitize = (value: string): string => {
+    return DOMPurify.sanitize(value, { ALLOWED_TAGS: [] });
+  };
+
   const getTypeName = (type: OpportunityType | string | null | undefined): string => {
     if (typeof type === "string") return type;
     if (!type) return "Unknown";
@@ -292,7 +297,7 @@ export function OpportunityManager() {
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  {type.name}
+                  {sanitize(type.name)}
                 </button>
               ))}
           </div>
@@ -338,26 +343,26 @@ export function OpportunityManager() {
                   </div>
                   <div className="p-4 space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-sm line-clamp-2">{opportunity.title}</h3>
+                      <h3 className="font-semibold text-sm line-clamp-2">{sanitize(opportunity.title)}</h3>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${getTypeColor(getTypeName(opportunity.type))}`}>
-                        {getTypeName(opportunity.type)}
+                        {sanitize(getTypeName(opportunity.type))}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">
-                      {opportunity.description}
+                      {sanitize(opportunity.description)}
                     </p>
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Organization:</span>
-                        <span>{opportunity.org}</span>
+                        <span>{sanitize(opportunity.org)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Location:</span>
-                        <span>{opportunity.location}</span>
+                        <span>{sanitize(opportunity.location)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Category:</span>
-                        <span>{opportunity.category}</span>
+                        <span>{sanitize(opportunity.category)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Date:</span>
@@ -481,7 +486,7 @@ export function OpportunityManager() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <GripVertical className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="font-semibold text-sm">{type.name}</h3>
+                      <h3 className="font-semibold text-sm">{sanitize(type.name)}</h3>
                     </div>
                     <div className="flex items-center gap-2">
                       <Tooltip>
@@ -516,7 +521,7 @@ export function OpportunityManager() {
                       onClick={() => openCreateOpportunity(type._id)}
                     >
                       <Plus className="mr-2 size-3" />
-                      Add Opportunity in {type.name}
+                      Add Opportunity in {sanitize(type.name)}
                     </Button>
                   </div>
                 </div>
@@ -534,8 +539,8 @@ export function OpportunityManager() {
         title={deleteTarget && "title" in deleteTarget ? "Delete opportunity?" : "Delete type?"}
         description={
           deleteTarget && "title" in deleteTarget
-            ? `Are you sure you want to delete "${deleteTarget.title}"? This action cannot be undone.`
-            : `Are you sure you want to delete "${deleteTarget?.name}"? This will also permanently delete ${typeOpportunityCount} associated opportunity(ies). This action cannot be undone.`
+            ? `Are you sure you want to delete "${sanitize(deleteTarget.title)}"? This action cannot be undone.`
+            : `Are you sure you want to delete "${sanitize(deleteTarget?.name || "")}"? This will also permanently delete ${typeOpportunityCount} associated opportunity(ies). This action cannot be undone.`
         }
       />
 
@@ -568,21 +573,21 @@ export function OpportunityManager() {
                  disabled={isSavingType}
                  autoFocus
                />
+               <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                 <Button
+                   type="button"
+                   variant="outline"
+                   onClick={() => setTypeFormOpen(false)}
+                   disabled={isSavingType}
+                 >
+                   Cancel
+                 </Button>
+                 <SubmitButton isLoading={isSavingType} disabled={isSavingType}>
+                   {editingType ? "Save Changes" : "Create"}
+                 </SubmitButton>
+               </DialogFooter>
              </form>
            </div>
-           <DialogFooter className="shrink-0">
-             <Button
-               type="button"
-               variant="outline"
-               onClick={() => setTypeFormOpen(false)}
-               disabled={isSavingType}
-             >
-               Cancel
-             </Button>
-             <SubmitButton isLoading={isSavingType} disabled={isSavingType}>
-               {editingType ? "Save Changes" : "Create"}
-             </SubmitButton>
-           </DialogFooter>
          </DialogContent>
        </Dialog>
     </div>

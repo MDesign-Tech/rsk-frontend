@@ -488,22 +488,22 @@ export function UsersManager() {
                      </FormItem>
                    )}
                  />
+                 <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                   <Button
+                     type="button"
+                     variant="outline"
+                     onClick={() => setDialogOpen(false)}
+                     disabled={isSaving}
+                   >
+                     Cancel
+                   </Button>
+                   <SubmitButton isLoading={isSaving} disabled={isSaving}>
+                     {editing ? "Save Changes" : "Create"}
+                   </SubmitButton>
+                 </DialogFooter>
                </form>
              </Form>
            </div>
-           <DialogFooter className="shrink-0">
-             <Button
-               type="button"
-               variant="outline"
-               onClick={() => setDialogOpen(false)}
-               disabled={isSaving}
-             >
-               Cancel
-             </Button>
-             <SubmitButton isLoading={isSaving} disabled={isSaving}>
-               {editing ? "Save Changes" : "Create"}
-             </SubmitButton>
-           </DialogFooter>
          </DialogContent>
        </Dialog>
 

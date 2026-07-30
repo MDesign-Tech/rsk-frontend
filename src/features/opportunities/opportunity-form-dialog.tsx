@@ -315,22 +315,22 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
                   />
                 </div>
               </div>
+              <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isBusy}
+                >
+                  Cancel
+                </Button>
+                <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
+                  {opportunity ? "Save Changes" : "Create"}
+                </SubmitButton>
+              </DialogFooter>
             </form>
           </Form>
         </div>
-        <DialogFooter className="shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isBusy}
-          >
-            Cancel
-          </Button>
-          <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
-            {opportunity ? "Save Changes" : "Create"}
-          </SubmitButton>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

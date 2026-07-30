@@ -619,21 +619,21 @@ export function NewsManager() {
                  disabled={isSavingCategory}
                  autoFocus
                />
+               <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                 <Button
+                   type="button"
+                   variant="outline"
+                   onClick={() => setCategoryFormOpen(false)}
+                   disabled={isSavingCategory}
+                 >
+                   Cancel
+                 </Button>
+                 <SubmitButton isLoading={isSavingCategory} disabled={isSavingCategory}>
+                   {editingCategory ? "Save Changes" : "Create"}
+                 </SubmitButton>
+               </DialogFooter>
              </form>
            </div>
-           <DialogFooter className="shrink-0">
-             <Button
-               type="button"
-               variant="outline"
-               onClick={() => setCategoryFormOpen(false)}
-               disabled={isSavingCategory}
-             >
-               Cancel
-             </Button>
-             <SubmitButton isLoading={isSavingCategory} disabled={isSavingCategory}>
-               {editingCategory ? "Save Changes" : "Create"}
-             </SubmitButton>
-           </DialogFooter>
          </DialogContent>
        </Dialog>
     </div>

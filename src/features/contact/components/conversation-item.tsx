@@ -67,11 +67,14 @@ export function ConversationItem({
               {formatTime(conversation.lastMessageAt)}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground truncate mt-0.5">
-            {conversation.lastMessage
-              ? DOMPurify.sanitize(conversation.lastMessage)
-              : "No messages yet"}
-          </p>
+          <p
+            className="text-xs text-muted-foreground truncate mt-0.5"
+            dangerouslySetInnerHTML={{
+              __html: conversation.lastMessage
+                ? DOMPurify.sanitize(conversation.lastMessage)
+                : "No messages yet",
+            }}
+          />
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-muted-foreground truncate">
               {conversation.clientEmail}

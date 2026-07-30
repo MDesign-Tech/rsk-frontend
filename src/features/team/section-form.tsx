@@ -68,13 +68,13 @@ export function SectionFormDialog({
               <FormField control={form.control} name="description" render={({ field }) => (
                 <FormItem><FormLabel>Description</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
               )} />
+              <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
+                <SubmitButton isLoading={isBusy} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
+              </DialogFooter>
             </form>
           </Form>
         </div>
-        <DialogFooter className="shrink-0">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
-          <SubmitButton isLoading={isBusy} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -437,22 +437,22 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
                   )}
                 />
               </div>
+              <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isBusy}
+                >
+                  Cancel
+                </Button>
+                <SubmitButton isLoading={isBusy} disabled={isBusy}>
+                  {article ? "Save Changes" : "Create"}
+                </SubmitButton>
+              </DialogFooter>
             </form>
           </Form>
         </div>
-        <DialogFooter className="shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isBusy}
-          >
-            Cancel
-          </Button>
-          <SubmitButton isLoading={isBusy} disabled={isBusy}>
-            {article ? "Save Changes" : "Create"}
-          </SubmitButton>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
