@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Plus, Trash2, Pencil, CheckCircle } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { whyBecomeMemberService } from "@/services/why-become-member.service";
 import type { WhyBecomeMemberPoint } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -73,7 +74,7 @@ export function WhyBecomeMemberForm() {
       }));
       setPoints(normalizedPoints);
       setSectionTitle(data.title);
-      setSectionDescription(data.description);
+      setSectionDescription(data.description ? DOMPurify.sanitize(data.description) : "");
       setSectionVisible(data.visible ?? true);
       setIsLoading(false);
     } catch (err) {
@@ -107,7 +108,7 @@ export function WhyBecomeMemberForm() {
         : null
     );
     setPointTitle(point.title);
-    setPointDescription(point.description);
+    setPointDescription(point.description ? DOMPurify.sanitize(point.description) : "");
     setPointErrors({});
     setDialogOpen(true);
   };
@@ -148,7 +149,7 @@ export function WhyBecomeMemberForm() {
 
       const data = {
         title: pointTitle,
-        description: pointDescription,
+        description: pointDescription ? DOMPurify.sanitize(pointDescription) : "",
         image: imageUrl,
         imagePublicId: imagePublicId,
       };
@@ -229,7 +230,7 @@ export function WhyBecomeMemberForm() {
     try {
       const res = await whyBecomeMemberService.update({
         title: sectionTitle,
-        description: sectionDescription,
+        description: sectionDescription ? DOMPurify.sanitize(sectionDescription) : "",
         visible: sectionVisible,
         points,
       });

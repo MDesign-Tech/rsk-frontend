@@ -98,10 +98,15 @@ export default function WhoPage() {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
                 {about?.title ?? "RSK Associates"}
               </h1>
-              <p className="max-w-3xl text-lg leading-8 text-muted-foreground">
-                {about?.description ??
-                  "RSK Associates is a corporate advisory collective that helps businesses navigate growth, finance, and strategy with confidence."}
-              </p>
+              <p
+                className="max-w-3xl text-lg leading-8 text-muted-foreground"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    about?.description ??
+                      "RSK Associates is a corporate advisory collective that helps businesses navigate growth, finance, and strategy with confidence."
+                  ),
+                }}
+              />
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <Link
                   href="/contact"
@@ -150,10 +155,15 @@ export default function WhoPage() {
                 {about?.ourStory?.title ??
                   "A corporate advisory firm built for modern growth."}
               </h2>
-              <p className="mt-5 text-base leading-8 text-muted-foreground">
-                {about?.ourStory?.description ??
-                  "Our story began with a single mission: to make professional financial strategy accessible, effective, and practical for businesses of every size. We bring data, diligence, and experience together to deliver clarity and confidence."}
-              </p>
+              <p
+                className="mt-5 text-base leading-8 text-muted-foreground"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    about?.ourStory?.description ??
+                      "Our story began with a single mission: to make professional financial strategy accessible, effective, and practical for businesses of every size. We bring data, diligence, and experience together to deliver clarity and confidence."
+                  ),
+                }}
+              />
             </motion.div>
 
             <div className="grid gap-6">
@@ -171,17 +181,27 @@ export default function WhoPage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-semibold">Vision</h3>
-                    <p className="mt-3 text-base leading-8 text-muted-foreground">
-                      {mv?.visionDescription ??
-                        "Create a thriving corporate ecosystem where strategy, resources, and opportunity align for every client."}
-                    </p>
+                    <p
+                      className="mt-3 text-base leading-8 text-muted-foreground"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(
+                          mv?.visionDescription ??
+                            "Create a thriving corporate ecosystem where strategy, resources, and opportunity align for every client."
+                        ),
+                      }}
+                    />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold">Mission</h3>
-                    <p className="mt-3 text-base leading-8 text-muted-foreground">
-                      {mv?.missionDescription ??
-                        "Empower businesses with tailored financial guidance, modern advisory tools, and trusted strategic partnerships."}
-                    </p>
+                    <p
+                      className="mt-3 text-base leading-8 text-muted-foreground"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(
+                          mv?.missionDescription ??
+                            "Empower businesses with tailored financial guidance, modern advisory tools, and trusted strategic partnerships."
+                        ),
+                      }}
+                    />
                   </div>
                 </div>
               </motion.div>

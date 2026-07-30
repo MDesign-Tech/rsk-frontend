@@ -1,10 +1,11 @@
 "use client";
 
- import { motion } from "framer-motion";
- import { CheckCircle } from "lucide-react";
- 
- import { useWebsiteStore } from "@/stores/website.store";
- import type { AboutStat } from "@/types";
+import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
+
+import { useWebsiteStore } from "@/stores/website.store";
+import type { AboutStat } from "@/types";
 
 export function AboutUs() {
   const about = useWebsiteStore((state) => state.data?.about);
@@ -55,7 +56,12 @@ export function AboutUs() {
               {about.title}
             </h2>
 
-            <p className="text-lg text-slate-200 mb-6">{about.description}</p>
+            <p
+              className="text-lg text-slate-200 mb-6"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(about.description),
+              }}
+            />
 
           </motion.div>
 

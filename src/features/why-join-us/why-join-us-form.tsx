@@ -108,7 +108,7 @@ export function WhyJoinUsForm() {
     setImageRemoved(false);
     setRemovedPublicId(null);
     setPointTitle(point.title);
-    setPointDescription(point.description);
+    setPointDescription(point.description ? DOMPurify.sanitize(point.description) : "");
     setPointErrors({});
     setDialogOpen(true);
   };
@@ -145,7 +145,7 @@ export function WhyJoinUsForm() {
       const uploadedImage = await imageUploadRef.current?.upload();
       const data = {
         title: pointTitle,
-        description: pointDescription,
+        description: pointDescription ? DOMPurify.sanitize(pointDescription) : "",
         image: uploadedImage?.url ?? (imageRemoved ? null : imageData?.url ?? null),
         imagePublicId: uploadedImage?.publicId ?? (imageRemoved ? null : imageData?.publicId ?? null),
       };
@@ -227,7 +227,7 @@ export function WhyJoinUsForm() {
     try {
       const res = await whyJoinUsService.update({
         title: sectionTitle,
-        description: sectionDescription,
+        description: sectionDescription ? DOMPurify.sanitize(sectionDescription) : "",
         visible: sectionVisible,
         points,
       });
