@@ -33,6 +33,8 @@ interface RichTextEditorProps {
   placeholder?: string;
   disabled?: boolean;
   onUploadingChange?: (uploading: boolean) => void;
+  showToolbar?: boolean;
+  minHeight?: string;
 }
 
 export function RichTextEditor({
@@ -42,6 +44,8 @@ export function RichTextEditor({
   placeholder = "Start writing...",
   disabled = false,
   onUploadingChange,
+  showToolbar = true,
+  minHeight = "200px",
 }: RichTextEditorProps) {
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -65,7 +69,7 @@ export function RichTextEditor({
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" } }),
       Image.configure({ inline: false, allowBase64: false }),
       Placeholder.configure({ placeholder }),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      TextAlign.configure({ types: ["heading", "paragraph", "bulletList", "orderedList", "listItem"] }),
       Underline,
     ],
     content: value,
@@ -82,7 +86,7 @@ export function RichTextEditor({
         }
       });
       onChange(html, images);
-      setCharCount(ed.storage.characterCount?.characters?.() ?? ed.getText().length);
+      setCharCount(ed.getText().length);
     },
     editorProps: {
       handleDrop: (view: any, event: DragEvent, slice: any, moved: boolean) => {
@@ -113,7 +117,7 @@ export function RichTextEditor({
       },
       attributes: {
         class:
-          "prose prose-lg max-w-none focus:outline-none min-h-[200px] px-4 py-3 rounded-lg border border-input bg-background",
+          "tiptap-editor-content focus:outline-none min-h-[200px] px-4 py-3 rounded-lg border border-input bg-background",
       },
     },
   });
@@ -166,8 +170,7 @@ export function RichTextEditor({
   useEffect(() => {
     if (editor) {
       const updateCount = () => {
-        const count = editor.storage.characterCount?.characters?.() ?? editor.getText().length;
-        setCharCount(count);
+        setCharCount(editor.getText().length);
       };
       updateCount();
       editor.on("update", updateCount);
@@ -198,136 +201,139 @@ export function RichTextEditor({
 
   return (
     <div className={`rounded-xl border ${isDark ? "border-border/60 bg-card" : "border-border bg-background"} overflow-hidden`}>
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border/60 bg-muted/30">
-        <ToolbarButton
-          icon={<UndoIcon />}
-          label="Undo"
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo() || disabled}
-        />
-        <ToolbarButton
-          icon={<RedoIcon />}
-          label="Redo"
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo() || disabled}
-        />
-        <div className="w-px h-6 bg-border/60 mx-1" />
-        <ToolbarButton
-          icon={<BoldIcon />}
-          label="Bold"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          disabled={disabled}
-          active={editor.isActive("bold")}
-        />
-        <ToolbarButton
-          icon={<ItalicIcon />}
-          label="Italic"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          disabled={disabled}
-          active={editor.isActive("italic")}
-        />
-        <ToolbarButton
-          icon={<UnderlineIcon />}
-          label="Underline"
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          disabled={disabled}
-          active={editor.isActive("underline")}
-        />
-        <div className="w-px h-6 bg-border/60 mx-1" />
-        <HeadingSelect editor={editor} disabled={disabled} />
-        <ToolbarButton
-          icon={<ParagraphIcon />}
-          label="Paragraph"
-          onClick={() => editor.chain().focus().setParagraph().run()}
-          disabled={disabled}
-          active={editor.isActive("paragraph")}
-        />
-        <div className="w-px h-6 bg-border/60 mx-1" />
-        <ToolbarButton
-          icon={<BulletListIcon />}
-          label="Bullet List"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          disabled={disabled}
-          active={editor.isActive("bulletList")}
-        />
-        <ToolbarButton
-          icon={<OrderedListIcon />}
-          label="Ordered List"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          disabled={disabled}
-          active={editor.isActive("orderedList")}
-        />
-        <ToolbarButton
-          icon={<BlockQuoteIcon />}
-          label="Block Quote"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          disabled={disabled}
-          active={editor.isActive("blockquote")}
-        />
-        <ToolbarButton
-          icon={<CodeBlockIcon />}
-          label="Code Block"
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          disabled={disabled}
-          active={editor.isActive("codeBlock")}
-        />
-        <ToolbarButton
-          icon={<HorizontalRuleIcon />}
-          label="Horizontal Rule"
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          disabled={disabled}
-        />
-        <div className="w-px h-6 bg-border/60 mx-1" />
-        <AlignButton editor={editor} disabled={disabled} />
-        <ToolbarButton
-          icon={<LinkIcon />}
-          label="Add Link"
-          onClick={() => {
-            const previousUrl = editor.getAttributes("link").href || "";
-            setLinkUrl(previousUrl);
-            setIsLinkDialogOpen(true);
-          }}
-          disabled={disabled}
-          active={editor.isActive("link")}
-        />
-        <ToolbarButton
-           icon={<ImageIcon />}
-           label="Insert Image"
-           onClick={() => {
-             const input = document.createElement("input");
-             input.type = "file";
-             input.accept = "image/*";
-             input.onchange = async (e) => {
-               const file = (e.target as HTMLInputElement).files?.[0];
-               if (file) await handleImageUpload(file);
-             };
-             input.click();
-           }}
-           disabled={disabled || isUploading}
-         />
-         <ToolbarButton
-           icon={<TrashIcon />}
-           label="Delete Image"
-           onClick={() => {
-             if (!editor || !editor.isActive("image")) return;
-             editor.chain().focus().deleteSelection().run();
-           }}
-           disabled={disabled || !editor?.isActive("image")}
-         />
-        {isUploading && (
-          <span className="text-xs text-muted-foreground ml-2">Uploading... {uploadProgress}%</span>
-        )}
-      </div>
+      {showToolbar && (
+        <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border/60 bg-muted/30">
+          <ToolbarButton
+            icon={<UndoIcon />}
+            label="Undo"
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editor.can().undo() || disabled}
+          />
+          <ToolbarButton
+            icon={<RedoIcon />}
+            label="Redo"
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editor.can().redo() || disabled}
+          />
+          <div className="w-px h-6 bg-border/60 mx-1" />
+          <ToolbarButton
+            icon={<BoldIcon />}
+            label="Bold"
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            disabled={disabled}
+            active={editor.isActive("bold")}
+          />
+          <ToolbarButton
+            icon={<ItalicIcon />}
+            label="Italic"
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            disabled={disabled}
+            active={editor.isActive("italic")}
+          />
+          <ToolbarButton
+            icon={<UnderlineIcon />}
+            label="Underline"
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            disabled={disabled}
+            active={editor.isActive("underline")}
+          />
+          <div className="w-px h-6 bg-border/60 mx-1" />
+          <HeadingSelect editor={editor} disabled={disabled} />
+          <ToolbarButton
+            icon={<ParagraphIcon />}
+            label="Paragraph"
+            onClick={() => editor.chain().focus().setParagraph().run()}
+            disabled={disabled}
+            active={editor.isActive("paragraph")}
+          />
+          <div className="w-px h-6 bg-border/60 mx-1" />
+          <ToolbarButton
+            icon={<BulletListIcon />}
+            label="Bullet List"
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            disabled={disabled}
+            active={editor.isActive("bulletList")}
+          />
+          <ToolbarButton
+            icon={<OrderedListIcon />}
+            label="Ordered List"
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            disabled={disabled}
+            active={editor.isActive("orderedList")}
+          />
+          <ToolbarButton
+            icon={<BlockQuoteIcon />}
+            label="Block Quote"
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            disabled={disabled}
+            active={editor.isActive("blockquote")}
+          />
+          <ToolbarButton
+            icon={<CodeBlockIcon />}
+            label="Code Block"
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            disabled={disabled}
+            active={editor.isActive("codeBlock")}
+          />
+          <ToolbarButton
+            icon={<HorizontalRuleIcon />}
+            label="Horizontal Rule"
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            disabled={disabled}
+          />
+          <div className="w-px h-6 bg-border/60 mx-1" />
+          <AlignButton editor={editor} disabled={disabled} />
+          <ToolbarButton
+            icon={<LinkIcon />}
+            label="Add Link"
+            onClick={() => {
+              const previousUrl = editor.getAttributes("link").href || "";
+              setLinkUrl(previousUrl);
+              setIsLinkDialogOpen(true);
+            }}
+            disabled={disabled}
+            active={editor.isActive("link")}
+          />
+          <ToolbarButton
+             icon={<ImageIcon />}
+             label="Insert Image"
+             onClick={() => {
+               const input = document.createElement("input");
+               input.type = "file";
+               input.accept = "image/*";
+               input.onchange = async (e) => {
+                 const file = (e.target as HTMLInputElement).files?.[0];
+                 if (file) await handleImageUpload(file);
+               };
+               input.click();
+             }}
+             disabled={disabled || isUploading}
+           />
+           <ToolbarButton
+             icon={<TrashIcon />}
+             label="Delete Image"
+             onClick={() => {
+               if (!editor || !editor.isActive("image")) return;
+               editor.chain().focus().deleteSelection().run();
+             }}
+             disabled={disabled || !editor?.isActive("image")}
+           />
+          {isUploading && (
+            <span className="text-xs text-muted-foreground ml-2">Uploading... {uploadProgress}%</span>
+          )}
+        </div>
+      )}
 
       {/* Editor */}
       <EditorContent editor={editor} />
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-border/60 bg-muted/20 text-xs text-muted-foreground">
-        <span>{charCount} characters</span>
-        <span>TipTap Editor</span>
-      </div>
+      {showToolbar && (
+        <div className="flex items-center justify-between px-4 py-2 border-t border-border/60 bg-muted/20 text-xs text-muted-foreground">
+          <span>{charCount} characters</span>
+          <span>TipTap Editor</span>
+        </div>
+      )}
 
       {/* Link Dialog */}
       <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
@@ -678,18 +684,18 @@ function AlignJustifyIcon() {
 }
 
  function ChevronDownIcon({ className }: { className?: string }) {
-   return (
-     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-       <polyline points="6 9 12 15 18 9" />
-     </svg>
-   );
- }
+    return (
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    );
+  }
 
- function TrashIcon() {
-   return (
-     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-       <polyline points="3 6 5 6 21 6" />
-       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-     </svg>
-   );
- }
+  function TrashIcon() {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      </svg>
+    );
+  }

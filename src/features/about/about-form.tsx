@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { IconButton } from "@/components/admin/icon-button";
 import { FormCard } from "@/components/admin/form-card";
 import { StatInput } from "@/components/admin/stat-input";
@@ -164,7 +164,12 @@ export function AboutForm() {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea rows={5} {...field} />
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={(html) => field.onChange(html)}
+                    showToolbar={false}
+                    minHeight="150px"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -343,9 +348,15 @@ export function AboutForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Story Description</FormLabel>
-                    <FormControl>
-                      <Textarea rows={4} placeholder="Tell your story..." {...field} />
-                    </FormControl>
+                <FormControl>
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={(html) => field.onChange(html)}
+                    showToolbar={false}
+                    minHeight="120px"
+                    placeholder="Tell your story..."
+                  />
+                </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

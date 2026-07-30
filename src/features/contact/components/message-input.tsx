@@ -2,38 +2,31 @@
 
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 interface MessageInputProps {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   isSending: boolean;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export function MessageInput({
   value,
   onChange,
   onSend,
-  onKeyDown,
   isSending,
-  textareaRef,
 }: MessageInputProps) {
   return (
     <div className="shrink-0 border-t border-border px-3 py-2.5">
       <div className="flex gap-2">
-        <Textarea
-          ref={textareaRef}
-          placeholder="Type your message..."
+        <RichTextEditor
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={onKeyDown}
-          rows={1}
-          className="resize-none min-h-[44px] max-h-[160px] overflow-y-auto text-sm"
+          onChange={(html) => onChange(html)}
+          placeholder="Type your message..."
           disabled={isSending}
-          aria-label="Message input"
+          showToolbar={false}
+          minHeight="44px"
         />
         <Button
           onClick={onSend}
@@ -45,9 +38,6 @@ export function MessageInput({
           <Send className="size-4" />
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground mt-1.5">
-        Press Enter to send, Shift+Enter for new line
-      </p>
     </div>
   );
 }

@@ -23,7 +23,6 @@ export function ChatManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Detect mobile
   useEffect(() => {
@@ -85,6 +84,12 @@ export function ChatManager() {
     setMessages([]);
   }, []);
 
+  // Strip HTML tags to get plain text for chat messages
+  const stripHtml = useCallback((html: string): string => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+  }, []);
+
   // Send a message
   const sendMessage = useCallback(async () => {
     if (!selectedConversation || !messageText.trim() || isSending) return;
@@ -93,7 +98,7 @@ export function ChatManager() {
     try {
       await contactService.sendMessage(
         selectedConversation._id,
-        messageText.trim()
+        stripHtml(messageText).trim()
       );
 
       // Reload messages after sending
@@ -103,7 +108,6 @@ export function ChatManager() {
       await loadConversations();
 
       setMessageText("");
-      textareaRef.current?.focus();
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Failed to send message"
@@ -118,17 +122,6 @@ export function ChatManager() {
     loadMessages,
     loadConversations,
   ]);
-
-  // Handle keyboard shortcut
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    },
-    [sendMessage]
-  );
 
   // Initial load
   useEffect(() => {
@@ -187,9 +180,7 @@ export function ChatManager() {
                 value={messageText}
                 onChange={setMessageText}
                 onSend={sendMessage}
-                onKeyDown={handleKeyDown}
                 isSending={isSending}
-                textareaRef={textareaRef}
               />
             </>
           ) : (

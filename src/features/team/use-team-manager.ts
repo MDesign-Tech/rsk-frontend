@@ -221,6 +221,32 @@ export function useTeamManager() {
     }
   };
 
+  const moveMember = async (memberId: string, targetSectionId: string) => {
+    const member = members.find((m) => m._id === memberId);
+    if (!member) return;
+
+    const prevSectionId = sectionIdOf(member);
+    setMembers((prev) =>
+      prev.map((m) =>
+        m._id === memberId ? { ...m, section: targetSectionId } : m,
+      ),
+    );
+
+    try {
+      await teamService.move(memberId, targetSectionId);
+      toast.success("Team member moved successfully");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to move team member",
+      );
+      setMembers((prev) =>
+        prev.map((m) =>
+          m._id === memberId ? { ...m, section: prevSectionId } : m,
+        ),
+      );
+    }
+  };
+
   return {
     members,
     sections,
@@ -259,5 +285,6 @@ export function useTeamManager() {
     handleViewMember,
     reorderSections,
     reorderMembers,
+    moveMember,
   };
 }

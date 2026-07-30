@@ -7,7 +7,7 @@ import type { ContactMessage, ContactStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/admin/icon-button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import {
   Dialog,
   DialogContent,
@@ -279,12 +279,13 @@ export function ContactManager() {
               .
             </DialogDescription>
           </DialogHeader>
-          <Textarea
+          <RichTextEditor
             value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
+            onChange={(html) => setReplyText(html)}
             placeholder="Type your reply..."
-            rows={6}
             disabled={isReplying}
+            showToolbar={true}
+            minHeight="150px"
           />
           <DialogFooter>
             <Button

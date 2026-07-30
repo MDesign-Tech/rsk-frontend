@@ -86,6 +86,7 @@ export function TeamManager() {
                     togglingMemberId={t.togglingMemberId}
                     togglingSectionId={t.togglingSectionId}
                     onReorderMembers={t.reorderMembers}
+                    onMoveMember={t.moveMember}
                   />
                 </div>
               </div>

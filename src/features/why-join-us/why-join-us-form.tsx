@@ -5,7 +5,7 @@ import { Plus, Trash2, Pencil, CheckCircle } from "lucide-react";
 import { whyJoinUsService } from "@/services/why-join-us.service";
 import type { WhyJoinUsPoint } from "@/types";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { IconButton } from "@/components/admin/icon-button";
 import { FormCard } from "@/components/admin/form-card";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
@@ -263,11 +263,12 @@ export function WhyJoinUsForm() {
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Description</label>
-            <Textarea
-              rows={4}
+            <RichTextEditor
               value={sectionDescription}
-              onChange={(e) => setSectionDescription(e.target.value)}
+              onChange={(html) => setSectionDescription(html)}
               disabled={isSaving}
+              showToolbar={true}
+              minHeight="150px"
             />
           </div>
           <div className="space-y-3">
@@ -402,11 +403,12 @@ export function WhyJoinUsForm() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Description</label>
-              <Textarea
-                rows={3}
+              <RichTextEditor
                 value={pointDescription}
-                onChange={(e) => { setPointDescription(e.target.value); setPointErrors((prev) => ({ ...prev, description: undefined })); }}
+                onChange={(html) => { setPointDescription(html); setPointErrors((prev) => ({ ...prev, description: undefined })); }}
                 disabled={isBusy}
+                showToolbar={true}
+                minHeight="120px"
               />
               {pointErrors.description && (
                 <p className="text-sm text-destructive">{pointErrors.description}</p>

@@ -9,6 +9,7 @@ import { LocationSection } from "@/components/location-section";
 import { contactService } from "@/services/contact.service";
 import { toast } from "sonner";
 import { useWebsiteStore } from "@/stores/website.store";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 const CONTACT_ICONS = [Mail, Phone, MapPin];
 
@@ -45,12 +46,19 @@ export function ContactUs() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleMessageChange = (html: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      message: html,
     }));
   };
 
@@ -168,25 +176,22 @@ export function ContactUs() {
                  />
                </div>
 
-               <div>
-                 <label
-                   htmlFor="message"
-                   className="block text-sm font-medium mb-1.5"
-                 >
-                   Message
-                 </label>
-                 <textarea
-                   id="message"
-                   name="message"
-                   value={formData.message}
-                   onChange={handleChange}
-                   required
-                   rows={4}
-                   disabled={isSubmitting}
-                   className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-colors resize-none text-sm"
-                   placeholder="Tell us about your project..."
-                 />
-               </div>
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium mb-1.5"
+                  >
+                    Message
+                  </label>
+                  <RichTextEditor
+                    value={formData.message}
+                    onChange={handleMessageChange}
+                    placeholder="Tell us about your project..."
+                    disabled={isSubmitting}
+                    showToolbar={false}
+                    minHeight="120px"
+                  />
+                </div>
 
                <SubmitButton
                  type="submit"

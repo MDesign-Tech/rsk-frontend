@@ -10,7 +10,7 @@ import { faqService } from "@/services/faq.service";
 import type { FAQ } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import {
   Form,
   FormControl,
@@ -302,7 +302,7 @@ export function FaqsManager() {
                   <FormItem>
                     <FormLabel>Answer</FormLabel>
                     <FormControl>
-                      <Textarea rows={5} {...field} disabled={isSaving} />
+                      <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isSaving} showToolbar={true} minHeight="150px" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

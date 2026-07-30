@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -243,7 +243,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea rows={4} {...field} disabled={isBusy} />
+                    <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="150px" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

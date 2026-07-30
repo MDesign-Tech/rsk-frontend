@@ -10,7 +10,7 @@ import { teamService } from "@/services/team.service";
 import type { ApiResponse, TeamMember, TeamSection, CloudinaryImage } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -186,7 +186,7 @@ export function MemberFormDialog({
               </FormItem>
             )} />
             <FormField control={form.control} name="bio" render={({ field }) => (
-              <FormItem><FormLabel>Bio</FormLabel><FormControl><Textarea rows={3} {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Bio</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
             )} />
             <SocialMediaField control={form.control} />
             <div className="space-y-2">

@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import {
   Tooltip,
   TooltipContent,
@@ -173,7 +173,7 @@ export function MissionVisionForm() {
               <FormItem>
                 <FormLabel>Mission Description</FormLabel>
                 <FormControl>
-                  <Textarea rows={4} {...field} />
+                  <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} showToolbar={true} minHeight="150px" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -186,7 +186,7 @@ export function MissionVisionForm() {
               <FormItem>
                 <FormLabel>Vision Description</FormLabel>
                 <FormControl>
-                  <Textarea rows={4} {...field} />
+                  <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} showToolbar={true} minHeight="150px" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

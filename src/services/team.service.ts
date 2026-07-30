@@ -65,6 +65,11 @@ export const teamService = {
     api
       .patch<ApiResponse<Record<string, never>>>("/team/reorder", { order })
       .then((res) => res.data),
+
+  move: (id: string, sectionId: string) =>
+    api
+      .patch<ApiResponse<{ teamMember: TeamMember }>>(`/team/${id}/move`, { section: sectionId })
+      .then((res) => res.data),
 };
 
 export const teamSectionService = {

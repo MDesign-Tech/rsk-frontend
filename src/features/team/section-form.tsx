@@ -7,7 +7,7 @@ import { teamSectionSchema, type TeamSectionInput } from "@/schemas";
 import type { TeamSection } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SubmitButton } from "@/components/admin/submit-button";
@@ -65,7 +65,7 @@ export function SectionFormDialog({
               <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={3} {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Description</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
