@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Target, Eye } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { useWebsiteStore } from "@/stores/website.store";
 
 export function MissionVision() {
@@ -54,9 +55,12 @@ export function MissionVision() {
               </h3>
             </div>
 
-            <p className="text-foreground leading-relaxed">
-              {mv.missionDescription}
-            </p>
+            <p
+              className="text-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(mv.missionDescription),
+              }}
+            />
           </motion.div>
 
 
@@ -81,9 +85,12 @@ export function MissionVision() {
               </h3>
             </div>
 
-            <p className="text-foreground leading-relaxed">
-              {mv.visionDescription}
-            </p>
+            <p
+              className="text-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(mv.visionDescription),
+              }}
+            />
           </motion.div>
 
         </div>

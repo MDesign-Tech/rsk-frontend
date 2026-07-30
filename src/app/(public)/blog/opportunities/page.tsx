@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Navbar } from "@/components/navbar";
 import { SectionDivider } from "@/components/section-divider";
 import { publicOpportunityService } from "@/services/public-opportunity.service";
+import DOMPurify from "isomorphic-dompurify";
 import type { Opportunity } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -172,9 +173,12 @@ export default function OpportunitiesPage() {
                         <time>{new Date(item.date).toLocaleDateString()}</time>
                       </p>
                       {item.description && (
-                        <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                          {item.description}
-                        </p>
+                        <p
+                          className="mt-4 text-sm leading-6 text-muted-foreground"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(item.description),
+                          }}
+                        />
                       )}
                       <Link
                         href={`/contact`}

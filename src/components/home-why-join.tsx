@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import DOMPurify from "isomorphic-dompurify";
 import { useWebsiteStore } from "@/stores/website.store";
 
 export function HomeWhyJoin() {
@@ -62,9 +63,12 @@ export function HomeWhyJoin() {
                   <h3 className="mt-6 text-xl font-semibold text-foreground">
                     {point.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                    {point.description}
-                  </p>
+                   <p
+                     className="mt-3 text-sm leading-7 text-muted-foreground"
+                     dangerouslySetInnerHTML={{
+                       __html: DOMPurify.sanitize(point.description),
+                     }}
+                   />
                 </motion.div>
               );
             })}

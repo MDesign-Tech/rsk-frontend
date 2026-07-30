@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { Globe, Target } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { Navbar } from "@/components/navbar";
 import { SectionDivider } from "@/components/section-divider";
 import { useWebsiteStore } from "@/stores/website.store";

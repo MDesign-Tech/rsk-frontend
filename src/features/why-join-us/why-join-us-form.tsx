@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Plus, Trash2, Pencil, CheckCircle } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { whyJoinUsService } from "@/services/why-join-us.service";
 import type { WhyJoinUsPoint } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -73,7 +74,7 @@ export function WhyJoinUsForm() {
       }));
       setPoints(normalizedPoints);
       setSectionTitle(data.title);
-      setSectionDescription(data.description);
+      setSectionDescription(data.description ? DOMPurify.sanitize(data.description) : "");
       setSectionVisible(data.visible ?? true);
       setIsLoading(false);
     } catch (err) {
