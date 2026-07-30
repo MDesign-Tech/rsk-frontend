@@ -360,16 +360,17 @@ export function WhyJoinUsForm() {
         }
         if (!isBusy) setDialogOpen(isOpen);
       }}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="flex flex-col max-h-[90vh]">
+          <DialogHeader className="shrink-0">
             <DialogTitle>{editingPoint ? "Edit Point" : "Add Point"}</DialogTitle>
             <DialogDescription>
               {editingPoint ? "Update the point details." : "Fill in the details to add a new point."}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Image</label>
+          <div className="flex-1 overflow-y-auto">
+            <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Image</label>
                 <ImageUpload
                   ref={imageUploadRef}
                   value={
@@ -389,45 +390,46 @@ export function WhyJoinUsForm() {
                   removeProgress={deleteImageProgress}
                   label="Point image"
                 />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Title</label>
-              <Input
-                value={pointTitle}
-                onChange={(e) => { setPointTitle(e.target.value); setPointErrors((prev) => ({ ...prev, title: undefined })); }}
-                disabled={isBusy}
-              />
-              {pointErrors.title && (
-                <p className="text-sm text-destructive">{pointErrors.title}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Description</label>
-              <RichTextEditor
-                value={pointDescription}
-                onChange={(html) => { setPointDescription(html); setPointErrors((prev) => ({ ...prev, description: undefined })); }}
-                disabled={isBusy}
-                showToolbar={true}
-                minHeight="120px"
-              />
-              {pointErrors.description && (
-                <p className="text-sm text-destructive">{pointErrors.description}</p>
-              )}
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setDialogOpen(false)}
-                disabled={isBusy}
-              >
-                Cancel
-              </Button>
-              <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
-                {editingPoint ? "Save Changes" : "Create"}
-              </SubmitButton>
-            </DialogFooter>
-          </form>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Title</label>
+                <Input
+                  value={pointTitle}
+                  onChange={(e) => { setPointTitle(e.target.value); setPointErrors((prev) => ({ ...prev, title: undefined })); }}
+                  disabled={isBusy}
+                />
+                {pointErrors.title && (
+                  <p className="text-sm text-destructive">{pointErrors.title}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Description</label>
+                <RichTextEditor
+                  value={pointDescription}
+                  onChange={(html) => { setPointDescription(html); setPointErrors((prev) => ({ ...prev, description: undefined })); }}
+                  disabled={isBusy}
+                  showToolbar={true}
+                  minHeight="120px"
+                />
+                {pointErrors.description && (
+                  <p className="text-sm text-destructive">{pointErrors.description}</p>
+                )}
+              </div>
+            </form>
+          </div>
+          <DialogFooter className="shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              disabled={isBusy}
+            >
+              Cancel
+            </Button>
+            <SubmitButton isLoading={isSaving} disabled={isBusy} type="submit">
+              {editingPoint ? "Save Changes" : "Create"}
+            </SubmitButton>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

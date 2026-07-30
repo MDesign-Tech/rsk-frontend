@@ -270,61 +270,63 @@ export function FaqsManager() {
         />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={(isOpen) => { if (!isSaving) setDialogOpen(isOpen); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editing ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
-            <DialogDescription>
-              {editing
-                ? "Update the details of this FAQ."
-                : "Fill in the question and answer to create a new FAQ."}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="question"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Question</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="answer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Answer</FormLabel>
-                    <FormControl>
-                      <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isSaving} showToolbar={true} minHeight="150px" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={isSaving}
-                >
-                  Cancel
-                </Button>
-                <SubmitButton isLoading={isSaving} disabled={isSaving || !canCreateFaq}>
-                  {editing ? "Save Changes" : "Create"}
-                </SubmitButton>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+       <Dialog open={dialogOpen} onOpenChange={(isOpen) => { if (!isSaving) setDialogOpen(isOpen); }}>
+         <DialogContent className="flex flex-col max-h-[90vh]">
+           <DialogHeader className="shrink-0">
+             <DialogTitle>{editing ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
+             <DialogDescription>
+               {editing
+                 ? "Update the details of this FAQ."
+                 : "Fill in the question and answer to create a new FAQ."}
+             </DialogDescription>
+           </DialogHeader>
+           <div className="flex-1 overflow-y-auto">
+             <Form {...form}>
+               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                 <FormField
+                   control={form.control}
+                   name="question"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Question</FormLabel>
+                       <FormControl>
+                         <Input {...field} disabled={isSaving} />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 <FormField
+                   control={form.control}
+                   name="answer"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Answer</FormLabel>
+                       <FormControl>
+                         <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isSaving} showToolbar={true} minHeight="150px" />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+               </form>
+             </Form>
+           </div>
+           <DialogFooter className="shrink-0">
+             <Button
+               type="button"
+               variant="outline"
+               onClick={() => setDialogOpen(false)}
+               disabled={isSaving}
+             >
+               Cancel
+             </Button>
+             <SubmitButton isLoading={isSaving} disabled={isSaving || !canCreateFaq}>
+               {editing ? "Save Changes" : "Create"}
+             </SubmitButton>
+           </DialogFooter>
+         </DialogContent>
+       </Dialog>
 
       <Dialog open={!!viewFaq} onOpenChange={(o) => !o && setViewFaq(null)}>
         <DialogContent>

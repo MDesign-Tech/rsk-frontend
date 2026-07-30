@@ -44,35 +44,37 @@ export function SectionFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isBusy) onOpenChange(isOpen); }}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="flex flex-col max-h-[90vh]">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{editing ? "Edit Section" : "Add Section"}</DialogTitle>
           <DialogDescription>
             {editing ? "Update this team section." : "Create a new team section to group members."}
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(async (values) => {
-              setIsSubmitting(true);
-              await onSubmit(values);
-              setIsSubmitting(false);
-              onOpenChange(false);
-            })}
-            className="space-y-4"
-          >
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>Description</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
-            )} />
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
-              <SubmitButton isLoading={isBusy} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
-            </DialogFooter>
-          </form>
-        </Form>
+        <div className="flex-1 overflow-y-auto">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(async (values) => {
+                setIsSubmitting(true);
+                await onSubmit(values);
+                setIsSubmitting(false);
+                onOpenChange(false);
+              })}
+              className="space-y-4"
+            >
+              <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="description" render={({ field }) => (
+                <FormItem><FormLabel>Description</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
+              )} />
+            </form>
+          </Form>
+        </div>
+        <DialogFooter className="shrink-0">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
+          <SubmitButton isLoading={isBusy} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

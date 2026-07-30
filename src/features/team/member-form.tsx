@@ -160,37 +160,38 @@ export function MemberFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="flex flex-col max-h-[90vh]">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{editing ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
           <DialogDescription>
             {editing ? "Update the details of this team member." : "Fill in the details to add a new team member."}
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="title" render={({ field }) => (
-              <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="section" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Section</FormLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Select a section" /></SelectTrigger></FormControl>
-                  <SelectContent>{sections.map((s) => (<SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>))}</SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="bio" render={({ field }) => (
-              <FormItem><FormLabel>Bio</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
-            )} />
-            <SocialMediaField control={form.control} />
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Photo</label>
+        <div className="flex-1 overflow-y-auto">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="section" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Section</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select a section" /></SelectTrigger></FormControl>
+                    <SelectContent>{sections.map((s) => (<SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>))}</SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="bio" render={({ field }) => (
+                <FormItem><FormLabel>Bio</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <SocialMediaField control={form.control} />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Photo</label>
                 <ImageUpload
                   ref={imageUploadRef}
                   value={
@@ -210,14 +211,15 @@ export function MemberFormDialog({
                   removeProgress={deleteImageProgress}
                   label="Team member photo"
                 />
-              <p className="text-sm text-muted-foreground">Select a new image and save to update the photo.</p>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
-              <SubmitButton isLoading={form.formState.isSubmitting} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
-            </DialogFooter>
-          </form>
-        </Form>
+                <p className="text-sm text-muted-foreground">Select a new image and save to update the photo.</p>
+              </div>
+            </form>
+          </Form>
+        </div>
+        <DialogFooter className="shrink-0">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>
+          <SubmitButton isLoading={form.formState.isSubmitting} disabled={isBusy}>{editing ? "Save Changes" : "Create"}</SubmitButton>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

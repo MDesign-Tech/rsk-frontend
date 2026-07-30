@@ -313,199 +313,199 @@ export function UsersManager() {
         <DataTable columns={columns} data={filtered} keyField="_id" />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={(isOpen) => { if (!isSaving) setDialogOpen(isOpen); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editing ? "Edit User" : "Add User"}</DialogTitle>
-            <DialogDescription>
-              {editing
-                ? "Update the details of this user. Leave password blank to keep it unchanged."
-                : "Select a team member to link, then enter the login credentials."}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {!editing && (
-                <FormField
-                  control={form.control}
-                  name="memberId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Link team Member Profile</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          // Auto-fill name from selected member, hide name field when member selected
-                          if (value && value !== "__none__") {
-                            const member = availableMembers.find(m => m._id === value);
-                            if (member) {
-                              form.setValue("name", member.name);
-                            }
-                          } else {
-                            form.setValue("name", "");
-                          }
-                        }}
-                        value={field.value ?? "__none__"}
-                        disabled={isSaving}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a team member (optional)" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="__none__">None (no profile)</SelectItem>
-                          {availableMembers.map((member) => (
-                            <SelectItem key={member._id} value={member._id}>
-                              {member.name} {member.department ? `- ${member.department}` : ""}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {editing && (
-                <FormField
-                  control={form.control}
-                  name="memberId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Link team Member Profile</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value ?? "__none__"}
-                        disabled={isSaving}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a team member (optional)" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="__none__">None (no profile)</SelectItem>
-                          {allMembers.map((member) => (
-                            <SelectItem key={member._id} value={member._id}>
-                              {member.name} {member.department ? `- ${member.department}` : ""}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {/* Show name field only when no member is selected (create mode) */}
-              {!editing && form.watch("memberId") === "__none__" && (
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} disabled={isSaving} placeholder="Enter full name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        {...field}
-                        disabled={isSaving}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleEmailChange(e.target.value);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isSaving} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Password{editing ? " (leave blank to keep current)" : ""}
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder={editing ? "••••••••" : (form.watch("email") || "At least 6 characters")}
-                          {...field}
-                          disabled={isSaving}
-                          className="pr-10"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          disabled={isSaving}
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="size-4 text-muted-foreground" />
-                          ) : (
-                            <Eye className="size-4 text-muted-foreground" />
-                          )}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={isSaving}
-                >
-                  Cancel
-                </Button>
-                <SubmitButton isLoading={isSaving} disabled={isSaving}>
-                  {editing ? "Save Changes" : "Create"}
-                </SubmitButton>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+       <Dialog open={dialogOpen} onOpenChange={(isOpen) => { if (!isSaving) setDialogOpen(isOpen); }}>
+         <DialogContent className="flex flex-col max-h-[90vh]">
+           <DialogHeader className="shrink-0">
+             <DialogTitle>{editing ? "Edit User" : "Add User"}</DialogTitle>
+             <DialogDescription>
+               {editing
+                 ? "Update the details of this user. Leave password blank to keep it unchanged."
+                 : "Select a team member to link, then enter the login credentials."}
+             </DialogDescription>
+           </DialogHeader>
+           <div className="flex-1 overflow-y-auto">
+             <Form {...form}>
+               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                 {!editing && (
+                   <FormField
+                     control={form.control}
+                     name="memberId"
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Link team Member Profile</FormLabel>
+                         <Select
+                           onValueChange={(value) => {
+                             field.onChange(value);
+                             if (value && value !== "__none__") {
+                               const member = availableMembers.find(m => m._id === value);
+                               if (member) {
+                                 form.setValue("name", member.name);
+                               }
+                             } else {
+                               form.setValue("name", "");
+                             }
+                           }}
+                           value={field.value ?? "__none__"}
+                           disabled={isSaving}
+                         >
+                           <FormControl>
+                             <SelectTrigger>
+                               <SelectValue placeholder="Select a team member (optional)" />
+                             </SelectTrigger>
+                           </FormControl>
+                           <SelectContent>
+                             <SelectItem value="__none__">None (no profile)</SelectItem>
+                             {availableMembers.map((member) => (
+                               <SelectItem key={member._id} value={member._id}>
+                                 {member.name} {member.department ? `- ${member.department}` : ""}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                 )}
+ 
+                 {editing && (
+                   <FormField
+                     control={form.control}
+                     name="memberId"
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Link team Member Profile</FormLabel>
+                         <Select
+                           onValueChange={field.onChange}
+                           value={field.value ?? "__none__"}
+                           disabled={isSaving}
+                         >
+                           <FormControl>
+                             <SelectTrigger>
+                               <SelectValue placeholder="Select a team member (optional)" />
+                             </SelectTrigger>
+                           </FormControl>
+                           <SelectContent>
+                             <SelectItem value="__none__">None (no profile)</SelectItem>
+                             {allMembers.map((member) => (
+                               <SelectItem key={member._id} value={member._id}>
+                                 {member.name} {member.department ? `- ${member.department}` : ""}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                 )}
+ 
+                 {!editing && form.watch("memberId") === "__none__" && (
+                   <FormField
+                     control={form.control}
+                     name="name"
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Name</FormLabel>
+                         <FormControl>
+                           <Input {...field} disabled={isSaving} placeholder="Enter full name" />
+                         </FormControl>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                 )}
+ 
+                 <FormField
+                   control={form.control}
+                   name="email"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Email</FormLabel>
+                       <FormControl>
+                         <Input
+                           type="email"
+                           {...field}
+                           disabled={isSaving}
+                           onChange={(e) => {
+                             field.onChange(e);
+                             handleEmailChange(e.target.value);
+                           }}
+                         />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 <FormField
+                   control={form.control}
+                   name="phone"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Phone</FormLabel>
+                       <FormControl>
+                         <Input {...field} disabled={isSaving} />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 <FormField
+                   control={form.control}
+                   name="password"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>
+                         Password{editing ? " (leave blank to keep current)" : ""}
+                       </FormLabel>
+                       <FormControl>
+                         <div className="relative">
+                           <Input
+                             type={showPassword ? "text" : "password"}
+                             placeholder={editing ? "••••••••" : (form.watch("email") || "At least 6 characters")}
+                             {...field}
+                             disabled={isSaving}
+                             className="pr-10"
+                           />
+                           <Button
+                             type="button"
+                             variant="ghost"
+                             size="sm"
+                             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                             onClick={() => setShowPassword((prev) => !prev)}
+                             disabled={isSaving}
+                             aria-label={showPassword ? "Hide password" : "Show password"}
+                           >
+                             {showPassword ? (
+                               <EyeOff className="size-4 text-muted-foreground" />
+                             ) : (
+                               <Eye className="size-4 text-muted-foreground" />
+                             )}
+                           </Button>
+                         </div>
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+               </form>
+             </Form>
+           </div>
+           <DialogFooter className="shrink-0">
+             <Button
+               type="button"
+               variant="outline"
+               onClick={() => setDialogOpen(false)}
+               disabled={isSaving}
+             >
+               Cancel
+             </Button>
+             <SubmitButton isLoading={isSaving} disabled={isSaving}>
+               {editing ? "Save Changes" : "Create"}
+             </SubmitButton>
+           </DialogFooter>
+         </DialogContent>
+       </Dialog>
 
        {/* Link Member Dialog */}
        <Dialog open={linkDialogOpen} onOpenChange={(isOpen) => { if (!isLinking) setLinkDialogOpen(isOpen); }}>

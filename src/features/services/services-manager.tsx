@@ -359,7 +359,7 @@ export function ServicesManager() {
         />
       )}
 
-      <Dialog
+       <Dialog
         open={dialogOpen}
         onOpenChange={(isOpen) => {
           if (!isOpen && (imageData || imageRemoved) && !isBusy) {
@@ -371,8 +371,8 @@ export function ServicesManager() {
           if (!isBusy) setDialogOpen(isOpen);
         }}
       >
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="flex flex-col max-h-[90vh]">
+          <DialogHeader className="shrink-0">
             <DialogTitle>
               {editing ? "Edit Service" : "Add Service"}
             </DialogTitle>
@@ -382,80 +382,82 @@ export function ServicesManager() {
                 : "Fill in the details to create a new service."}
             </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Icon</label>
-                <ImageUpload
-                  ref={imageUploadRef}
-                  value={
-                    editing?.image && editing?.imagePublicId && !imageRemoved
-                      ? { url: editing.image, publicId: editing.imagePublicId }
-                      : imageData
-                  }
-                  onChange={setImageData}
-                  onRemoved={(publicId) => {
-                    setImageRemoved(true);
-                    setRemovedPublicId(publicId);
-                  }}
-                  disabled={isBusy}
-                  onUploadingChange={setIsUploading}
-                  onProgress={setUploadProgress}
-                  isRemoving={isDeletingImage}
-                  removeProgress={deleteImageProgress}
-                  label="Service icon"
+          <div className="flex-1 overflow-y-auto">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Icon</label>
+                  <ImageUpload
+                    ref={imageUploadRef}
+                    value={
+                      editing?.image && editing?.imagePublicId && !imageRemoved
+                        ? { url: editing.image, publicId: editing.imagePublicId }
+                        : imageData
+                    }
+                    onChange={setImageData}
+                    onRemoved={(publicId) => {
+                      setImageRemoved(true);
+                      setRemovedPublicId(publicId);
+                    }}
+                    disabled={isBusy}
+                    onUploadingChange={setIsUploading}
+                    onProgress={setUploadProgress}
+                    isRemoving={isDeletingImage}
+                    removeProgress={deleteImageProgress}
+                    label="Service icon"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Upload an icon for this service. A default icon will be shown
+                    if none is provided.
+                  </p>
+                </div>
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled={isBusy} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <p className="text-sm text-muted-foreground">
-                  Upload an icon for this service. A default icon will be shown
-                  if none is provided.
-                </p>
-              </div>
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isBusy} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <SimpleRichTextEditor
-                        value={field.value}
-                        onChange={(html) => field.onChange(html)}
-                        disabled={isBusy}
-                        minHeight="150px"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={isBusy}
-                >
-                  Cancel
-                </Button>
-                <SubmitButton isLoading={isSaving} disabled={isBusy || !canCreateService}>
-                  {editing ? "Save Changes" : "Create"}
-                </SubmitButton>
-              </DialogFooter>
-            </form>
-          </Form>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <SimpleRichTextEditor
+                          value={field.value}
+                          onChange={(html) => field.onChange(html)}
+                          disabled={isBusy}
+                          minHeight="150px"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </div>
+          <DialogFooter className="shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              disabled={isBusy}
+            >
+              Cancel
+            </Button>
+            <SubmitButton isLoading={isSaving} disabled={isBusy || !canCreateService}>
+              {editing ? "Save Changes" : "Create"}
+            </SubmitButton>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

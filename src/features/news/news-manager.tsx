@@ -599,41 +599,43 @@ export function NewsManager() {
          onSuccess={handleSuccess}
        />
 
-      {/* Category Form Dialog */}
-      <Dialog open={categoryFormOpen} onOpenChange={setCategoryFormOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingCategory ? "Edit Category" : "Create Category"}</DialogTitle>
-            <DialogDescription>
-              {editingCategory
-                ? "Update the category name below."
-                : "Enter a name for the new category."}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCategorySubmit} className="space-y-4">
-            <Input
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              placeholder="Category name (e.g. Finance, Technology)"
-              disabled={isSavingCategory}
-              autoFocus
-            />
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setCategoryFormOpen(false)}
-                disabled={isSavingCategory}
-              >
-                Cancel
-              </Button>
-              <SubmitButton isLoading={isSavingCategory} disabled={isSavingCategory}>
-                {editingCategory ? "Save Changes" : "Create"}
-              </SubmitButton>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+       {/* Category Form Dialog */}
+       <Dialog open={categoryFormOpen} onOpenChange={setCategoryFormOpen}>
+         <DialogContent className="flex flex-col max-w-md max-h-[90vh]">
+           <DialogHeader className="shrink-0">
+             <DialogTitle>{editingCategory ? "Edit Category" : "Create Category"}</DialogTitle>
+             <DialogDescription>
+               {editingCategory
+                 ? "Update the category name below."
+                 : "Enter a name for the new category."}
+             </DialogDescription>
+           </DialogHeader>
+           <div className="flex-1 overflow-y-auto">
+             <form onSubmit={handleCategorySubmit} className="space-y-4">
+               <Input
+                 value={categoryName}
+                 onChange={(e) => setCategoryName(e.target.value)}
+                 placeholder="Category name (e.g. Finance, Technology)"
+                 disabled={isSavingCategory}
+                 autoFocus
+               />
+             </form>
+           </div>
+           <DialogFooter className="shrink-0">
+             <Button
+               type="button"
+               variant="outline"
+               onClick={() => setCategoryFormOpen(false)}
+               disabled={isSavingCategory}
+             >
+               Cancel
+             </Button>
+             <SubmitButton isLoading={isSavingCategory} disabled={isSavingCategory}>
+               {editingCategory ? "Save Changes" : "Create"}
+             </SubmitButton>
+           </DialogFooter>
+         </DialogContent>
+       </Dialog>
     </div>
   );
 }

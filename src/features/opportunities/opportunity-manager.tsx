@@ -548,41 +548,43 @@ export function OpportunityManager() {
         onSuccess={handleSuccess}
       />
 
-      {/* Type Form Dialog */}
-      <Dialog open={typeFormOpen} onOpenChange={setTypeFormOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingType ? "Edit Type" : "Create Type"}</DialogTitle>
-            <DialogDescription>
-              {editingType
-                ? "Update the opportunity type name below."
-                : "Enter a name for the new opportunity type."}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleTypeSubmit} className="space-y-4">
-            <Input
-              value={typeName}
-              onChange={(e) => setTypeName(e.target.value)}
-              placeholder="Type name (e.g. Tender, Job)"
-              disabled={isSavingType}
-              autoFocus
-            />
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setTypeFormOpen(false)}
-                disabled={isSavingType}
-              >
-                Cancel
-              </Button>
-              <SubmitButton isLoading={isSavingType} disabled={isSavingType}>
-                {editingType ? "Save Changes" : "Create"}
-              </SubmitButton>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+       {/* Type Form Dialog */}
+       <Dialog open={typeFormOpen} onOpenChange={setTypeFormOpen}>
+         <DialogContent className="flex flex-col max-w-md max-h-[90vh]">
+           <DialogHeader className="shrink-0">
+             <DialogTitle>{editingType ? "Edit Type" : "Create Type"}</DialogTitle>
+             <DialogDescription>
+               {editingType
+                 ? "Update the opportunity type name below."
+                 : "Enter a name for the new opportunity type."}
+             </DialogDescription>
+           </DialogHeader>
+           <div className="flex-1 overflow-y-auto">
+             <form onSubmit={handleTypeSubmit} className="space-y-4">
+               <Input
+                 value={typeName}
+                 onChange={(e) => setTypeName(e.target.value)}
+                 placeholder="Type name (e.g. Tender, Job)"
+                 disabled={isSavingType}
+                 autoFocus
+               />
+             </form>
+           </div>
+           <DialogFooter className="shrink-0">
+             <Button
+               type="button"
+               variant="outline"
+               onClick={() => setTypeFormOpen(false)}
+               disabled={isSavingType}
+             >
+               Cancel
+             </Button>
+             <SubmitButton isLoading={isSavingType} disabled={isSavingType}>
+               {editingType ? "Save Changes" : "Create"}
+             </SubmitButton>
+           </DialogFooter>
+         </DialogContent>
+       </Dialog>
     </div>
   );
 }

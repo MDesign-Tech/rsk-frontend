@@ -1,5 +1,6 @@
 "use client";
 
+import DOMPurify from "isomorphic-dompurify";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -67,7 +68,9 @@ export function ConversationItem({
             </span>
           </div>
           <p className="text-xs text-muted-foreground truncate mt-0.5">
-            {conversation.lastMessage || "No messages yet"}
+            {conversation.lastMessage
+              ? DOMPurify.sanitize(conversation.lastMessage)
+              : "No messages yet"}
           </p>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-muted-foreground truncate">

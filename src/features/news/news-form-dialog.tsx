@@ -236,16 +236,16 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
     setEditorImages(images);
   };
 
-  return (
-   <Dialog open={open} onOpenChange={(isOpen) => {
-     if (!isOpen && (imageData || imageRemoved) && !isBusy) {
-       toast.error("Please save the data or remove the image before closing.");
-       return;
-     }
-     onOpenChange(isOpen);
-   }}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+   return (
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen && (imageData || imageRemoved) && !isBusy) {
+        toast.error("Please save the data or remove the image before closing.");
+        return;
+      }
+      onOpenChange(isOpen);
+    }}>
+      <DialogContent className="flex flex-col max-w-4xl max-h-[90vh]">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{article ? "Edit Article" : "Create Article"}</DialogTitle>
           <DialogDescription>
             {article
@@ -253,204 +253,206 @@ export function NewsFormDialog({ open, onOpenChange, article, defaultCategory, o
               : "Fill in the details to create a new article."}
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isBusy} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Content</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      value={field.value}
-                      onChange={handleEditorChange}
-                      editorImages={editorImages}
-                      disabled={isBusy}
-                      onUploadingChange={setIsEditorUploading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Cover Image</label>
-                <ImageUpload
-                  ref={imageUploadRef}
-                  value={
-                    imageData && !imageRemoved
-                      ? { url: imageData.url, publicId: imageData.publicId }
-                      : null
-                  }
-                  onChange={setImageData}
-                  onRemoved={(publicId) => {
-                    setImageRemoved(true);
-                    setRemovedPublicId(publicId);
-                  }}
-                  disabled={isBusy}
-                  onUploadingChange={setIsUploading}
-                  onProgress={setUploadProgress}
-                  isRemoving={isDeletingImage}
-                  removeProgress={deleteImageProgress}
-                  label="Article cover image"
-                />
-              </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex-1 overflow-y-auto">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="category"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isBusy || loadingCategories}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={loadingCategories ? "Loading..." : "Select category"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat._id} value={cat.name}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} disabled={isBusy} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <div className="space-y-4">
-                {isAdmin && canSelectAuthor && (
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="use-rsk-associates"
-                      checked={useRskAssociates}
-                      onCheckedChange={handleRskAssociatesChange}
-                      disabled={isBusy}
-                    />
-                    <label
-                      htmlFor="use-rsk-associates"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      RSK Associates
-                    </label>
-                  </div>
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content</FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={handleEditorChange}
+                        editorImages={editorImages}
+                        disabled={isBusy}
+                        onUploadingChange={setIsEditorUploading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Cover Image</label>
+                  <ImageUpload
+                    ref={imageUploadRef}
+                    value={
+                      imageData && !imageRemoved
+                        ? { url: imageData.url, publicId: imageData.publicId }
+                        : null
+                    }
+                    onChange={setImageData}
+                    onRemoved={(publicId) => {
+                      setImageRemoved(true);
+                      setRemovedPublicId(publicId);
+                    }}
+                    disabled={isBusy}
+                    onUploadingChange={setIsUploading}
+                    onProgress={setUploadProgress}
+                    isRemoving={isDeletingImage}
+                    removeProgress={deleteImageProgress}
+                    label="Article cover image"
+                  />
+                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="authorId"
-                  render={({ field }) => {
-                    const isDisabled = isBusy || loadingAuthors || (!isAdmin && !canSelectAuthor) || useRskAssociates;
-                    const selectedAuthor = authors.find(a => a._id === field.value);
-                     const displayValue = selectedAuthor
-                       ? `${selectedAuthor.name} - ${selectedAuthor.title}`
-                       : field.value;
-
-                    if (useRskAssociates) {
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isBusy || loadingCategories}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={loadingCategories ? "Loading..." : "Select category"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat._id} value={cat.name}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="space-y-4">
+                  {isAdmin && canSelectAuthor && (
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="use-rsk-associates"
+                        checked={useRskAssociates}
+                        onCheckedChange={handleRskAssociatesChange}
+                        disabled={isBusy}
+                      />
+                      <label
+                        htmlFor="use-rsk-associates"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        RSK Associates
+                      </label>
+                    </div>
+                  )}
+                  <FormField
+                    control={form.control}
+                    name="authorId"
+                    render={({ field }) => {
+                      const isDisabled = isBusy || loadingAuthors || (!isAdmin && !canSelectAuthor) || useRskAssociates;
+                      const selectedAuthor = authors.find(a => a._id === field.value);
+                       const displayValue = selectedAuthor
+                         ? `${selectedAuthor.name} - ${selectedAuthor.title}`
+                         : field.value;
+ 
+                      if (useRskAssociates) {
+                        return (
+                          <FormItem>
+                            <FormLabel>Author</FormLabel>
+                            <FormControl>
+                              <Input value="RSK Associates - System" disabled={true} readOnly />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }
+ 
+                      if (!isAdmin && canSelectAuthor) {
+                        return (
+                          <FormItem>
+                            <FormLabel>Author</FormLabel>
+                            <FormControl>
+                              <Input
+                                value={displayValue || (user?.member && typeof user.member === 'object' && 'name' in user.member ? (user.member as { name: string }).name : "RSK Associates")}
+                                disabled={true}
+                                readOnly
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }
+ 
                       return (
                         <FormItem>
                           <FormLabel>Author</FormLabel>
-                          <FormControl>
-                            <Input value="RSK Associates - System" disabled={true} readOnly />
-                          </FormControl>
+                          <Select onValueChange={field.onChange} value={field.value ?? undefined} disabled={isDisabled}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={loadingAuthors ? "Loading..." : "Select author"} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {authors.map((author) => (
+                                <SelectItem key={author._id} value={author._id}>
+                                  {author.name} - {author.title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       );
-                    }
-
-                    if (!isAdmin && canSelectAuthor) {
-                      return (
-                        <FormItem>
-                          <FormLabel>Author</FormLabel>
-                          <FormControl>
-                            <Input
-                              value={displayValue || (user?.member && typeof user.member === 'object' && 'name' in user.member ? (user.member as { name: string }).name : "RSK Associates")}
-                              disabled={true}
-                              readOnly
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }
-
-                    return (
-                      <FormItem>
-                        <FormLabel>Author</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value ?? undefined} disabled={isDisabled}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={loadingAuthors ? "Loading..." : "Select author"} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {authors.map((author) => (
-                              <SelectItem key={author._id} value={author._id}>
-                                {author.name} - {author.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isBusy}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="published">Published</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isBusy}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="published">Published</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isBusy}
-              >
-                Cancel
-              </Button>
-              <SubmitButton isLoading={isBusy} disabled={isBusy}>
-                {article ? "Save Changes" : "Create"}
-              </SubmitButton>
-            </DialogFooter>
-          </form>
-        </Form>
+            </form>
+          </Form>
+        </div>
+        <DialogFooter className="shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isBusy}
+          >
+            Cancel
+          </Button>
+          <SubmitButton isLoading={isBusy} disabled={isBusy}>
+            {article ? "Save Changes" : "Create"}
+          </SubmitButton>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
