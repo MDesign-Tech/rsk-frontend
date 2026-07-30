@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import api from "@/services/api";
 import { Navbar } from "@/components/navbar";
 import { SectionDivider } from "@/components/section-divider";
@@ -207,9 +208,12 @@ export default function TeamPage() {
                     </div>
 
                     {grp.section.description ? (
-                      <p className="mt-2 text-muted-foreground">
-                        {grp.section.description}
-                      </p>
+                      <p
+                        className="mt-2 text-muted-foreground"
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(grp.section.description),
+                        }}
+                      />
                     ) : null}
                   </div>
                   <div className="flex flex-wrap justify-center gap-6">
@@ -247,9 +251,12 @@ export default function TeamPage() {
                           {m.title}
                         </p>
                         {m.bio ? (
-                          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                            {m.bio}
-                          </p>
+                          <p
+                            className="mt-3 text-sm leading-6 text-muted-foreground"
+                            dangerouslySetInnerHTML={{
+                              __html: DOMPurify.sanitize(m.bio),
+                            }}
+                          />
                         ) : null}
 
                         <SocialLinks social={m.socialMedia} />
