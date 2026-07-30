@@ -10,7 +10,7 @@ import { serviceService } from "@/services/service.service";
 import type { ApiResponse, Service, CloudinaryImage } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { SimpleRichTextEditor } from "@/features/contact/components/simple-rich-text-editor";
 import {
   Form,
   FormControl,
@@ -430,7 +430,12 @@ export function ServicesManager() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="150px" />
+                      <SimpleRichTextEditor
+                        value={field.value}
+                        onChange={(html) => field.onChange(html)}
+                        disabled={isBusy}
+                        minHeight="150px"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

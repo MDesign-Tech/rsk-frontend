@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { Send } from "lucide-react";
 import { contactService } from "@/services/contact.service";
 import type { Conversation, ChatMessage } from "@/types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { ChatHeader } from "./components/chat-header";
 import { ConversationSidebar } from "./components/conversation-sidebar";
 import { MessageList } from "./components/message-list";
-import { MessageInput } from "./components/message-input";
+import { SimpleRichTextEditor } from "./components/simple-rich-text-editor";
 import { EmptyState } from "./components/empty-state";
 import { LoadingState } from "./components/loading-state";
 import DOMPurify from "isomorphic-dompurify";
@@ -177,12 +179,26 @@ export function ChatManager() {
                 messagesEndRef={messagesEndRef}
               />
 
-              <MessageInput
-                value={messageText}
-                onChange={setMessageText}
-                onSend={sendMessage}
-                isSending={isSending}
-              />
+              <div className="shrink-0 border-t border-border px-3 py-2.5">
+                <div className="flex gap-2 items-end">
+                  <SimpleRichTextEditor
+                    value={messageText}
+                    onChange={setMessageText}
+                    placeholder="Type your message..."
+                    disabled={isSending}
+                    minHeight="44px"
+                  />
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!messageText.trim() || isSending}
+                    size="icon"
+                    className="shrink-0 self-end"
+                    aria-label="Send message"
+                  >
+                    <Send className="size-4" />
+                  </Button>
+                </div>
+              </div>
             </>
           ) : (
             <EmptyState
@@ -195,3 +211,4 @@ export function ChatManager() {
     </div>
   );
 }
+

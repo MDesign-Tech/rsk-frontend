@@ -10,50 +10,32 @@ import DOMPurify from "isomorphic-dompurify";
 
 const RSK_LOGO = "/rsk-logo.svg";
 
-// Skeleton loader for article page - looks like real article layout
+// Skeleton loader for article page - clean minimal layout
 function ArticleSkeleton() {
   return (
     <div className="animate-pulse">
-      {/* Hero image skeleton with centered fallback */}
-      <div className="relative h-64 md:h-96 w-full bg-muted flex items-center justify-center">
-        <div className="w-20 h-20 bg-muted-foreground/10 rounded-full" />
-      </div>
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Category and date row */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <div className="h-6 bg-muted rounded-full w-20" />
-          <div className="h-4 bg-muted rounded w-32" />
-          <div className="h-4 bg-muted rounded w-16" />
-        </div>
-        {/* Title */}
+        {/* Image skeleton */}
+        <div className="w-full h-64 md:h-80 bg-muted rounded-lg mb-8" />
+        {/* Title skeleton */}
         <div className="h-8 bg-muted rounded w-3/4 mb-4" />
-        <div className="h-8 bg-muted rounded w-1/2 mb-6" />
-        {/* Author row */}
-        <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border/60">
-          <div className="h-10 w-10 rounded-full bg-muted" />
-          <div className="space-y-2">
-            <div className="h-4 bg-muted rounded w-32" />
-            <div className="h-3 bg-muted rounded w-24" />
-          </div>
-        </div>
-        {/* Content paragraphs */}
+        <div className="h-8 bg-muted rounded w-1/2 mb-8" />
+        {/* Content skeleton */}
         <div className="space-y-4">
           <div className="h-4 bg-muted rounded w-full" />
           <div className="h-4 bg-muted rounded w-full" />
           <div className="h-4 bg-muted rounded w-5/6" />
           <div className="h-4 bg-muted rounded w-full" />
           <div className="h-4 bg-muted rounded w-4/6" />
-          <div className="h-4 bg-muted rounded w-full" />
-          <div className="h-4 bg-muted rounded w-3/4" />
         </div>
-        {/* Stats row */}
-        <div className="mt-10 pt-6 border-t border-border/60">
-          <div className="flex flex-wrap items-center gap-6">
-            <div className="h-4 bg-muted rounded w-16" />
-            <div className="h-4 bg-muted rounded w-12" />
-            <div className="h-4 bg-muted rounded w-14" />
-            <div className="h-4 bg-muted rounded w-20" />
-          </div>
+        {/* Metadata skeleton */}
+        <div className="flex items-center justify-between mt-10 pt-6 border-t border-border/60">
+          <div className="h-4 bg-muted rounded w-32" />
+          <div className="h-4 bg-muted rounded w-48" />
+        </div>
+        {/* Back button skeleton */}
+        <div className="mt-8">
+          <div className="h-10 bg-muted rounded w-40" />
         </div>
       </div>
     </div>
@@ -113,108 +95,68 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
     );
   }
 
+  const categoryName = typeof article.category === "string"
+    ? article.category
+    : article.category?.name;
+
+  const publishedDate = new Date(article.publishedAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Image */}
-      <div className="relative h-64 md:h-96 w-full bg-muted">
-        {article.coverImage ? (
-          <Image
-            src={article.coverImage}
-            alt={article.title}
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full bg-muted">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-20">
+        {/* Article Image */}
+        {article.coverImage && (
+          <div className="mb-8">
             <Image
-              src={RSK_LOGO}
-              alt="RSK Associates"
-              width={120}
-              height={120}
-              className="opacity-50"
+              src={article.coverImage}
+              alt={article.title}
+              width={1200}
+              height={600}
+              className="w-full h-auto rounded-lg object-cover"
+              priority
             />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      </div>
 
-      {/* Article Content */}
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
-        <div className="bg-card rounded-2xl shadow-lg p-6 md:p-10">
-          {/* Category & Date */}
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-              {typeof article.category === "string"
-                ? article.category
-                : article.category?.name}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {new Date(article.publishedAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+          {article.title}
+        </h1>
 
-          </div>
+        {/* Content */}
+        <div
+          className="prose prose-lg max-w-none text-foreground/90 leading-relaxed mb-10"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(
+              typeof article.content === "string" ? article.content : ""
+            ),
+          }}
+        />
 
-          {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {article.title}
-          </h1>
+        {/* Metadata Row */}
+        <div className="flex items-center justify-between pt-6 border-t border-border/60 mb-8">
+          <span className="text-sm font-medium text-foreground">
+            {article.author.name}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {categoryName} · {publishedDate}
+          </span>
+        </div>
 
-          {/* Author */}
-          <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border/60">
-            <div className="relative h-10 w-10 rounded-full bg-muted overflow-hidden">
-              {article.author.avatar ? (
-                <Image
-                  src={article.author.avatar}
-                  alt={article.author.name}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full bg-muted">
-                  <Image
-                    src={RSK_LOGO}
-                    alt="RSK"
-                    width={24}
-                    height={24}
-                    className="opacity-50"
-                  />
-                </div>
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">{article.author.name}</p>
-              {article.author.role && (
-                <p className="text-xs text-muted-foreground">{article.author.role}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div
-            className="prose prose-lg max-w-none text-foreground/90 leading-relaxed"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(
-                typeof article.content === "string" ? article.content : ""
-              ),
-            }}
-          />
-
-          {/* Back Button */}
-          <div className="mt-8">
-            <Link
-              href="/blog/news"
-              className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
-            >
-              ← Back to all news
-            </Link>
-          </div>
+        {/* Back Button */}
+        <div>
+          <Link
+            href="/blog/news"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+          >
+            ← Back to All News
+          </Link>
         </div>
       </div>
     </main>

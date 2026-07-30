@@ -64,6 +64,7 @@ export function SectionCard({
 }) {
   const [draggedMemberId, setDraggedMemberId] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dragOverPosition, setDragOverPosition] = useState<"top" | "bottom" | null>(null);
 
   const handleDragStart = (e: React.DragEvent, memberId: string) => {
     e.dataTransfer.setData("text/plain", memberId);
@@ -74,12 +75,17 @@ export function SectionCard({
   const handleDragEnd = () => {
     setDraggedMemberId(null);
     setDragOverIndex(null);
+    setDragOverPosition(null);
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const position = y < rect.height / 2 ? "top" : "bottom";
     setDragOverIndex(index);
+    setDragOverPosition(position);
   };
 
   const handleDrop = (e: React.DragEvent, targetIndex: number) => {
@@ -94,7 +100,13 @@ export function SectionCard({
       const newMembers = [...members];
       const draggedIndex = newMembers.findIndex((m) => m._id === memberId);
       const [draggedItem] = newMembers.splice(draggedIndex, 1);
-      const insertIndex = targetIndex > draggedIndex ? targetIndex - 1 : targetIndex;
+      let insertIndex = targetIndex;
+      if (dragOverPosition === "bottom") {
+        insertIndex = targetIndex + 1;
+      }
+      if (draggedIndex < insertIndex) {
+        insertIndex -= 1;
+      }
       newMembers.splice(insertIndex, 0, draggedItem);
       onReorderMembers?.(section._id, newMembers);
     } else {
@@ -104,6 +116,7 @@ export function SectionCard({
 
     setDraggedMemberId(null);
     setDragOverIndex(null);
+    setDragOverPosition(null);
   };
 
   const handleSectionDragOver = (e: React.DragEvent) => {
@@ -124,6 +137,7 @@ export function SectionCard({
 
     setDraggedMemberId(null);
     setDragOverIndex(null);
+    setDragOverPosition(null);
   };
 
   return (
@@ -190,14 +204,17 @@ export function SectionCard({
               key={m._id}
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
-              className={`grid grid-cols-1 md:grid-cols-[auto_1fr_1fr_auto] gap-3 md:gap-4 items-center px-4 py-3 border-b last:border-b-0 transition-colors ${
-                draggedMemberId === m._id
-                  ? "opacity-40"
-                  : dragOverIndex === index
-                    ? "bg-primary/5 border-l-2 border-l-primary"
-                    : ""
+              className={`grid grid-cols-1 md:grid-cols-[auto_1fr_1fr_auto] gap-3 md:gap-4 items-center px-4 py-3 border-b last:border-b-0 transition-colors relative ${
+                draggedMemberId === m._id ? "opacity-40" : ""
               }`}
             >
+              {dragOverIndex === index && dragOverPosition && (
+                <div
+                  className={`absolute left-0 right-0 h-[2px] bg-primary transition-all duration-150 ease-in-out ${
+                    dragOverPosition === "top" ? "-top-px" : "-bottom-px"
+                  }`}
+                />
+              )}
               <div className="flex md:block items-center gap-3">
                 <SixDotHandle
                   onDragStart={(e) => handleDragStart(e, m._id)}
