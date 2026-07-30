@@ -94,7 +94,7 @@ export function UsersManager() {
 
   const openCreate = () => {
     setEditing(null);
-    form.reset({ name: "", email: "", phone: "", role: "member", member: null, memberId: null, password: "" });
+    form.reset({ name: "", email: "", phone: "", role: "member", member: null, memberId: "__none__", password: "" });
     setDialogOpen(true);
   };
 

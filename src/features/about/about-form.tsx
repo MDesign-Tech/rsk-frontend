@@ -420,7 +420,7 @@ export function AboutForm() {
                         <FormItem className="space-y-1">
                           <FormControl>
                             <Input
-                              placeholder="250788492529"
+                              placeholder="25078888888"
                               {...field}
                               value={field.value ?? ""}
                             />
