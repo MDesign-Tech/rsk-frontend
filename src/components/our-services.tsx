@@ -1,5 +1,6 @@
 "use client";
 
+import DOMPurify from "isomorphic-dompurify";
 import { motion } from "framer-motion";
 import {
   CheckCircle,
@@ -138,9 +139,12 @@ export function OurServices() {
                     {service.title}
                   </h3>
 
-                  <p className="text-muted-foreground transition-colors duration-300 group-hover:text-foreground/90">
-                    {service.description}
-                  </p>
+                  <p
+                    className="text-muted-foreground transition-colors duration-300 group-hover:text-foreground/90"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(service.description),
+                    }}
+                  />
                 </div>
               </motion.div>
             );
