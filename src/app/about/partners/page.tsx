@@ -14,7 +14,8 @@ export default function PartnersPage() {
   const partners = useWebsiteStore((state) => state.data?.partners) ?? [];
   const shouldReduceMotion = useReducedMotion();
 
-  const coverImage = hero?.image || "/images/8.jpg";
+  const activeImage = hero?.images?.find((img) => img.isActive);
+  const coverImage = activeImage?.url || hero?.images?.[0]?.url || "/images/8.jpg";
 
   return (
     <main className="min-h-screen bg-background text-foreground">

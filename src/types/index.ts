@@ -83,12 +83,17 @@ export interface HeroServiceItem {
   visible: boolean;
 }
 
+export interface HeroImage {
+  url: string;
+  publicId: string;
+  isActive: boolean;
+}
+
 export interface HeroContent {
   _id: string;
   title: string;
   services: HeroServiceItem[];
-  image?: string | null;
-  imagePublicId?: string | null;
+  images: HeroImage[];
 }
 
 export interface Service {
@@ -327,4 +332,35 @@ export interface AvailableMember {
   _id: string;
   name: string;
   department?: string;
+}
+
+export interface ImageReference {
+  collection: string;
+  documentId: string;
+  field: string;
+  label: string;
+}
+
+export interface MediaLibraryImage {
+  publicId: string;
+  url: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
+  createdAt: string;
+  isUsed: boolean;
+  references: ImageReference[] | null;
+}
+
+export interface MediaLibraryPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface MediaLibraryResponse {
+  images: MediaLibraryImage[];
+  pagination: MediaLibraryPagination;
 }

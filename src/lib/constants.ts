@@ -40,4 +40,5 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { title: "Users", href: "/admin/users", icon: "UserCog" },
+  { title: "Media Library", href: "/admin/media-library", icon: "Image" },
 ];

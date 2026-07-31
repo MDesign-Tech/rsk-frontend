@@ -46,9 +46,18 @@ export const heroServiceItemSchema = z.object({
 
 export type HeroServiceItemInput = z.infer<typeof heroServiceItemSchema>;
 
+export const heroImageSchema = z.object({
+  url: z.string().min(1, "Image URL is required"),
+  publicId: z.string().min(1, "Public ID is required"),
+  isActive: z.boolean().default(false),
+});
+
+export type HeroImageInput = z.infer<typeof heroImageSchema>;
+
 export const heroSchema = z.object({
   title: z.string().min(1, "Title is required"),
   services: z.array(heroServiceItemSchema).default([]),
+  images: z.array(heroImageSchema).default([]),
 });
 export type HeroInput = z.infer<typeof heroSchema>;
 

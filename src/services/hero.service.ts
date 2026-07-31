@@ -1,5 +1,5 @@
 import api from "./api";
-import type { ApiResponse, HeroContent, HeroServiceItem } from "@/types";
+import type { ApiResponse, HeroContent, HeroServiceItem, HeroImage } from "@/types";
 
 export const heroService = {
   get: () =>
@@ -8,8 +8,7 @@ export const heroService = {
   update: (data: {
     title: string;
     services: HeroServiceItem[];
-    image?: string | null;
-    imagePublicId?: string | null;
+    images: HeroImage[];
   }) =>
     api
       .put<ApiResponse<{ hero: HeroContent }>>("/hero", data)

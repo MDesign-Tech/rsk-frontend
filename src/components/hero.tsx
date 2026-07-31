@@ -11,7 +11,8 @@ export function Hero() {
   const shouldReduceMotion = useReducedMotion();
 
   const hero = useWebsiteStore((state) => state.data?.hero);
-  const bgImage = hero?.image;
+  const activeImage = hero?.images?.find((img) => img.isActive);
+  const bgImage = activeImage?.url || hero?.images?.[0]?.url;
 
   if (!hero) return null;
 
@@ -74,7 +75,7 @@ export function Hero() {
             >
               <Typewriter
                 sentences={visibleServices.map((s) => s.text)}
-                shouldReduceMotion={shouldReduceMotion}
+                shouldReduceMotion={shouldReduceMotion ?? false}
               />
             </motion.div>
           )}

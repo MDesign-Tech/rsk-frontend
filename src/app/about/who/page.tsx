@@ -15,7 +15,8 @@ export default function WhoPage() {
   const hero = useWebsiteStore((state) => state.data?.hero);
   const shouldReduceMotion = useReducedMotion();
 
-  const coverImage = hero?.image || "/images/5.jpeg";
+  const activeImage = hero?.images?.find((img) => img.isActive);
+  const coverImage = activeImage?.url || hero?.images?.[0]?.url || "/images/5.jpeg";
 
   const impactStats = about?.stats
     ?.filter((item) => item.visible !== false)

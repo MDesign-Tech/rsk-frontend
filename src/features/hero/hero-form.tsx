@@ -7,7 +7,8 @@ import { heroSchema, type HeroInput } from "@/schemas";
 import { heroService } from "@/services/hero.service";
 import { saveResource } from "@/lib/image-save";
 import { deleteImage } from "@/lib/cloudinary";
-import type { ApiResponse, CloudinaryImage, HeroServiceItem } from "@/types";
+import { uploadToCloudinary } from "@/lib/cloudinary";
+import type { ApiResponse, CloudinaryImage, HeroServiceItem, HeroImage } from "@/types";
 import {
   Form,
   FormControl,
@@ -24,11 +25,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FormCard } from "@/components/admin/form-card";
-import { ImageUpload, type ImageUploadHandle } from "@/components/admin/image-upload";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Check, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth.store";
 import type { HeroContent } from "@/types";
@@ -44,18 +44,16 @@ export function HeroForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [imageData, setImageData] = useState<CloudinaryImage | null>(null);
-  const [imageRemoved, setImageRemoved] = useState(false);
-  const [removedPublicId, setRemovedPublicId] = useState<string | null>(null);
-  const [isDeletingImage, setIsDeletingImage] = useState(false);
-  const [deleteImageProgress, setDeleteImageProgress] = useState(0);
-  const imageUploadRef = useRef<ImageUploadHandle>(null);
+  const [images, setImages] = useState<HeroImage[]>([]);
+  const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<HeroInput>({
     resolver: zodResolver(heroSchema),
     defaultValues: {
       title: "",
       services: [],
+      images: [],
     },
   });
 
@@ -67,11 +65,11 @@ export function HeroForm() {
         const res = await heroService.get();
         const h = res.data.hero;
         setHero(h);
-        setImageRemoved(false);
-        setRemovedPublicId(null);
+        setImages(h.images || []);
         form.reset({
           title: h.title,
           services: h.services || [],
+          images: h.images || [],
         });
         setIsLoading(false);
       } catch (err) {
@@ -103,38 +101,73 @@ export function HeroForm() {
     form.setValue("services", updated, { shouldDirty: true });
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const imageData = await uploadToCloudinary(file, (progress) => {
+        setUploadProgress(progress);
+      });
+
+      const newImage: HeroImage = {
+        url: imageData.url,
+        publicId: imageData.publicId,
+        isActive: images.length === 0, // First image is active by default
+      };
+
+      const updatedImages = [...images, newImage];
+      setImages(updatedImages);
+      form.setValue("images", updatedImages, { shouldDirty: true });
+      toast.success("Image uploaded successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to upload image");
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const setActiveImage = (publicId: string) => {
+    const updatedImages = images.map((img) => ({
+      ...img,
+      isActive: img.publicId === publicId,
+    }));
+    setImages(updatedImages);
+    form.setValue("images", updatedImages, { shouldDirty: true });
+  };
+
+  const removeImage = async (publicId: string) => {
+    if (!canDeleteHero) return;
+
+    try {
+      setDeletingImageId(publicId);
+      await deleteImage(publicId);
+      const updatedImages = images.filter((img) => img.publicId !== publicId);
+      setImages(updatedImages);
+      form.setValue("images", updatedImages, { shouldDirty: true });
+      toast.success("Image removed");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete image");
+    } finally {
+      setDeletingImageId(null);
+    }
+  };
+
   const onSubmit = async (values: HeroInput) => {
     setIsSaving(true);
 
     try {
-      // Upload any pending image first
-      const uploadedImage = await imageUploadRef.current?.upload();
-
-      let imageUrl = uploadedImage?.url ?? null;
-      let imagePublicId = uploadedImage?.publicId ?? null;
-
-      if (imageRemoved && removedPublicId) {
-        setIsDeletingImage(true);
-        setDeleteImageProgress(0);
-        try {
-          await deleteImage(removedPublicId);
-          imageUrl = null;
-          imagePublicId = null;
-        } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Failed to delete image");
-          setIsSaving(false);
-          setIsDeletingImage(false);
-          return;
-        } finally {
-          setIsDeletingImage(false);
-        }
-      }
-
       const data = {
         title: values.title,
         services: values.services,
-        image: imageUrl,
-        imagePublicId: imagePublicId,
+        images: values.images,
       };
 
       const result = await saveResource<
@@ -150,9 +183,7 @@ export function HeroForm() {
 
       if (result) {
         setHero(result);
-        setImageData(null);
-        setImageRemoved(false);
-        setRemovedPublicId(null);
+        setImages(result.images || []);
         toast.success("Hero updated successfully");
       }
     } catch (err) {
@@ -260,32 +291,109 @@ export function HeroForm() {
             )}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Background Image</label>
-            <ImageUpload
-              ref={imageUploadRef}
-              value={
-                hero?.image && hero?.imagePublicId && !imageRemoved
-                  ? { url: hero.image, publicId: hero.imagePublicId }
-                  : imageData
-              }
-              onChange={setImageData}
-              onRemoved={(publicId) => {
-                setImageRemoved(true);
-                setRemovedPublicId(publicId);
-              }}
-              disabled={isSaving}
-              onUploadingChange={setIsUploading}
-              onProgress={setUploadProgress}
-              isRemoving={isDeletingImage}
-              removeProgress={deleteImageProgress}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <FormLabel className="text-sm font-medium">Background Images</FormLabel>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading || !canCreateHero}
+                className="gap-1"
+              >
+                <Upload className="w-4 h-4" />
+                {isUploading ? `Uploading ${uploadProgress}%` : "Upload Image"}
+              </Button>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileSelect}
+              disabled={isUploading}
             />
-            <p className="text-sm text-muted-foreground">
-              Select a new image and save to update the background.
-            </p>
+
+            {isUploading && (
+              <div className="w-full">
+                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Uploading {uploadProgress}%
+                </p>
+              </div>
+            )}
+
+            {/* Image Gallery */}
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {images.map((image) => (
+                  <div
+                    key={image.publicId}
+                    className={`relative group rounded-lg border-2 overflow-hidden transition-all ${
+                      image.isActive
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "border-transparent hover:border-muted-foreground/30"
+                    }`}
+                  >
+                    <div className="aspect-video relative bg-muted">
+                      <img
+                        src={image.url}
+                        alt={image.publicId}
+                        className="h-full w-full object-cover"
+                      />
+                      {/* Active checkbox - top left */}
+                      <button
+                        type="button"
+                        onClick={() => setActiveImage(image.publicId)}
+                        className={`absolute top-2 left-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+                          image.isActive
+                            ? "bg-primary border-primary text-primary-foreground"
+                            : "bg-white/80 border-white/50 hover:border-white"
+                        }`}
+                        title={image.isActive ? "Active image" : "Set as active"}
+                      >
+                        {image.isActive && <Check className="size-4" />}
+                      </button>
+                      {/* Delete button - top right */}
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(image.publicId)}
+                        disabled={isSaving || deletingImageId === image.publicId}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs font-mono truncate" title={image.publicId}>
+                        {image.publicId}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {images.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No images uploaded. Click "Upload Image" to add background images.
+              </p>
+            )}
           </div>
+
           <div className="flex justify-end">
-            <SubmitButton isLoading={isSaving} disabled={!canUpdateHero}>Save Changes</SubmitButton>
+            <SubmitButton isLoading={isSaving} disabled={!canUpdateHero}>
+              Save Changes
+            </SubmitButton>
           </div>
         </form>
       </Form>

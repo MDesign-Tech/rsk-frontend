@@ -63,6 +63,7 @@ const NAV_ITEM_MODULE_MAP: Record<string, string> = {
   "News": "News",
   "Opportunities": "Opportunity",
   "Users": "User",
+  "Media Library": "Media Library",
 };
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
