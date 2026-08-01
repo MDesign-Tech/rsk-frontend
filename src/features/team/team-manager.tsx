@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, GripVertical } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { IconButton } from "@/components/admin/icon-button";
 import { SearchInput } from "@/components/admin/search-input";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
@@ -178,7 +179,12 @@ export function TeamManager() {
             {t.viewMember?.bio ? (
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Bio</h4>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{t.viewMember.bio}</p>
+                <div
+                  className="text-sm text-foreground whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(t.viewMember.bio),
+                  }}
+                />
               </div>
             ) : null}
             <div>

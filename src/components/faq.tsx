@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import DOMPurify from "isomorphic-dompurify";
 import {
   Accordion,
   AccordionContent,
@@ -54,7 +55,11 @@ export function FAQ() {
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground pb-5">
-                  {faq.answer}
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(faq.answer),
+                    }}
+                  />
                 </AccordionContent>
               </AccordionItem>
             ))}

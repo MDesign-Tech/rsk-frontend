@@ -28,9 +28,14 @@ export function BecomeMember() {
           <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
             {whyBecomeMember?.title || "Become a member"}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            {whyBecomeMember?.description || "Membership built to accelerate your business ambition. Enjoy premium support, access to curated opportunities, and performance-driven resources created for corporate leadership."}
-          </p>
+          <p
+            className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                whyBecomeMember?.description || "Membership built to accelerate your business ambition. Enjoy premium support, access to curated opportunities, and performance-driven resources created for corporate leadership."
+              ),
+            }}
+          />
         </motion.div>
 
         {visiblePoints.length > 0 && (

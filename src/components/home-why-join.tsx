@@ -29,10 +29,15 @@ export function HomeWhyJoin() {
           <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
             {whyJoinUs?.title || "Why Join RSK"}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            {whyJoinUs?.description ||
-              "Join a premium corporate community designed for growth. Move faster with trusted partners, business support, and member-only opportunities for teams and leaders."}
-          </p>
+          <p
+            className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                whyJoinUs?.description ||
+                  "Join a premium corporate community designed for growth. Move faster with trusted partners, business support, and member-only opportunities for teams and leaders."
+              ),
+            }}
+          />
         </motion.div>
 
         {visiblePoints.length > 0 && (

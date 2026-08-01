@@ -10,8 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/admin/loading-spinner";
 import { EmptyState } from "@/components/admin/empty-state";
+import { SectionHeader } from "@/components/admin/section-header";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth.store";
+import { QuickActions } from "./quick-actions";
 
 interface Stat {
   title: string;
@@ -80,23 +82,43 @@ export function DashboardView() {
     );
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {stats!.map((stat) => {
-        const Icon = stat.icon;
-        return (
-          <Card key={stat.title}>
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Icon className="size-6" />
-              </div>
-              <div>
-                <p className="text-2xl font-semibold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.title}</p>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+    <div className="space-y-8">
+      {/* Stats Overview */}
+      <section>
+        <SectionHeader
+          title="Overview"
+          description="Key metrics from your website content."
+        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-4">
+          {stats!.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={stat.title}>
+                <CardContent className="flex items-center gap-4 p-6">
+                  <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="size-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground">{stat.title}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Quick Actions */}
+      <section>
+        <SectionHeader
+          title="Quick Actions"
+          description="Common tasks to get things done faster."
+        />
+        <div className="mt-4">
+          <QuickActions />
+        </div>
+      </section>
     </div>
   );
 }

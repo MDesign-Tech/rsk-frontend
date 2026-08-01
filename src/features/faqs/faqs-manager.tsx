@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { IconButton } from "@/components/admin/icon-button";
 import { faqSchema, type FaqInput } from "@/schemas";
 import { faqService } from "@/services/faq.service";
@@ -337,9 +338,12 @@ export function FaqsManager() {
           <div className="space-y-4">
             <div>
               <h4 className="text-sm font-medium text-muted-foreground">Answer</h4>
-              <p className="text-sm text-foreground whitespace-pre-wrap">
-                {viewFaq?.answer}
-              </p>
+              <p
+                className="text-sm text-foreground whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(viewFaq?.answer || ""),
+                }}
+              />
             </div>
             <div>
               <h4 className="text-sm font-medium text-muted-foreground">Status</h4>

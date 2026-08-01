@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2, CheckCircle } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { IconButton } from "@/components/admin/icon-button";
 import { serviceSchema, type ServiceInput } from "@/schemas";
 import { serviceService } from "@/services/service.service";
@@ -475,9 +476,12 @@ export function ServicesManager() {
               <h4 className="text-sm font-medium text-muted-foreground">
                 Description
               </h4>
-              <p className="text-sm text-foreground whitespace-pre-wrap">
-                {viewService?.description}
-              </p>
+              <p
+                className="text-sm text-foreground whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(viewService?.description || ""),
+                }}
+              />
             </div>
             <div>
               <h4 className="text-sm font-medium text-muted-foreground">

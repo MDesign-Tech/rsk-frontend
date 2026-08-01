@@ -314,9 +314,12 @@ export function WhyBecomeMemberForm() {
                         )}
                       </div>
                       <div className="font-medium">{point.title || "Untitled"}</div>
-                      <div className="text-sm text-muted-foreground line-clamp-1">
-                        {point.description || "No description"}
-                      </div>
+                      <div
+                        className="text-sm text-muted-foreground line-clamp-1"
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(point.description || "No description"),
+                        }}
+                      />
                       <div className="flex justify-end gap-2">
                         <StatusToggle
                           checked={!!point.visible}
