@@ -71,11 +71,6 @@ export default function WhoPage() {
               </defs>
             </svg>
           </h1>
-          <p className="text-base-content/80 max-w-3xl">
-            Our team blends corporate advisory experience, financial discipline,
-            and practical execution to deliver solutions that help businesses
-            move forward with confidence.
-          </p>
         </div>
       </div>
       <br />
@@ -93,9 +88,6 @@ export default function WhoPage() {
               transition={{ duration: 0.7 }}
               className="space-y-6"
             >
-              <span className="text-sm uppercase tracking-[0.35em] text-primary">
-                Who we are
-              </span>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
                 {about?.title ?? "RSK Associates"}
               </h1>
