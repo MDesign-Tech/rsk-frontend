@@ -224,7 +224,7 @@ export function HeroForm() {
                 variant="outline"
                 size="sm"
                 onClick={addService}
-                disabled={!canCreateHero}
+                disabled={isSaving || deletingImageId !== null || !canCreateHero}
                 className="gap-1"
               >
                 <Plus className="w-4 h-4" />
@@ -247,6 +247,7 @@ export function HeroForm() {
                       );
                       form.setValue("services", updated, { shouldDirty: true });
                     }}
+                    disabled={isSaving || deletingImageId !== null}
                   />
                 </div>
                 <Tooltip>
@@ -258,7 +259,7 @@ export function HeroForm() {
                       <StatusToggle
                         checked={service.visible !== false}
                         onCheckedChange={() => toggleServiceVisibility(index)}
-                        disabled={isSaving || !canUpdateHero}
+                        disabled={isSaving || deletingImageId !== null || !canUpdateHero}
                         aria-label={
                           service.visible === false
                             ? "Show Sentence"
@@ -276,10 +277,14 @@ export function HeroForm() {
                   variant="ghost"
                   size="icon"
                   onClick={() => removeService(index)}
-                  disabled={isSaving || !canDeleteHero}
+                  disabled={isSaving || deletingImageId !== null || !canDeleteHero}
                   className="text-destructive hover:text-destructive"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {deletingImageId !== null ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </Button>
               </div>
             ))}
@@ -299,7 +304,7 @@ export function HeroForm() {
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading || !canCreateHero}
+                disabled={isUploading || isSaving || deletingImageId !== null || !canCreateHero}
                 className="gap-1"
               >
                 <Upload className="w-4 h-4" />
@@ -313,7 +318,7 @@ export function HeroForm() {
               accept="image/*"
               className="hidden"
               onChange={handleFileSelect}
-              disabled={isUploading}
+              disabled={isUploading || isSaving || deletingImageId !== null}
             />
 
             {isUploading && (
@@ -368,9 +373,13 @@ export function HeroForm() {
                         size="icon"
                         className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => removeImage(image.publicId)}
-                        disabled={isSaving || deletingImageId === image.publicId}
+                        disabled={isSaving || deletingImageId !== null || !canDeleteHero}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {deletingImageId === image.publicId ? (
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
                     <div className="p-2">
@@ -391,7 +400,7 @@ export function HeroForm() {
           </div>
 
           <div className="flex justify-end">
-            <SubmitButton isLoading={isSaving} disabled={!canUpdateHero}>
+            <SubmitButton isLoading={isSaving} disabled={deletingImageId !== null || !canUpdateHero}>
               Save Changes
             </SubmitButton>
           </div>

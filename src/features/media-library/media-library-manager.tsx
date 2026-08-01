@@ -176,13 +176,14 @@ export function MediaLibraryManager() {
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-9"
+            disabled={deleting}
           />
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={handleRefresh}
-          disabled={refreshing}
+          disabled={refreshing || deleting}
         >
           <RefreshCw className={`size-4 ${refreshing ? "animate-spin" : ""}`} />
           Refresh
@@ -198,11 +199,12 @@ export function MediaLibraryManager() {
           <button
             key={tab.key}
             onClick={() => handleFilterChange(tab.key)}
+            disabled={deleting}
             className={`relative px-4 py-2 text-sm font-medium transition-colors ${
               filter === tab.key
                 ? "text-primary border-b-2 border-primary"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+            } ${deleting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {tab.label}
             <span className="ml-1.5 rounded-full bg-muted px-2 py-0.5 text-xs">
@@ -242,6 +244,7 @@ export function MediaLibraryManager() {
                         variant="secondary"
                         className="h-8 px-2"
                         onClick={() => window.open(image.url, "_blank")}
+                        disabled={deleting}
                       >
                         <ExternalLink className="size-3" />
                       </Button>
@@ -251,8 +254,13 @@ export function MediaLibraryManager() {
                           variant="destructive"
                           className="h-8 px-2"
                           onClick={() => handleDeleteClick(image)}
+                          disabled={deleting}
                         >
-                          <Trash2 className="size-3" />
+                          {deleting && deleteTarget?.publicId === image.publicId ? (
+                            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Trash2 className="size-3" />
+                          )}
                         </Button>
                       )}
                     </div>

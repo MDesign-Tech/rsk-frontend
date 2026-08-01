@@ -127,7 +127,9 @@ export async function deleteImage(publicId: string): Promise<void> {
     throw new Error("publicId is required");
   }
 
-  const response = await axios.post("/api/cloudinary/delete", { publicId });
+  const response = await axios.delete("/api/cloudinary/delete", {
+    data: { publicId },
+  });
 
   if (response.status !== 200) {
     throw new Error("Failed to delete image from Cloudinary");
