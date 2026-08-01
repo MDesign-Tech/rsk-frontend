@@ -41,7 +41,7 @@ export default function WhoPage() {
             <span className="badge badge-primary shrink-0 rounded-full">Our team</span>
           </div> */}
           <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
-            <span>Who we are</span>
+            <span>{about?.whoTitle ?? "Who we are"}</span>
             <svg
               width="223"
               height="12"
@@ -139,10 +139,6 @@ export default function WhoPage() {
               transition={{ duration: 0.7 }}
               className="rounded-4xl border border-border/60 bg-card/95 dark:bg-card/90 p-10 backdrop-blur-xl shadow-sm"
             >
-              <div className="inline-flex items-center gap-3 rounded-full bg-primary/10 px-4 py-2 text-primary text-sm font-semibold">
-                <Globe className="h-4 w-4" />
-                Our Story
-              </div>
               <h2 className="mt-6 text-3xl font-semibold">
                 {about?.ourStory?.title ??
                   "A corporate advisory firm built for modern growth."}

@@ -38,6 +38,7 @@ export function AboutForm() {
     defaultValues: {
       title: "",
       description: "",
+      whoTitle: "Who we are",
       visible: true,
       stats: [],
       contactMethods: [],
@@ -89,6 +90,7 @@ export function AboutForm() {
         form.reset({
           title: a.title,
           description: a.description,
+          whoTitle: a.whoTitle ?? "Who we are",
           visible: a.visible ?? true,
           stats: a.stats ?? [],
           contactMethods: a.contactMethods ?? [],
@@ -119,6 +121,7 @@ export function AboutForm() {
       const payload: AboutInput = {
         title: values.title,
         description: values.description,
+        whoTitle: values.whoTitle,
         visible: values.visible,
         stats: values.stats,
         contactMethods: values.contactMethods,
@@ -188,6 +191,19 @@ export function AboutForm() {
               </FormItem>
             )}
           />
+            <FormField
+              control={form.control}
+              name="whoTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>"Who we are" Heading</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           <FormField
             control={form.control}
             name="description"

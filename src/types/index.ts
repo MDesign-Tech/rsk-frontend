@@ -134,6 +134,7 @@ export interface AboutUs {
   _id: string;
   title: string;
   description: string;
+  whoTitle?: string;
   visible?: boolean;
   stats: AboutStat[];
   contactMethods: ContactMethod[];

@@ -122,6 +122,8 @@ export const aboutSchema = z.object({
 
   description: z.string().min(1, "Description is required"),
 
+  whoTitle: z.string().default("Who we are"),
+
   visible: z.boolean().default(true),
 
   stats: z.array(aboutStatSchema).default([]),
