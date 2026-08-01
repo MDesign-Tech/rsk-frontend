@@ -109,7 +109,6 @@ export default function WhoPage() {
                 </Link>
               </div>
             </motion.div>
-
             <motion.div
               initial={shouldReduceMotion ? {} : { opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
