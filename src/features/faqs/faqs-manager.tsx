@@ -179,11 +179,22 @@ export function FaqsManager() {
     {
       key: "answer",
       header: "Answer",
-      render: (f) => (
-        <span className="text-sm text-foreground" title={f.answer}>
-          {truncateWords(f.answer, 3)}
-        </span>
-      ),
+      render: (f) => {
+        const sanitized = DOMPurify.sanitize(f.answer);
+        const temp = document.createElement("div");
+        temp.innerHTML = sanitized;
+        const text = temp.textContent || temp.innerText || "";
+        const words = text.split(" ");
+        const preview =
+          words.length > 3
+            ? words.slice(0, 3).join(" ") + "..."
+            : text;
+        return (
+          <span className="text-sm text-foreground" title={text}>
+            {preview}
+          </span>
+        );
+      },
     },
     {
       key: "actions",

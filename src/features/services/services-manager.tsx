@@ -264,13 +264,17 @@ export function ServicesManager() {
       key: "description",
       header: "Description",
       render: (s) => {
-        const words = s.description.split(" ");
+        const sanitized = DOMPurify.sanitize(s.description);
+        const temp = document.createElement("div");
+        temp.innerHTML = sanitized;
+        const text = temp.textContent || temp.innerText || "";
+        const words = text.split(" ");
         const preview =
           words.length > 3
             ? words.slice(0, 3).join(" ") + "..."
-            : s.description;
+            : text;
         return (
-          <span className="text-sm text-foreground" title={s.description}>
+          <span className="text-sm text-foreground" title={text}>
             {preview}
           </span>
         );
