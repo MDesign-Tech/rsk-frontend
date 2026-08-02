@@ -1,32 +1,28 @@
 'use client'
 
-import { useTheme } from 'next-themes'
 import { Toaster as Sonner, ToasterProps } from 'sonner'
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = 'system' } = useTheme()
-
   return (
     <Sonner
-      theme={theme as ToasterProps['theme']}
       className="toaster group"
       style={
         {
-          '--normal-bg': 'color-mix(in oklch, var(--popover) 85%, transparent)',
-          '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
-          '--success-bg': 'color-mix(in oklch, var(--success) 20%, transparent)',
-          '--success-text': 'var(--success-foreground)',
-          '--success-border': 'color-mix(in oklch, var(--success) 40%, transparent)',
-          '--error-bg': 'color-mix(in oklch, var(--destructive) 20%, transparent)',
-          '--error-text': 'var(--destructive-foreground)',
-          '--error-border': 'color-mix(in oklch, var(--destructive) 40%, transparent)',
-          '--warning-bg': 'color-mix(in oklch, var(--warning) 20%, transparent)',
-          '--warning-text': 'var(--warning-foreground)',
-          '--warning-border': 'color-mix(in oklch, var(--warning) 40%, transparent)',
-          '--info-bg': 'color-mix(in oklch, var(--info) 20%, transparent)',
-          '--info-text': 'var(--info-foreground)',
-          '--info-border': 'color-mix(in oklch, var(--info) 40%, transparent)',
+          '--normal-bg': '#f3f4f6',
+          '--normal-text': '#1f2937',
+          '--normal-border': '#d1d5db',
+          '--success-bg': '#22c55e',
+          '--success-text': '#ffffff',
+          '--success-border': '#16a34a',
+          '--error-bg': '#ef4444',
+          '--error-text': '#ffffff',
+          '--error-border': '#dc2626',
+          '--warning-bg': '#eab308',
+          '--warning-text': '#1f2937',
+          '--warning-border': '#ca8a04',
+          '--info-bg': '#3b82f6',
+          '--info-text': '#ffffff',
+          '--info-border': '#2563eb',
         } as React.CSSProperties
       }
       {...props}
