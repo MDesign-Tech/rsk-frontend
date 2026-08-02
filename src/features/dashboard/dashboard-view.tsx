@@ -85,10 +85,6 @@ export function DashboardView() {
     <div className="space-y-8">
       {/* Stats Overview */}
       <section>
-        <SectionHeader
-          title="Overview"
-          description="Key metrics from your website content."
-        />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-4">
           {stats!.map((stat) => {
             const Icon = stat.icon;
