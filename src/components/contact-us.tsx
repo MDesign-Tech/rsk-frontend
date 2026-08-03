@@ -63,7 +63,7 @@ export function ContactUs() {
   };
 
   return (
-     <section id="contact-us" className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+     <div id="contact-us" className="flex flex-col gap-18 pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
        <div className="max-w-6xl mx-auto">
          <motion.div
            className="text-center mb-10"
@@ -199,7 +199,7 @@ export function ContactUs() {
         </div>
 
         <LocationSection />
-      </div>
-    </section>
+       </div>
+     </div>
   );
 }
