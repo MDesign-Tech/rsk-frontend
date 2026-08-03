@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
+    <main className="min-h-screen bg-background text-foreground">
       <div
         className="absolute top-0 right-0 w-[1500px] h-[1500px] -z-10 bg-primary pointer-events-none"
         style={{
@@ -24,10 +24,7 @@ export default function ContactPage() {
       </div>
 
       <Navbar />
-
-       <div className="pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-28 lg:pb-20">
-         <ContactUs />
-       </div>
+      <ContactUs />
     </main>
   );
 }
