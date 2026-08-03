@@ -63,7 +63,7 @@ export function ContactUs() {
   };
 
   return (
-     <div id="contact-us" className="flex flex-col mx-auto max-w-6xl px-2 sm:px-4 lg:px-8 py-4">
+     <div id="contact-us" className="flex flex-col mx-auto max-w-6xl px-2 sm:px-4 lg:px-8 py-16">
        <div className="">
          <motion.div
            className="text-center mb-10"
