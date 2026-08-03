@@ -64,7 +64,7 @@ export function ContactUs() {
 
   return (
      <div id="contact-us" className="flex flex-col gap-18 pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
-       <div className="max-w-6xl mx-auto">
+       <div className="max-w-7xl mx-auto">
          <motion.div
            className="text-center mb-10"
            initial={{ opacity: 0, y: 20 }}
