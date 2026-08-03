@@ -118,6 +118,14 @@ export function ContactUs() {
                  })}
                </div>
              </div>
+
+             <div className="p-4 sm:p-6 rounded-xl border border-border bg-card/50 backdrop-blur">
+               <h4 className="font-semibold mb-2 text-sm">Business Hours</h4>
+               <p className="text-sm text-muted-foreground mb-1">
+                 Monday - Friday: 9:00 AM - 6:00 PM EST
+               </p>
+               <p className="text-sm text-muted-foreground">Saturday - Sunday: Closed</p>
+             </div>
           </motion.div>
 
           {/* Contact Form */}
