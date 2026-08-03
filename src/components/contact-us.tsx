@@ -1,4 +1,4 @@
-                                                                  "use client";
+"use client";
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -63,8 +63,8 @@ export function ContactUs() {
   };
 
   return (
-     <div id="contact-us" className="flex flex-col gap-18 pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
-        <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-8">
+     <section id="contact-us" className="relative py-12 px-4 sm:px-6 lg:px-8">
+       <div className="max-w-6xl mx-auto">
          <motion.div
            className="text-center mb-10"
            initial={{ opacity: 0, y: 20 }}
@@ -200,6 +200,6 @@ export function ContactUs() {
 
         <LocationSection />
       </div>
-    </div>
+    </section>
   );
 }
