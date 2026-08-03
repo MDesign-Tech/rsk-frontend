@@ -326,7 +326,6 @@ export function UsersManager() {
            <div className="flex-1 overflow-y-auto">
              <Form {...form}>
                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                 {!editing && (
                    <FormField
                      control={form.control}
                      name="name"
@@ -340,40 +339,6 @@ export function UsersManager() {
                        </FormItem>
                      )}
                    />
-                 )}
- 
-                 {editing && (
-                   <FormField
-                     control={form.control}
-                     name="memberId"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel>Link team Member Profile</FormLabel>
-                         <Select
-                           onValueChange={field.onChange}
-                           value={field.value ?? "__none__"}
-                           disabled={isSaving}
-                         >
-                           <FormControl>
-                             <SelectTrigger>
-                               <SelectValue placeholder="Select a team member (optional)" />
-                             </SelectTrigger>
-                           </FormControl>
-                           <SelectContent>
-                             <SelectItem value="__none__">None (no profile)</SelectItem>
-                             {allMembers.map((member) => (
-                               <SelectItem key={member._id} value={member._id}>
-                                 {member.name} {member.department ? `- ${member.department}` : ""}
-                               </SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                 )}
- 
                  <FormField
                    control={form.control}
                    name="email"
