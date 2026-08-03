@@ -221,8 +221,6 @@ export const userSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email"),
   phone: z.string().optional().default(""),
   role: z.enum(["admin", "member"]).default("member"),
-  member: z.string().optional().nullable().default(null),
-  memberId: z.string().optional().nullable().default(null),
   password: z.string().optional().default(""),
 });
 export type UserInput = z.infer<typeof userSchema>;
