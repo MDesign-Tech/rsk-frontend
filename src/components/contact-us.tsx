@@ -63,7 +63,7 @@ export function ContactUs() {
   };
 
   return (
-     <div id="contact-us" className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+     <div id="contact-us" className="flex flex-col mx-auto max-w-6xl px-2 sm:px-4 lg:px-8 pt-40 md:pt-45 lg:pt-47.5">
        <div className="">
          <motion.div
            className="text-center mb-10"
