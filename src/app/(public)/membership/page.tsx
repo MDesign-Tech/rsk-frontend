@@ -6,8 +6,8 @@ import { CheckCircle2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { FAQ } from "@/components/faq";
-import { SectionDivider } from "@/components/section-divider";
 import { useWebsiteStore } from "@/stores/website.store";
+import DOMPurify from "isomorphic-dompurify";
 
 export default function MembershipPage() {
   const shouldReduceMotion = useReducedMotion();
@@ -22,13 +22,8 @@ export default function MembershipPage() {
 
       <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
-          <div className="bg-primary/10 border border-primary/20 flex w-fit items-center gap-2.5 rounded-full px-3 py-2">
-            <span className="text-sm font-semibold text-primary">
-              Join RSK and grow with confidence.
-            </span>
-          </div>
           <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
-            <span>Membership</span>
+            {whyBecomeMember?.title || "Become a member"}
             <svg
               width="223"
               height="12"
@@ -58,10 +53,15 @@ export default function MembershipPage() {
               </defs>
             </svg>
           </h1>
-          <p className="text-base-content/80 max-w-3xl">
-            Become part of a corporate network that combines strategy, funding
-            access, and operational support for sustainable growth.
-          </p>
+          <p
+            className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                whyBecomeMember?.description ||
+                  "Membership built to accelerate your business ambition. Enjoy premium support, access to curated opportunities, and performance-driven resources created for corporate leadership.",
+              ),
+            }}
+          />
         </div>
       </div>
       <br />
@@ -70,7 +70,6 @@ export default function MembershipPage() {
       {/* <SectionDivider variant="wave" /> */}
       <section className="py-20 bg-muted/8">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
           {visibleBenefits.length > 0 && (
             <div className="grid gap-6 lg:grid-cols-3">
               {visibleBenefits.map((benefit, index) => {
@@ -89,9 +88,12 @@ export default function MembershipPage() {
                     <h3 className="mt-6 text-xl font-semibold text-foreground">
                       {benefit.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                      {benefit.description}
-                    </p>
+                    <p
+                     className="mt-3 text-sm leading-7 text-muted-foreground"
+                     dangerouslySetInnerHTML={{
+                       __html: DOMPurify.sanitize(benefit.description),
+                     }}
+                   />
                   </motion.div>
                 );
               })}
