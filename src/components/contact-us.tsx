@@ -63,7 +63,7 @@ export function ContactUs() {
   };
 
   return (
-     <section id="contact-us" className="relative py-12 px-4 sm:px-6 lg:px-8">
+     <section id="contact-us">
        <div className="max-w-6xl mx-auto">
          <motion.div
            className="text-center mb-10"
