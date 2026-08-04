@@ -63,8 +63,8 @@ export function ContactUs() {
   };
 
   return (
-     <section id="contact-us" className="relative py-12 px-4 sm:px-6 lg:px-8">
-       <div className="max-w-6xl mx-auto">
+     <div id="contact-us" className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
          <motion.div
            className="text-center mb-10"
            initial={{ opacity: 0, y: 20 }}
@@ -200,7 +200,7 @@ export function ContactUs() {
 
         <LocationSection />
       </div>
-    </section>
+    </div>
   );
 }
 

@@ -25,7 +25,7 @@ export default function ContactPage() {
 
       <Navbar />
 
-      <div className="pt-28 pb-16">
+      <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
          <ContactUs />
        </div>
     </main>
