@@ -9,25 +9,14 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
-      <div
-        className="absolute top-0 right-0 w-[1500px] h-[1500px] -z-10 bg-primary pointer-events-none"
-        style={{
-          maskImage:
-            "radial-gradient(ellipse 50% 50% at 100% 0%, rgb(0 0 0 / 0.75), transparent)",
-        }}
-      >
-        <div
-          className="absolute inset-0 bg-cover bg-right-top"
-          style={{ backgroundImage: "url('/grade.png')" }}
-        />
-      </div>
-
+    <main className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <div className="pt-28 pb-16">
-         <ContactUs />
-       </div>
+      <div className="flex h-full flex-col justify-between overflow-x-hidden pt-40 md:pt-45 lg:pt-47.5">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+          <ContactUs />
+        </div>
+      </div>
     </main>
   );
 }
