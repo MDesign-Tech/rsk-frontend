@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, PT_Mono } from "next/font/google";
