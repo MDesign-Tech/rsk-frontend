@@ -9,9 +9,9 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <main className="relative z-0 h-max bg-background overflow-x-hidden">
+    <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
       <div
-        className="absolute top-0 right-0 w-full h-full-z-10 bg-primary pointer-events-none"
+        className="fixed top-0 right-0 w-[1500px] h-[1500px] -z-10 bg-primary pointer-events-none"
         style={{
           maskImage:
             "radial-gradient(ellipse 50% 50% at 100% 0%, rgb(0 0 0 / 0.75), transparent)",
@@ -25,7 +25,7 @@ export default function ContactPage() {
 
       <Navbar />
 
-      <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+      <div className="pt-28 pb-16">
          <ContactUs />
        </div>
     </main>
