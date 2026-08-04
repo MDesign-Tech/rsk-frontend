@@ -63,8 +63,8 @@ export function ContactUs() {
   };
 
   return (
-     <section id="contact-us" >
-      <div className="">
+     <section id="contact-us" className="relative py-12 px-4 sm:px-6 lg:px-8 scrollbar-none overflow-hidden">
+       <div className="max-w-6xl mx-auto scrollbar-none overflow-hidden">
          <motion.div
            className="text-center mb-10"
            initial={{ opacity: 0, y: 20 }}
