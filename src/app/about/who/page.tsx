@@ -40,7 +40,7 @@ export default function WhoPage() {
           {/* <div className="bg-base-200 border-base-content/20 flex w-fit items-center gap-2.5 rounded-full border px-3 py-2">
             <span className="badge badge-primary shrink-0 rounded-full">Our team</span>
           </div> */}
-          <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl md:max-w-3xl md:text-balance">
+          <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl overflow-hidden md:max-w-3xl md:text-balance">
             <span>{about?.whoTitle ?? "Who we are"}</span>
             <svg
               width="223"
