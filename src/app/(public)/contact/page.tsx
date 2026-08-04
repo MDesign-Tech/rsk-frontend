@@ -86,7 +86,6 @@ export default function ContactPage() {
       <Navbar />
 
       <div className="pt-28 pb-16 overflow-hidden">
-        <section id="contact-us" className="relative py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
             <motion.div
               className="text-center mb-10"
@@ -223,7 +222,6 @@ export default function ContactPage() {
 
             <LocationSection />
           </div>
-        </section>
       </div>
     </main>
   );
