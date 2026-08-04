@@ -85,9 +85,10 @@ export default function ContactPage() {
 
       <Navbar />
 
-      <div className="pt-28 pb-16 overflow-hidden">
-          <div className="max-w-6xl mx-auto">
-            <motion.div
+      <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+         <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+
+          <motion.div
               className="text-center mb-10"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -221,7 +222,8 @@ export default function ContactPage() {
             </div>
 
             <LocationSection />
-          </div>
+            
+         </div>
       </div>
     </main>
   );
