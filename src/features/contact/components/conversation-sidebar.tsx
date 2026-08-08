@@ -13,7 +13,9 @@ interface ConversationSidebarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   selectedConversationId: string | null;
-  onSelectConversation: (conversation: Conversation) => void;
+  onSelectConversation: (
+    conversation: Conversation
+  ) => void;
   isLoading: boolean;
 }
 
@@ -26,42 +28,105 @@ export function ConversationSidebar({
   isLoading,
 }: ConversationSidebarProps) {
   return (
-    <div className="flex h-full flex-col">
-      {/* Sticky Search */}
-      <div className="shrink-0 border-b border-border p-3">
+    <div
+      className="
+        flex
+        h-full
+        min-h-0
+        w-full
+        flex-col
+        overflow-hidden
+      "
+    >
+      {/* ======================================================
+          SEARCH
+      ======================================================= */}
+
+      <div
+        className="
+          shrink-0
+          border-b
+          border-border
+          bg-background
+          p-3
+        "
+      >
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Search
+            className="
+              pointer-events-none
+              absolute
+              left-3
+              top-1/2
+              size-4
+              -translate-y-1/2
+              text-muted-foreground
+            "
+          />
+
           <Input
             placeholder="Search conversations..."
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9"
+            onChange={(e) =>
+              onSearchChange(
+                e.target.value
+              )
+            }
+            className="
+              h-10
+              w-full
+              pl-9
+            "
           />
         </div>
       </div>
 
-      {/* Scrollable Conversation List */}
-      <ScrollArea className="flex-1 min-h-0">
-        {isLoading ? (
-          <LoadingState message="Loading conversations..." />
-        ) : conversations.length === 0 ? (
-          <EmptyState
-            title="No conversations yet"
-            description="Messages from the contact form will appear here"
-          />
-        ) : (
-          <div className="divide-y divide-border">
-            {conversations.map((conv) => (
-              <ConversationItem
-                key={conv._id}
-                conversation={conv}
-                isSelected={conv._id === selectedConversationId}
-                onClick={() => onSelectConversation(conv)}
-              />
-            ))}
-          </div>
-        )}
-      </ScrollArea>
+      {/* ======================================================
+          CONVERSATION LIST
+      ======================================================= */}
+
+      <div
+        className="
+          min-h-0
+          flex-1
+          overflow-hidden
+        "
+      >
+        <ScrollArea className="h-full w-full">
+          {isLoading ? (
+            <LoadingState
+              message="Loading conversations..."
+            />
+          ) : conversations.length === 0 ? (
+            <EmptyState
+              title="No conversations yet"
+              description="Messages from the contact form will appear here"
+            />
+          ) : (
+            <div className="w-full divide-y divide-border">
+              {conversations.map(
+                (conversation) => (
+                  <ConversationItem
+                    key={conversation._id}
+                    conversation={
+                      conversation
+                    }
+                    isSelected={
+                      conversation._id ===
+                      selectedConversationId
+                    }
+                    onClick={() =>
+                      onSelectConversation(
+                        conversation
+                      )
+                    }
+                  />
+                )
+              )}
+            </div>
+          )}
+        </ScrollArea>
+      </div>
     </div>
   );
 }

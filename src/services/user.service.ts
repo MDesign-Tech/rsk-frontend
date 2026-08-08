@@ -21,9 +21,9 @@ export const userService = {
   update: (
     id: string,
     data: {
+      name?: string;
       email: string;
       phone?: string;
-      memberId?: string | null;
       password?: string;
     }
   ) => api.put<ApiResponse<{ user: User }>>(`/users/${id}`, data).then((res) => res.data),

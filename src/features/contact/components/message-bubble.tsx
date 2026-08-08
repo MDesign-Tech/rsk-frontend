@@ -11,45 +11,113 @@ interface MessageBubbleProps {
 
 function formatTime(value?: string) {
   if (!value) return "";
+
   const date = new Date(value);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
-  // Sanitize and render rich text content
-  const sanitizedHtml = DOMPurify.sanitize(message.message, {
-    ALLOWED_TAGS: ["b", "i", "u", "strong", "em", "br", "p", "span"],
-    ALLOWED_ATTR: [],
-  });
+export function MessageBubble({
+  message,
+  isOwn,
+}: MessageBubbleProps) {
+  const sanitizedHtml =
+    DOMPurify.sanitize(message.message, {
+      ALLOWED_TAGS: [
+        "b",
+        "i",
+        "u",
+        "strong",
+        "em",
+        "br",
+        "p",
+        "span",
+        "ul",
+        "ol",
+        "li",
+        "blockquote",
+      ],
+      ALLOWED_ATTR: [],
+    });
 
   return (
     <div
       className={cn(
-        "flex",
-        isOwn ? "justify-end" : "justify-start"
+        "flex w-full min-w-0",
+        isOwn
+          ? "justify-end"
+          : "justify-start"
       )}
     >
       <div
         className={cn(
-          "max-w-[90%] sm:max-w-[80%] lg:max-w-[65%] rounded-lg px-3 py-2",
+          `
+          min-w-0
+          max-w-[92%]
+          overflow-hidden
+          rounded-2xl
+          px-3
+          py-2
+          text-sm
+          sm:max-w-[82%]
+          lg:max-w-[70%]
+          `,
           isOwn
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-foreground"
+            ? `
+              rounded-br-md
+              bg-primary
+              text-primary-foreground
+            `
+            : `
+              rounded-bl-md
+              bg-muted
+              text-foreground
+            `
         )}
       >
+        {/* MESSAGE */}
+
         <div
-          className="text-sm whitespace-pre-wrap break-words prose-sm"
-          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          className="
+            min-w-0
+            break-words
+            [overflow-wrap:anywhere]
+            leading-relaxed
+            [&_p]:m-0
+            [&_p+_p]:mt-2
+            [&_ul]:my-2
+            [&_ul]:ml-5
+            [&_ul]:list-disc
+            [&_ol]:my-2
+            [&_ol]:ml-5
+            [&_ol]:list-decimal
+            [&_li]:break-words
+            [&_blockquote]:my-2
+            [&_blockquote]:border-l-2
+            [&_blockquote]:pl-3
+            [&_strong]:font-semibold
+          "
+          dangerouslySetInnerHTML={{
+            __html: sanitizedHtml,
+          }}
         />
+
+        {/* TIME */}
+
         <p
           className={cn(
-            "text-xs mt-1",
+            "mt-1.5 text-[10px]",
             isOwn
               ? "text-primary-foreground/70"
               : "text-muted-foreground"
           )}
         >
-          {formatTime(message.createdAt)}
+          {formatTime(
+            message.createdAt
+          )}
         </p>
       </div>
     </div>
