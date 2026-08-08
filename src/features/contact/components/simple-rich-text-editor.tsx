@@ -170,7 +170,6 @@ export function SimpleRichTextEditor({
 
       <div className="flex items-center justify-between px-4 py-2 border-t border-border/60 bg-muted/20 text-xs text-muted-foreground">
         <span>{charCount} characters</span>
-        <span>Rich Text Editor</span>
       </div>
     </div>
   );

@@ -232,10 +232,11 @@ export function ChatManager() {
                 MESSAGE AREA
 
                 IMPORTANT:
-                flex-1 + min-h-0 + overflow-hidden
-                prevents messages from pushing composer away.
+                relative + flex-1 + min-h-0 + overflow-hidden
+                creates a positioned container for the absolutely
+                positioned scrollable message list.
             ====================================================== */}
-            <div className="min-h-0 flex-1 overflow-hidden">
+            <div className="relative min-h-0 flex-1 overflow-hidden">
               <MessageList
                 messages={messages}
                 messagesEndRef={messagesEndRef}

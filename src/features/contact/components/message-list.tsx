@@ -12,9 +12,8 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   return (
     <div
       className="
-        h-full
-        w-full
-        min-h-0
+        absolute
+        inset-0
         overflow-y-auto
         overflow-x-hidden
       "
