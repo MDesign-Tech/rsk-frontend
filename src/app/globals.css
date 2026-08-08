@@ -297,3 +297,41 @@
 }
 
 /* Removed hero-breathe animation - replaced with mouse parallax */
+
+/* Chat message area styles */
+.chat-messages {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.chat-messages > * {
+  min-width: 0;
+}
+
+/* Message bubble styles */
+.message-bubble {
+  max-width: 85%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) {
+  .message-bubble {
+    max-width: 75%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .message-bubble {
+    max-width: 65%;
+  }
+}
+
+/* Prevent horizontal overflow in chat */
+.chat-container {
+  overflow-x: hidden;
+}
+
+.chat-container * {
+  max-width: 100%;
+}

@@ -358,7 +358,7 @@ export function ChatInterface({ initialConversations }: ChatInterfaceProps) {
       <Dialog open={isModalOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-0 rounded-xl border border-border bg-background p-0 shadow-2xl sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
+          className="fixed top-[50%] left-[50%] z-50 flex max-h-[90vh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] flex-col gap-0 rounded-xl border border-border bg-background p-0 shadow-2xl sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
         >
           {/* Hidden title for accessibility */}
           <DialogTitle className="sr-only">
@@ -405,13 +405,13 @@ export function ChatInterface({ initialConversations }: ChatInterfaceProps) {
           </div>
 
           {/* Modal Body - Scrollable Messages */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {isLoadingMessages ? (
-              <div className="h-full flex items-center justify-center py-8">
+              <div className="flex h-full items-center justify-center py-8">
                 <RefreshCw className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
             ) : messages.length === 0 ? (
-              <div className="h-full flex items-center justify-center py-8">
+              <div className="flex h-full items-center justify-center py-8">
                 <p className="text-sm text-muted-foreground">
                   No messages yet.
                 </p>
@@ -431,13 +431,13 @@ export function ChatInterface({ initialConversations }: ChatInterfaceProps) {
                       }`}
                     >
                       <div
-                        className={`max-w-[75%] sm:max-w-[70%] rounded-lg px-3 sm:px-4 py-2 text-sm ${
+                        className={`max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] rounded-lg px-3 sm:px-4 py-2 text-sm break-words overflow-wrap-anywhere ${
                           isOwn
                             ? "bg-primary text-primary-foreground rounded-br-none"
-                            : "bg-muted text-muted-foreground rounded-bl-none"
+                            : "bg-muted text-foreground rounded-bl-none"
                         }`}
                       >
-                        <p className="break-words whitespace-pre-wrap">
+                        <p className="whitespace-pre-wrap break-words overflow-wrap-anywhere">
                           {stripHtml(message.message)}
                         </p>
                         <div

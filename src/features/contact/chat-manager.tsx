@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Send } from "lucide-react";
 import { contactService } from "@/services/contact.service";
 import type { Conversation, ChatMessage } from "@/types";
@@ -34,144 +28,108 @@ export function ChatManager() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  /* ============================================================
-     LOAD CONVERSATIONS
-  ============================================================ */
-
+  /**
+   * Load conversations
+   */
   const loadConversations = useCallback(async () => {
     setIsLoading(true);
 
     try {
       const res = await contactService.getConversations();
 
-      setConversations(res.data.conversations || []);
+      const convs = res.data.conversations || [];
+
+      setConversations(convs);
     } catch (err) {
       toast.error(
-        err instanceof Error
-          ? err.message
-          : "Failed to load conversations"
+        err instanceof Error ? err.message : "Failed to load conversations",
       );
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  /* ============================================================
-     LOAD MESSAGES
-  ============================================================ */
+  /**
+   * Load messages
+   */
+  const loadMessages = useCallback(async (conversationId: string) => {
+    try {
+      const res = await contactService.getConversation(conversationId);
 
-  const loadMessages = useCallback(
-    async (conversationId: string) => {
-      try {
-        const res =
-          await contactService.getConversation(conversationId);
+      const loadedMessages = res.data.conversation.messages || [];
 
-        const loadedMessages =
-          res.data.conversation.messages || [];
+      setMessages(loadedMessages);
 
-        setMessages(loadedMessages);
+      // Mark conversation as read
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation._id === conversationId
+            ? {
+                ...conversation,
+                unreadCount: 0,
+              }
+            : conversation,
+        ),
+      );
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to load messages",
+      );
+    }
+  }, []);
 
-        // Mark conversation as read
-        setConversations((prev) =>
-          prev.map((conversation) =>
-            conversation._id === conversationId
-              ? {
-                  ...conversation,
-                  unreadCount: 0,
-                }
-              : conversation
-          )
-        );
-      } catch (err) {
-        toast.error(
-          err instanceof Error
-            ? err.message
-            : "Failed to load messages"
-        );
-      }
-    },
-    []
-  );
-
-  /* ============================================================
-     SELECT CONVERSATION
-  ============================================================ */
-
+  /**
+   * Select conversation
+   */
   const selectConversation = useCallback(
     async (conversation: Conversation) => {
       setSelectedConversation(conversation);
-
-      setMessages([]);
       setMessageText("");
+      setMessages([]);
 
       await loadMessages(conversation._id);
     },
-    [loadMessages]
+    [loadMessages],
   );
 
-  /* ============================================================
-     BACK TO LIST - MOBILE
-  ============================================================ */
-
+  /**
+   * Back to conversations on mobile
+   */
   const handleBackToList = useCallback(() => {
     setSelectedConversation(null);
     setMessages([]);
     setMessageText("");
   }, []);
 
-  /* ============================================================
-     SEND MESSAGE
-  ============================================================ */
-
+  /**
+   * Send message
+   */
   const sendMessage = useCallback(async () => {
-    if (
-      !selectedConversation ||
-      !messageText.trim() ||
-      isSending
-    ) {
+    if (!selectedConversation || !messageText.trim() || isSending) {
       return;
     }
 
     setIsSending(true);
 
     try {
-      const sanitizedHtml = DOMPurify.sanitize(
-        messageText,
-        {
-          ALLOWED_TAGS: [
-            "b",
-            "i",
-            "u",
-            "strong",
-            "em",
-            "br",
-            "p",
-            "span",
-          ],
-          ALLOWED_ATTR: [],
-        }
-      );
+      const sanitizedHtml = DOMPurify.sanitize(messageText, {
+        ALLOWED_TAGS: ["b", "i", "u", "strong", "em", "br", "p", "span"],
+        ALLOWED_ATTR: [],
+      });
 
-      await contactService.sendMessage(
-        selectedConversation._id,
-        sanitizedHtml
-      );
+      await contactService.sendMessage(selectedConversation._id, sanitizedHtml);
 
-      // Clear editor
+      // Clear editor immediately after successful send
       setMessageText("");
 
-      // Reload messages
-      await loadMessages(
-        selectedConversation._id
-      );
+      // Refresh messages
+      await loadMessages(selectedConversation._id);
 
-      // Reload sidebar
+      // Refresh conversation list
       await loadConversations();
     } catch (err) {
       toast.error(
-        err instanceof Error
-          ? err.message
-          : "Failed to send message"
+        err instanceof Error ? err.message : "Failed to send message",
       );
     } finally {
       setIsSending(false);
@@ -184,191 +142,124 @@ export function ChatManager() {
     loadConversations,
   ]);
 
-  /* ============================================================
-     INITIAL LOAD
-  ============================================================ */
-
+  /**
+   * Initial load
+   */
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
 
-  /* ============================================================
-     AUTO SCROLL
-  ============================================================ */
-
+  /**
+   * Scroll to latest message
+   */
   useEffect(() => {
-    if (!messages.length) return;
-
-    const timer = window.setTimeout(() => {
+    const timer = setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "end",
       });
     }, 50);
 
-    return () => window.clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, [messages]);
 
-  /* ============================================================
-     FILTER CONVERSATIONS
-  ============================================================ */
-
+  /**
+   * Filter conversations
+   */
   const filteredConversations = useMemo(() => {
-    const query = searchQuery
-      .trim()
-      .toLowerCase();
+    const query = searchQuery.trim().toLowerCase();
 
     if (!query) {
       return conversations;
     }
 
-    return conversations.filter(
-      (conversation) => {
-        const name =
-          conversation.clientName
-            ?.toLowerCase() || "";
+    return conversations.filter((conversation) => {
+      const name = conversation.clientName?.toLowerCase() || "";
 
-        const email =
-          conversation.clientEmail
-            ?.toLowerCase() || "";
+      const email = conversation.clientEmail?.toLowerCase() || "";
 
-        return (
-          name.includes(query) ||
-          email.includes(query)
-        );
-      }
-    );
+      return name.includes(query) || email.includes(query);
+    });
   }, [conversations, searchQuery]);
 
   return (
-    <div
-      className="
-        flex
-        h-full
-        min-h-0
-        w-full
-        overflow-hidden
-        bg-background
-      "
-    >
-      {/* ========================================================
-          SIDEBAR
-      ========================================================= */}
-
+    <div className="flex h-full min-h-0 w-full overflow-hidden">
+      {/* =========================================================
+          CONVERSATION SIDEBAR
+      ========================================================== */}
       <div
         className={cn(
-          `
-          h-full
-          min-h-0
-          w-full
-          shrink-0
-          flex-col
-          overflow-hidden
-          border-r
-          border-border
-          bg-muted/20
-          `,
-          `
-          md:flex
-          md:w-[320px]
-          lg:w-[360px]
-          `,
-          selectedConversation
-            ? "hidden md:flex"
-            : "flex"
+          "h-full min-h-0 w-full shrink-0 flex-col",
+          "border-r border-border bg-muted/20",
+          "md:flex md:w-[320px]",
+          "lg:w-[360px]",
+          selectedConversation ? "hidden md:flex" : "flex",
         )}
       >
         <ConversationSidebar
           conversations={filteredConversations}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          selectedConversationId={
-            selectedConversation?._id ?? null
-          }
-          onSelectConversation={
-            selectConversation
-          }
+          selectedConversationId={selectedConversation?._id ?? null}
+          onSelectConversation={selectConversation}
           isLoading={isLoading}
         />
       </div>
 
-      {/* ========================================================
+      {/* =========================================================
           CHAT AREA
-      ========================================================= */}
-
+      ========================================================== */}
       <div
         className={cn(
-          `
-          h-full
-          min-h-0
-          min-w-0
-          flex-1
-          flex-col
-          overflow-hidden
-          bg-background
-          `,
-          selectedConversation
-            ? "flex"
-            : "hidden md:flex"
+          "flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden",
+          "bg-background",
+          selectedConversation ? "flex" : "hidden md:flex",
         )}
       >
         {selectedConversation ? (
           <>
-            {/* ==================================================
-                HEADER
-            ================================================== */}
-
+            {/* =====================================================
+                CHAT HEADER
+            ====================================================== */}
             <div className="shrink-0">
               <ChatHeader
-                conversation={
-                  selectedConversation
-                }
+                conversation={selectedConversation}
                 onBack={handleBackToList}
               />
             </div>
 
-            {/* ==================================================
-                MESSAGES
+            {/* =====================================================
+                MESSAGE AREA
 
-                THIS MUST BE min-h-0
-            ================================================== */}
-
-            <div
-              className="
-                min-h-0
-                flex-1
-                overflow-hidden
-              "
-            >
+                IMPORTANT:
+                flex-1 + min-h-0 + overflow-hidden
+                prevents messages from pushing composer away.
+            ====================================================== */}
+            <div className="min-h-0 flex-1 overflow-hidden">
               <MessageList
                 messages={messages}
-                messagesEndRef={
-                  messagesEndRef
-                }
+                messagesEndRef={messagesEndRef}
               />
             </div>
 
-            {/* ==================================================
-                COMPOSER
-
-                NEVER ALLOW IT TO SHRINK AWAY
-            ================================================== */}
-
+            {/* =====================================================
+                MESSAGE COMPOSER
+            ====================================================== */}
             <div
               className="
                 shrink-0
-                border-t
-                border-border
+                border-t border-border
                 bg-background
-                p-2
-                sm:p-3
+                px-2 py-2
+                sm:px-3 sm:py-3
               "
             >
               <div
                 className="
+                  mx-auto
                   flex
                   w-full
-                  min-w-0
+                  max-w-5xl
                   items-end
                   gap-2
                 "
@@ -379,34 +270,35 @@ export function ChatManager() {
                   className="
                     min-w-0
                     flex-1
+                    overflow-hidden
+                    rounded-md
                   "
                 >
                   <SimpleRichTextEditor
                     value={messageText}
-                    onChange={
-                      setMessageText
-                    }
+                    onChange={setMessageText}
                     placeholder="Type your message..."
                     disabled={isSending}
-                    minHeight="44px"
+                    minHeight="40px"
+                    maxHeight="180px"
                   />
                 </div>
 
-                {/* SEND */}
+                {/* SEND BUTTON */}
 
                 <Button
                   type="button"
                   onClick={sendMessage}
-                  disabled={
-                    !messageText.trim() ||
-                    isSending
-                  }
+                  disabled={!messageText.trim() || isSending}
                   size="icon"
                   className="
-                    h-11
-                    w-11
+                    h-10
+                    w-10
                     shrink-0
-                    rounded-lg
+                    self-end
+                    rounded-md
+                    sm:h-11
+                    sm:w-11
                   "
                   aria-label="Send message"
                 >
