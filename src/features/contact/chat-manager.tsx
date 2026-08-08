@@ -12,107 +12,124 @@ import { ConversationSidebar } from "./components/conversation-sidebar";
 import { MessageList } from "./components/message-list";
 import { SimpleRichTextEditor } from "./components/simple-rich-text-editor";
 import { EmptyState } from "./components/empty-state";
-import { LoadingState } from "./components/loading-state";
 import DOMPurify from "isomorphic-dompurify";
 
 export function ChatManager() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageText, setMessageText] = useState("");
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Detect mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Load conversations
+  /**
+   * Load conversations
+   */
   const loadConversations = useCallback(async () => {
     setIsLoading(true);
+
     try {
       const res = await contactService.getConversations();
-      const convs = res.data.conversations;
+
+      const convs = res.data.conversations || [];
+
       setConversations(convs);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to load conversations"
+        err instanceof Error ? err.message : "Failed to load conversations",
       );
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Load messages for a conversation
+  /**
+   * Load messages
+   */
   const loadMessages = useCallback(async (conversationId: string) => {
     try {
       const res = await contactService.getConversation(conversationId);
-      setMessages(res.data.conversation.messages || []);
 
-      // Update conversation in list
+      const loadedMessages = res.data.conversation.messages || [];
+
+      setMessages(loadedMessages);
+
+      // Mark conversation as read
       setConversations((prev) =>
-        prev.map((c) =>
-          c._id === conversationId ? { ...c, unreadCount: 0 } : c
-        )
+        prev.map((conversation) =>
+          conversation._id === conversationId
+            ? {
+                ...conversation,
+                unreadCount: 0,
+              }
+            : conversation,
+        ),
       );
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to load messages"
+        err instanceof Error ? err.message : "Failed to load messages",
       );
     }
   }, []);
 
-  // Select a conversation
+  /**
+   * Select conversation
+   */
   const selectConversation = useCallback(
     async (conversation: Conversation) => {
       setSelectedConversation(conversation);
+      setMessageText("");
+      setMessages([]);
+
       await loadMessages(conversation._id);
     },
-    [loadMessages]
+    [loadMessages],
   );
 
-  // Back to conversation list (mobile)
+  /**
+   * Back to conversations on mobile
+   */
   const handleBackToList = useCallback(() => {
     setSelectedConversation(null);
     setMessages([]);
+    setMessageText("");
   }, []);
 
-  // Send a message
+  /**
+   * Send message
+   */
   const sendMessage = useCallback(async () => {
-    if (!selectedConversation || !messageText.trim() || isSending) return;
+    if (!selectedConversation || !messageText.trim() || isSending) {
+      return;
+    }
 
     setIsSending(true);
+
     try {
-      // Send rich text content directly, sanitized for safety
       const sanitizedHtml = DOMPurify.sanitize(messageText, {
         ALLOWED_TAGS: ["b", "i", "u", "strong", "em", "br", "p", "span"],
         ALLOWED_ATTR: [],
       });
-      await contactService.sendMessage(
-        selectedConversation._id,
-        sanitizedHtml
-      );
 
-      // Reload messages after sending
+      await contactService.sendMessage(selectedConversation._id, sanitizedHtml);
+
+      // Clear editor immediately after successful send
+      setMessageText("");
+
+      // Refresh messages
       await loadMessages(selectedConversation._id);
 
-      // Reload conversations to update last message
+      // Refresh conversation list
       await loadConversations();
-
-      setMessageText("");
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to send message"
+        err instanceof Error ? err.message : "Failed to send message",
       );
     } finally {
       setIsSending(false);
@@ -123,64 +140,140 @@ export function ChatManager() {
     isSending,
     loadMessages,
     loadConversations,
-    DOMPurify,
   ]);
 
-  // Initial load
+  /**
+   * Initial load
+   */
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
 
-  // Auto-scroll to bottom when new messages arrive
+  /**
+   * Scroll to latest message
+   */
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [messages]);
 
-  // Memoized filtered conversations
+  /**
+   * Filter conversations
+   */
   const filteredConversations = useMemo(() => {
-    return conversations.filter(
-      (conv) =>
-        conv.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        conv.clientEmail.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) {
+      return conversations;
+    }
+
+    return conversations.filter((conversation) => {
+      const name = conversation.clientName?.toLowerCase() || "";
+
+      const email = conversation.clientEmail?.toLowerCase() || "";
+
+      return name.includes(query) || email.includes(query);
+    });
   }, [conversations, searchQuery]);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col overflow-hidden md:h-[calc(100vh-10rem)]">
-      <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Sidebar */}
-        <div
-          className={cn(
-            "flex w-full flex-col border-r border-border bg-muted/20 md:flex md:w-[340px] lg:w-[360px]",
-            isMobile && selectedConversation ? "hidden" : "flex"
-          )}
-        >
-          <ConversationSidebar
-            conversations={filteredConversations}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            selectedConversationId={selectedConversation?._id ?? null}
-            onSelectConversation={selectConversation}
-            isLoading={isLoading}
-          />
-        </div>
+    <div className="flex h-full min-h-0 w-full overflow-hidden">
+      {/* =========================================================
+          CONVERSATION SIDEBAR
+      ========================================================== */}
+      <div
+        className={cn(
+          "h-full min-h-0 w-full shrink-0 flex-col",
+          "border-r border-border bg-muted/20",
+          "md:flex md:w-[320px]",
+          "lg:w-[360px]",
+          selectedConversation ? "hidden md:flex" : "flex",
+        )}
+      >
+        <ConversationSidebar
+          conversations={filteredConversations}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedConversationId={selectedConversation?._id ?? null}
+          onSelectConversation={selectConversation}
+          isLoading={isLoading}
+        />
+      </div>
 
-        {/* Chat Area */}
-        <div className="flex-1 flex flex-col bg-background min-w-0 min-h-0">
-          {selectedConversation ? (
-            <>
+      {/* =========================================================
+          CHAT AREA
+      ========================================================== */}
+      <div
+        className={cn(
+          "flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden",
+          "bg-background",
+          selectedConversation ? "flex" : "hidden md:flex",
+        )}
+      >
+        {selectedConversation ? (
+          <>
+            {/* =====================================================
+                CHAT HEADER
+            ====================================================== */}
+            <div className="shrink-0">
               <ChatHeader
                 conversation={selectedConversation}
-                onBack={isMobile ? handleBackToList : undefined}
+                onBack={handleBackToList}
               />
+            </div>
 
+            {/* =====================================================
+                MESSAGE AREA
+
+                IMPORTANT:
+                flex-1 + min-h-0 + overflow-hidden
+                prevents messages from pushing composer away.
+            ====================================================== */}
+            <div className="min-h-0 flex-1 overflow-hidden">
               <MessageList
                 messages={messages}
                 messagesEndRef={messagesEndRef}
               />
+            </div>
 
-              <div className="shrink-0 border-t border-border px-3 py-2.5">
-                <div className="flex gap-2 items-end">
+            {/* =====================================================
+                MESSAGE COMPOSER
+            ====================================================== */}
+            <div
+              className="
+                shrink-0
+                border-t border-border
+                bg-background
+                px-2 py-2
+                sm:px-3 sm:py-3
+              "
+            >
+              <div
+                className="
+                  mx-auto
+                  flex
+                  w-full
+                  max-w-5xl
+                  items-end
+                  gap-2
+                "
+              >
+                {/* EDITOR */}
+
+                <div
+                  className="
+                    min-w-0
+                    flex-1
+                    overflow-hidden
+                    rounded-md
+                  "
+                >
                   <SimpleRichTextEditor
                     value={messageText}
                     onChange={setMessageText}
@@ -188,27 +281,38 @@ export function ChatManager() {
                     disabled={isSending}
                     minHeight="44px"
                   />
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!messageText.trim() || isSending}
-                    size="icon"
-                    className="shrink-0 self-end"
-                    aria-label="Send message"
-                  >
-                    <Send className="size-4" />
-                  </Button>
                 </div>
+
+                {/* SEND BUTTON */}
+
+                <Button
+                  type="button"
+                  onClick={sendMessage}
+                  disabled={!messageText.trim() || isSending}
+                  size="icon"
+                  className="
+                    h-10
+                    w-10
+                    shrink-0
+                    self-end
+                    rounded-md
+                    sm:h-11
+                    sm:w-11
+                  "
+                  aria-label="Send message"
+                >
+                  <Send className="size-4" />
+                </Button>
               </div>
-            </>
-          ) : (
-            <EmptyState
-              title="Select a conversation"
-              description="Choose a conversation from the list to view messages"
-            />
-          )}
-        </div>
+            </div>
+          </>
+        ) : (
+          <EmptyState
+            title="Select a conversation"
+            description="Choose a conversation from the list to view messages"
+          />
+        )}
       </div>
     </div>
   );
 }
-

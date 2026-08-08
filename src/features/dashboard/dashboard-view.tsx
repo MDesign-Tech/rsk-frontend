@@ -13,7 +13,6 @@ import { EmptyState } from "@/components/admin/empty-state";
 import { SectionHeader } from "@/components/admin/section-header";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth.store";
-import { QuickActions } from "./quick-actions";
 
 interface Stat {
   title: string;
@@ -102,17 +101,6 @@ export function DashboardView() {
               </Card>
             );
           })}
-        </div>
-      </section>
-
-      {/* Quick Actions */}
-      <section>
-        <SectionHeader
-          title="Quick Actions"
-          description="Common tasks to get things done faster."
-        />
-        <div className="mt-4">
-          <QuickActions />
         </div>
       </section>
     </div>

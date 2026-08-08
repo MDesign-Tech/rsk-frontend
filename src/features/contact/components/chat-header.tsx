@@ -52,11 +52,6 @@ export function ChatHeader({ conversation, onBack }: ChatHeaderProps) {
           {conversation.clientEmail}
         </p>
       </div>
-      <Badge
-        variant={conversation.status === "open" ? "default" : "secondary"}
-      >
-        {conversation.status}
-      </Badge>
     </div>
   );
 }

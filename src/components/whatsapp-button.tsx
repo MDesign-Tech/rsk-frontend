@@ -22,7 +22,9 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
 export function WhatsAppButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [showSocials, setShowSocials] = useState(false);
-  const [aboutWhatsappHref, setAboutWhatsappHref] = useState<string | null>(null);
+  const [aboutWhatsappHref, setAboutWhatsappHref] = useState<string | null>(
+    null,
+  );
   const pathname = usePathname();
   const data = useWebsiteStore((state) => state.data);
 
@@ -31,14 +33,20 @@ export function WhatsAppButton() {
   const whatsappHref = whatsapp?.href || aboutWhatsappHref;
   const whatsappVisible = whatsapp?.visible !== false;
 
-  // Extract phone number from WhatsApp URL (e.g., https://wa.me/250788000000)
   const getPhoneNumber = (href: string | null | undefined): string | null => {
     if (!href) return null;
-    const waMatch = href.match(/wa\.me\/(\d+)/);
+
+    // Remove spaces, +, hyphens, parentheses, etc.
+    const cleaned = href.replace(/[+\s\-()]/g, "");
+
+    const waMatch = cleaned.match(/wa\.me\/(\d+)/);
     if (waMatch) return waMatch[1];
-    const apiMatch = href.match(/phone=(\d+)/);
+
+    const apiMatch = cleaned.match(/phone=(\d+)/);
     if (apiMatch) return apiMatch[1];
-    if (/^\d+$/.test(href)) return href;
+
+    if (/^\d+$/.test(cleaned)) return cleaned;
+
     return null;
   };
 
@@ -61,7 +69,8 @@ export function WhatsAppButton() {
   }, [phoneNumber]);
 
   // Don't render if WhatsApp is not configured, not visible, or on admin pages
-  if (!phoneNumber || !whatsappVisible || pathname.startsWith("/admin")) return null;
+  if (!phoneNumber || !whatsappVisible || pathname.startsWith("/admin"))
+    return null;
 
   const whatsappUrl = `https://wa.me/${phoneNumber}`;
 
