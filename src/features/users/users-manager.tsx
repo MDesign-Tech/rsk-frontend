@@ -107,6 +107,7 @@ export function UsersManager() {
     try {
       if (editing) {
         const payload: any = {
+          name: values.name,
           email: values.email,
           phone: values.phone,
           ...(values.password ? { password: values.password } : {}),
@@ -120,6 +121,7 @@ export function UsersManager() {
         toast.success("User updated");
       } else {
         const res = await userService.create({
+          name: values.name,
           email: values.email,
           password: values.password ?? "",
           phone: values.phone,

@@ -12,10 +12,10 @@ export const userService = {
     api.get<ApiResponse<{ members: AvailableMember[] }>>("/users/available-members").then((res) => res.data),
 
   create: (data: {
+    name: string;
     email: string;
     password: string;
     phone?: string;
-    memberId?: string | null;
   }) => api.post<ApiResponse<{ user: User }>>("/users", data).then((res) => res.data),
 
   update: (
