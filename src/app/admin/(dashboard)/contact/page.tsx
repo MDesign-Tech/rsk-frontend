@@ -5,7 +5,7 @@ import { PermissionGuard } from "@/components/admin/permission-guard";
 
 export default function ContactPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full">
       <PermissionGuard moduleName="Contact" action="read">
         <ChatManager />
       </PermissionGuard>
