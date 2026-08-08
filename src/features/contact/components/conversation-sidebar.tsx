@@ -14,6 +14,7 @@ interface ConversationSidebarProps {
   onSearchChange: (query: string) => void;
   selectedConversationId: string | null;
   onSelectConversation: (conversation: Conversation) => void;
+  onDeleteConversation: (conversation: Conversation) => void;
   isLoading: boolean;
 }
 
@@ -23,6 +24,7 @@ export function ConversationSidebar({
   onSearchChange,
   selectedConversationId,
   onSelectConversation,
+  onDeleteConversation,
   isLoading,
 }: ConversationSidebarProps) {
   return (
@@ -57,6 +59,7 @@ export function ConversationSidebar({
                 conversation={conv}
                 isSelected={conv._id === selectedConversationId}
                 onClick={() => onSelectConversation(conv)}
+                onDelete={() => onDeleteConversation(conv)}
               />
             ))}
           </div>

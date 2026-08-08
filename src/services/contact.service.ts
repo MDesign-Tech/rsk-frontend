@@ -54,4 +54,9 @@ export const contactService = {
         { message }
       )
       .then((res) => res.data),
+
+  deleteConversation: (conversationId: string) =>
+    api
+      .delete<ApiResponse<Record<string, never>>>(`/contact/conversations/${conversationId}`)
+      .then((res) => res.data),
 };

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { Send } from "lucide-react";
+import { Send, Trash2 } from "lucide-react";
 import { contactService } from "@/services/contact.service";
 import type { Conversation, ChatMessage } from "@/types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { ChatHeader } from "./components/chat-header";
 import { ConversationSidebar } from "./components/conversation-sidebar";
 import { MessageList } from "./components/message-list";
@@ -25,6 +26,9 @@ export function ChatManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -143,6 +147,39 @@ export function ChatManager() {
   ]);
 
   /**
+   * Delete conversation
+   */
+  const handleDeleteConversation = useCallback(async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+    try {
+      await contactService.deleteConversation(deleteTarget._id);
+
+      // Remove from local state
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== deleteTarget._id)
+      );
+
+      // If the deleted conversation was selected, clear the chat area
+      if (selectedConversation?._id === deleteTarget._id) {
+        setSelectedConversation(null);
+        setMessages([]);
+        setMessageText("");
+      }
+
+      toast.success("Conversation deleted");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete conversation",
+      );
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  }, [deleteTarget, selectedConversation]);
+
+  /**
    * Initial load
    */
   useEffect(() => {
@@ -202,6 +239,7 @@ export function ChatManager() {
           onSearchChange={setSearchQuery}
           selectedConversationId={selectedConversation?._id ?? null}
           onSelectConversation={selectConversation}
+          onDeleteConversation={setDeleteTarget}
           isLoading={isLoading}
         />
       </div>
@@ -315,6 +353,24 @@ export function ChatManager() {
           />
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!isDeleting && !open) {
+            setDeleteTarget(null);
+          }
+        }}
+        onConfirm={handleDeleteConversation}
+        isDeleting={isDeleting}
+        title="Delete conversation?"
+        description={
+          deleteTarget
+            ? `Are you sure you want to delete the conversation with "${deleteTarget.clientName}"? This action cannot be undone.`
+            : "This action cannot be undone."
+        }
+      />
     </div>
   );
 }
