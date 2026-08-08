@@ -12,6 +12,18 @@ interface ConversationItemProps {
   onClick: () => void;
 }
 
+function stripHtml(html: string): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
+function truncateToWords(text: string, maxWords: number): string {
+  if (!text) return "";
+  const words = text.split(/\s+/);
+  if (words.length <= maxWords) return text;
+  return words.slice(0, maxWords).join(" ") + "...";
+}
+
 function formatTime(value?: string) {
   if (!value) return "";
   const date = new Date(value);
@@ -69,12 +81,12 @@ export function ConversationItem({
           </div>
           <p
             className="text-xs text-muted-foreground truncate mt-0.5"
-            dangerouslySetInnerHTML={{
-              __html: conversation.lastMessage
-                ? DOMPurify.sanitize(conversation.lastMessage)
-                : "No messages yet",
-            }}
-          />
+            title={conversation.lastMessage ? stripHtml(conversation.lastMessage) : "No messages yet"}
+          >
+            {conversation.lastMessage
+              ? truncateToWords(stripHtml(conversation.lastMessage), 3)
+              : "No messages yet"}
+          </p>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-muted-foreground truncate">
               {conversation.clientEmail}

@@ -36,6 +36,16 @@ function truncateMessage(text: string, maxLength: number = 80): string {
 }
 
 /**
+ * Truncate text to a maximum number of words, appending an ellipsis if truncated.
+ */
+function truncateToWords(text: string, maxWords: number): string {
+  if (!text) return "";
+  const words = text.split(/\s+/);
+  if (words.length <= maxWords) return text;
+  return words.slice(0, maxWords).join(" ") + "...";
+}
+
+/**
  * Generate avatar initials from a name.
  */
 function getInitials(name: string): string {
@@ -328,7 +338,7 @@ export function ChatInterface({ initialConversations }: ChatInterfaceProps) {
                           </div>
                         </div>
 
-                        {/* Last message preview (truncated) */}
+                        {/* Last message preview (truncated to 3 words) */}
                         <div className="mt-1">
                           <p
                             className={`text-xs sm:text-sm ${
@@ -338,9 +348,9 @@ export function ChatInterface({ initialConversations }: ChatInterfaceProps) {
                             } line-clamp-1 sm:line-clamp-2`}
                             title={stripHtml(conversation.lastMessage ?? "")}
                           >
-                            {truncateMessage(
+                            {truncateToWords(
                               stripHtml(conversation.lastMessage ?? ""),
-                              80,
+                              3,
                             )}
                           </p>
                         </div>
