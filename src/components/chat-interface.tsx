@@ -358,7 +358,7 @@ export function ChatInterface({ initialConversations }: ChatInterfaceProps) {
       <Dialog open={isModalOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="fixed top-[50%] left-[50%] z-50 flex max-h-[90vh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] flex-col gap-0 rounded-xl border border-border bg-background p-0 shadow-2xl sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
+          className="fixed top-[50%] left-[50%] z-50 flex max-h-[90vh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] flex-col gap-0 overflow-hidden rounded-xl border border-border bg-background p-0 shadow-2xl sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
         >
           {/* Hidden title for accessibility */}
           <DialogTitle className="sr-only">
