@@ -66,7 +66,7 @@ export function SectionFormDialog({
                 <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} disabled={isBusy} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel>Description</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Description</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html, _images) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
               )} />
               <DialogFooter className="sticky bottom-0 bg-background pt-4">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isBusy}>Cancel</Button>

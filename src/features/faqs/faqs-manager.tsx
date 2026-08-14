@@ -315,7 +315,7 @@ export function FaqsManager() {
                      <FormItem>
                        <FormLabel>Answer</FormLabel>
                        <FormControl>
-                         <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isSaving} showToolbar={true} minHeight="150px" />
+                         <RichTextEditor value={field.value} onChange={(html, _images) => field.onChange(html)} disabled={isSaving} showToolbar={true} />
                        </FormControl>
                        <FormMessage />
                      </FormItem>

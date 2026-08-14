@@ -117,7 +117,8 @@ export function RichTextEditor({
       },
       attributes: {
         class:
-          "tiptap-editor-content focus:outline-none min-h-[200px] px-4 py-3 rounded-lg border border-input bg-background",
+          "tiptap-editor-content focus:outline-none px-4 py-3 rounded-lg border border-input bg-background",
+        style: `min-height: ${minHeight};`,
       },
     },
   });

@@ -187,7 +187,7 @@ export function MemberFormDialog({
                 </FormItem>
               )} />
               <FormField control={form.control} name="bio" render={({ field }) => (
-                <FormItem><FormLabel>Bio</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Bio</FormLabel><FormControl><RichTextEditor value={field.value} onChange={(html, _images) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="120px" /></FormControl><FormMessage /></FormItem>
               )} />
               <SocialMediaField control={form.control} />
               <div className="space-y-2">

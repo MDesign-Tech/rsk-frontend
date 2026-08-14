@@ -1,5 +1,4 @@
 import { ContactUs } from "@/components/contact-us";
-import { ChatInterface } from "@/components/chat-interface";
 import { Navbar } from "@/components/navbar";
 
 export const metadata = {
@@ -28,7 +27,6 @@ export default function ContactPage() {
 
       <div className="pt-28 pb-16">
          <ContactUs />
-         <ChatInterface />
        </div>
     </main>
   );

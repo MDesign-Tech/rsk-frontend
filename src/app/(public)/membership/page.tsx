@@ -105,40 +105,6 @@ export default function MembershipPage() {
       {/* <SectionDivider variant="curve" /> */}
       <FAQ />
       {/* <SectionDivider variant="gradient" /> */}
-      {/* <Testimonials /> */}
-
-      <section className="py-20">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <motion.div
-            initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="rounded-4xl border border-border/70 bg-card/90 p-10 shadow-lg"
-          >
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-center">
-              <div>
-                <h2 className="text-4xl font-semibold text-foreground">
-                  Apply now to join the next intake.
-                </h2>
-                <p className="mt-4 text-lg leading-8 text-muted-foreground">
-                  Secure your membership and receive priority access to RSK's
-                  corporate programs, partner introductions, and advisory
-                  resources.
-                </p>
-              </div>
-              <Button
-                asChild
-                size="lg"
-                rounded="full"
-                className="min-w-55 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <Link href="/contact">Apply now</Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </main>
   );
 }

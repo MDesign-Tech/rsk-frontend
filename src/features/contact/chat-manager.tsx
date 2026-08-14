@@ -11,7 +11,7 @@ import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { ChatHeader } from "./components/chat-header";
 import { ConversationSidebar } from "./components/conversation-sidebar";
 import { MessageList } from "./components/message-list";
-import { SimpleRichTextEditor } from "./components/simple-rich-text-editor";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { EmptyState } from "./components/empty-state";
 import DOMPurify from "isomorphic-dompurify";
 
@@ -313,13 +313,12 @@ export function ChatManager() {
                     rounded-md
                   "
                 >
-                  <SimpleRichTextEditor
+                  <RichTextEditor
                     value={messageText}
-                    onChange={setMessageText}
+                    onChange={(html) => setMessageText(html)}
                     placeholder="Type your message..."
                     disabled={isSending}
                     minHeight="40px"
-                    maxHeight="180px"
                   />
                 </div>
 

@@ -180,12 +180,6 @@ export default function OpportunitiesPage() {
                           }}
                         />
                       )}
-                      <Link
-                        href={`/contact`}
-                        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-100"
-                      >
-                        Apply now
-                      </Link>
                     </div>
                   </motion.article>
                 ))}

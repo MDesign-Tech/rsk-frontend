@@ -244,7 +244,7 @@ export function OpportunityFormDialog({ open, onOpenChange, opportunity, types, 
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} disabled={isBusy} showToolbar={true} minHeight="150px" />
+                      <RichTextEditor value={field.value} onChange={(html, _images) => field.onChange(html)} disabled={isBusy} showToolbar={true} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

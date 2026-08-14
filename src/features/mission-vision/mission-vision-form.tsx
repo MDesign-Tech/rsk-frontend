@@ -197,7 +197,7 @@ export function MissionVisionForm() {
               <FormItem>
                 <FormLabel>Mission Description</FormLabel>
                 <FormControl>
-                  <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} showToolbar={true} minHeight="150px" />
+                  <RichTextEditor value={field.value} onChange={(html, _images) => field.onChange(html)} showToolbar={true}/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -210,7 +210,7 @@ export function MissionVisionForm() {
               <FormItem>
                 <FormLabel>Vision Description</FormLabel>
                 <FormControl>
-                  <RichTextEditor value={field.value} onChange={(html) => field.onChange(html)} showToolbar={true} minHeight="150px" />
+                  <RichTextEditor value={field.value} onChange={(html, _images) => field.onChange(html)} showToolbar={true} minHeight="150px" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

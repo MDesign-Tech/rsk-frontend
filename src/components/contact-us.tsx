@@ -10,6 +10,7 @@ import { contactService } from "@/services/contact.service";
 import { toast } from "sonner";
 import { useWebsiteStore } from "@/stores/website.store";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import type { CloudinaryImage } from "@/types";
 
 const CONTACT_ICONS = [Mail, Phone, MapPin];
 
@@ -55,7 +56,7 @@ export function ContactUs() {
     }));
   };
 
-  const handleMessageChange = (html: string) => {
+  const handleMessageChange = (html: string, _images: CloudinaryImage[]) => {
     setFormData((prev) => ({
       ...prev,
       message: html,

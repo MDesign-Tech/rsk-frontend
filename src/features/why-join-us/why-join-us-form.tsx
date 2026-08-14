@@ -266,7 +266,7 @@ export function WhyJoinUsForm() {
             <label className="text-sm font-medium">Description</label>
             <RichTextEditor
               value={sectionDescription}
-              onChange={(html) => setSectionDescription(html)}
+              onChange={(html, _images) => setSectionDescription(html)}
               disabled={isSaving}
               showToolbar={true}
               minHeight="150px"
@@ -410,7 +410,7 @@ export function WhyJoinUsForm() {
                 <label className="text-sm font-medium">Description</label>
                 <RichTextEditor
                   value={pointDescription}
-                  onChange={(html) => { setPointDescription(html); setPointErrors((prev) => ({ ...prev, description: undefined })); }}
+                  onChange={(html, _images) => { setPointDescription(html); setPointErrors((prev) => ({ ...prev, description: undefined })); }}
                   disabled={isBusy}
                   showToolbar={true}
                   minHeight="120px"
