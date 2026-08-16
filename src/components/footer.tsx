@@ -30,7 +30,7 @@ const footerLinks = {
 const pageLinks = [
   { label: "News", href: "/blog/news" },
   { label: "Opportunities", href: "/blog/opportunities" },
-  { label: "Membership", href: "/membership" },
+  { label: "Mentorship", href: "/mentorship" },
 ];
 
 // Social media platforms rendered in the footer, driven entirely by the

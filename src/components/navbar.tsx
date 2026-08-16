@@ -63,8 +63,8 @@ export function Navbar() {
       setActiveHref("/blog");
     } else if (pathname.startsWith("/about")) {
       setActiveHref("/about");
-    } else if (pathname === "/membership") {
-      setActiveHref("/membership");
+    } else if (pathname === "/mentorship") {
+      setActiveHref("/mentorship");
     } else if (pathname === "/contact") {
       setActiveHref("/contact");
     }
@@ -145,7 +145,7 @@ export function Navbar() {
 
   const isActiveLink = (href: string) => {
     if (href === "#home") return activeHref === "#home" && pathname === "/";
-    if (href === "/membership") return activeHref === "/membership";
+    if (href === "/mentorship") return activeHref === "/mentorship";
     if (href === "/blog") return pathname.startsWith("/blog");
     if (href === "/about") return pathname.startsWith("/about");
     return activeHref === href;
@@ -297,11 +297,11 @@ export function Navbar() {
             </div>
 
             <Link
-              href="/membership"
-              onClick={() => setActiveHref("/membership")}
-              className={`text-sm transition-colors ${isActiveLink("/membership") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+              href="/mentorship"
+              onClick={() => setActiveHref("/mentorship")}
+              className={`text-sm transition-colors ${isActiveLink("/mentorship") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
             >
-              Membership
+              Mentorship
             </Link>
           </div>
 
@@ -538,14 +538,14 @@ export function Navbar() {
                 )}
 
                 <Link
-                  href="/membership"
+                  href="/mentorship"
                   onClick={() => {
-                    setActiveHref("/membership");
+                    setActiveHref("/mentorship");
                     setMobileMenuOpen(false);
                   }}
-                  className={`block w-full px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/membership") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`block w-full px-4 py-3 text-base rounded-lg transition-colors ${isActiveLink("/mentorship") ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  Membership
+                  Mentorship
                 </Link>
               </div>
 

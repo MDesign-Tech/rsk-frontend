@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { X, ChevronUp } from "lucide-react";
+import { X, ChevronUp, Phone } from "lucide-react";
 import { useWebsiteStore } from "@/stores/website.store";
 import { aboutService } from "@/services/about.service";
 
@@ -27,6 +27,19 @@ export function WhatsAppButton() {
   );
   const pathname = usePathname();
   const data = useWebsiteStore((state) => state.data);
+  const isContactPage = pathname === "/contact";
+  const contactPhoneMethod =
+    data?.about?.contactMethods?.find(
+      (method) =>
+        method.visible !== false &&
+        /(phone|call|mobile)/i.test(method.label || ""),
+    ) ?? null;
+  const contactPhoneValue = contactPhoneMethod?.value?.trim();
+  const contactPhoneHref =
+    contactPhoneMethod?.href ||
+    (contactPhoneValue
+      ? `tel:${contactPhoneValue.replace(/\s+/g, "")}`
+      : undefined);
 
   // Try to get WhatsApp from website store first, then fallback to about API
   const whatsapp = data?.about?.socialMedia?.whatsapp;
@@ -100,20 +113,39 @@ export function WhatsAppButton() {
   const hasSocials = socialLinks.length > 0;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-8">
+    <div
+      className={`fixed bottom-6 right-6 z-[9999] flex ${
+        isContactPage
+          ? "flex-row items-center gap-[12px]"
+          : "flex-col items-end gap-8"
+      }`}
+    >
+      {isContactPage && contactPhoneValue && (
+        <a
+          href={contactPhoneHref}
+          target={contactPhoneMethod?.href ? "_blank" : undefined}
+          rel={contactPhoneMethod?.href ? "noopener noreferrer" : undefined}
+          className="z-[9999] inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-3 py-2 text-sm font-medium text-slate-800 shadow-lg backdrop-blur-sm transition-colors hover:bg-white"
+        >
+          <Phone className="h-4 w-4 text-green-600" />
+          <span>{contactPhoneValue}</span>
+        </a>
+      )}
+
       {/* Social Media Dropdown */}
       {hasSocials && (
         <div
-          className="relative flex flex-col items-start"
+          className={`relative ${isContactPage ? "flex flex-col items-center gap-[12px]" : "flex flex-col items-start"}`}
           onMouseEnter={() => setShowSocials(true)}
           onMouseLeave={() => setShowSocials(false)}
         >
           {/* Dropdown Menu */}
           <div
             className={`
-              flex flex-col items-start gap-2 mb-2
+              flex ${isContactPage ? "flex-col items-center" : "flex-col items-start"} gap-3
+              ${isContactPage ? "mb-0" : "mb-2"}
               transition-all duration-300 ease-out
-              ${showSocials ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}
+              ${showSocials ? "opacity-100 -translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}
             `}
             role="menu"
             aria-label="Social media links"
@@ -171,7 +203,7 @@ export function WhatsAppButton() {
               hover:text-foreground
               border border-gray-200 dark:border-gray-700
               cursor-pointer
-              mt-1
+              ${isContactPage ? "mt-0" : "mt-1"}
             `}
             aria-label="Toggle social media links"
             aria-expanded={showSocials}
@@ -190,7 +222,11 @@ export function WhatsAppButton() {
 
       {/* Popup message */}
       {isOpen && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-4 max-w-xs border border-gray-200 dark:border-gray-700 animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div
+          className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-4 max-w-xs border border-gray-200 dark:border-gray-700 animate-in fade-in slide-in-from-bottom-2 duration-200 ${
+            isContactPage ? "order-first" : ""
+          }`}
+        >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -230,7 +266,7 @@ export function WhatsAppButton() {
       {/* WhatsApp button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex items-center justify-center w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+        className="relative z-[9999] flex items-center justify-center w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
         aria-label="Chat on WhatsApp"
       >
         {/* Ping animation ring */}
