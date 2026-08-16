@@ -88,7 +88,7 @@ export function HomeWhyJoin() {
           className="relative z-10 mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <Button asChild size="lg" rounded="full" className="min-w-45">
-            <Link href="/membership">Explore membership</Link>
+            <Link href="/mentorship">Explore mentorship</Link>
           </Button>
         </motion.div>
       </div>

@@ -42,7 +42,7 @@ export function HomeContactUs() {
             Contact us
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            Ready to explore membership or business support? Our team is
+            Ready to explore mentorship or business support? Our team is
             available to answer questions, provide proposals, and help you take
             the next step.
           </p>

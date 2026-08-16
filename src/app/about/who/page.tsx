@@ -16,7 +16,8 @@ export default function WhoPage() {
   const shouldReduceMotion = useReducedMotion();
 
   const activeImage = hero?.images?.find((img) => img.isActive);
-  const coverImage = activeImage?.url || hero?.images?.[0]?.url || "/images/5.jpeg";
+  const coverImage =
+    activeImage?.url || hero?.images?.[0]?.url || "/images/5.jpeg";
 
   const impactStats = about?.stats
     ?.filter((item) => item.visible !== false)
@@ -76,8 +77,8 @@ export default function WhoPage() {
       <br />
       <br />
 
-      <section className="relative overflow-hidden pt-28 pb-24 bg-muted/70 dark:bg-muted/40">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent dark:from-primary/20" />
+      <section className="relative overflow-hidden pt-28 pb-24 bg-muted/3 dark:bg-muted/10">
+        <div className="absolute inset-0 bg-linear-to-br from-primary/1 to-transparent dark:from-primary/10" />
         <div className="absolute inset-0 opacity-45 dark:opacity-30 bg-[radial-gradient(circle_at_top_left,var(--color-primary)/0.12,transparent_50%)] dark:bg-[radial-gradient(circle_at_top_left,var(--color-primary)/0.18,transparent_50%)]" />
 
         <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
@@ -96,7 +97,7 @@ export default function WhoPage() {
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
                     about?.description ??
-                      "RSK Associates is a corporate advisory collective that helps businesses navigate growth, finance, and strategy with confidence."
+                      "RSK Associates is a corporate advisory collective that helps businesses navigate growth, finance, and strategy with confidence.",
                   ),
                 }}
               />
@@ -129,10 +130,21 @@ export default function WhoPage() {
         </div>
       </section>
       {/* <SectionDivider variant="wave" /> */}
+
+      <div className="flex h-full flex-col justify-between gap-18 overflow-x-hidden pt-40 md:gap-24 md:pt-45 lg:gap-35 lg:pt-47.5">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 justify-self-center px-4 text-center sm:px-6 lg:px-8">
+          <h1 className="text-base-content relative z-1 text-5xl leading-[1.15] font-bold max-md:text-2xl overflow-hidden md:max-w-3xl md:text-balance">
+            <span>Vision & Mission</span>
+          </h1>
+        </div>
+      </div>
+      <br />
+      <br />
+
       <section className="relative overflow-hidden border-t border-border/70 bg-background py-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2">
-            <motion.div
+            {/* <motion.div
               initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -152,7 +164,7 @@ export default function WhoPage() {
                   ),
                 }}
               />
-            </motion.div>
+            </motion.div> */}
 
             <div className="grid gap-6">
               <motion.div
@@ -162,10 +174,6 @@ export default function WhoPage() {
                 transition={{ duration: 0.7, delay: 0.1 }}
                 className="rounded-4xl border border-border/60 bg-card/95 dark:bg-card/90 p-10 backdrop-blur-xl shadow-sm"
               >
-                <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold uppercase tracking-[0.35em] mb-4">
-                  <Target className="h-4 w-4" />
-                  Vision & Mission
-                </span>
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-semibold">Vision</h3>
@@ -174,11 +182,23 @@ export default function WhoPage() {
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(
                           mv?.visionDescription ??
-                            "Create a thriving corporate ecosystem where strategy, resources, and opportunity align for every client."
+                            "Create a thriving corporate ecosystem where strategy, resources, and opportunity align for every client.",
                         ),
                       }}
                     />
                   </div>
+                </div>
+              </motion.div>
+            </div>
+            <div className="grid gap-6">
+              <motion.div
+                initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                className="rounded-4xl border border-border/60 bg-card/95 dark:bg-card/90 p-10 backdrop-blur-xl shadow-sm"
+              >
+                <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-semibold">Mission</h3>
                     <p
@@ -186,7 +206,7 @@ export default function WhoPage() {
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(
                           mv?.missionDescription ??
-                            "Empower businesses with tailored financial guidance, modern advisory tools, and trusted strategic partnerships."
+                            "Empower businesses with tailored financial guidance, modern advisory tools, and trusted strategic partnerships.",
                         ),
                       }}
                     />
@@ -197,8 +217,8 @@ export default function WhoPage() {
           </div>
         </div>
       </section>
-      <SectionDivider variant="gradient" />
-      <section className="py-20">
+      {/* <SectionDivider variant="gradient" /> */}
+      {/* <section className="py-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-1">
             <motion.div
@@ -227,7 +247,7 @@ export default function WhoPage() {
             </motion.div>
           </div>
         </div>
-      </section>
+      </section> */}
     </main>
   );
 }

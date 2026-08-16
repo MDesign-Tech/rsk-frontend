@@ -32,8 +32,8 @@ export function BecomeMember() {
             className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(
-                whyBecomeMember?.description || "Membership built to accelerate your business ambition. Enjoy premium support, access to curated opportunities, and performance-driven resources created for corporate leadership."
-              ),
+                  whyBecomeMember?.description || "Mentorship built to accelerate your business ambition. Enjoy premium support, access to curated opportunities, and performance-driven resources created for corporate leadership."
+                ),
             }}
           />
         </motion.div>
@@ -79,8 +79,8 @@ export function BecomeMember() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
-          <Button asChild size="lg" rounded="full" className="min-w-45">
-            <Link href="/membership">See membership fees</Link>
+        <Button asChild size="lg" rounded="full" className="min-w-45">
+            <Link href="/mentorship">See mentorship fees</Link>
           </Button>
         </motion.div>
       </div>

@@ -9,7 +9,7 @@ import { FAQ } from "@/components/faq";
 import { useWebsiteStore } from "@/stores/website.store";
 import DOMPurify from "isomorphic-dompurify";
 
-export default function MembershipPage() {
+export default function MentorshipPage() {
   const shouldReduceMotion = useReducedMotion();
   const whyBecomeMember = useWebsiteStore(
     (state) => state.data?.whyBecomeMember,
@@ -58,7 +58,7 @@ export default function MembershipPage() {
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(
                 whyBecomeMember?.description ||
-                  "Membership built to accelerate your business ambition. Enjoy premium support, access to curated opportunities, and performance-driven resources created for corporate leadership.",
+                  "Mentorship built to accelerate your business ambition. Enjoy premium support, access to curated opportunities, and performance-driven resources created for corporate leadership.",
               ),
             }}
           />
@@ -67,7 +67,6 @@ export default function MembershipPage() {
       <br />
       <br />
 
-      {/* <SectionDivider variant="wave" /> */}
       <section className="py-20 bg-muted/8">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           {visibleBenefits.length > 0 && (
@@ -102,9 +101,7 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      {/* <SectionDivider variant="curve" /> */}
       <FAQ />
-      {/* <SectionDivider variant="gradient" /> */}
     </main>
   );
 }
