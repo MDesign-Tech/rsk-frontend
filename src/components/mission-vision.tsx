@@ -27,13 +27,12 @@ export function MissionVision() {
             Our Mission & Vision
           </h2>
 
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          {/* <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Guiding our commitment to excellence and client success.
-          </p>
+          </p> */}
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-12">
-
           {/* Mission */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -44,15 +43,10 @@ export function MissionVision() {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 rounded-lg bg-primary/10">
-                <Target
-                  className="w-6 h-6 text-primary"
-                  aria-hidden="true"
-                />
+                <Target className="w-6 h-6 text-primary" aria-hidden="true" />
               </div>
 
-              <h3 className="text-2xl font-bold">
-                {mv.missionTitle}
-              </h3>
+              <h3 className="text-2xl font-bold">{mv.missionTitle}</h3>
             </div>
 
             <p
@@ -62,7 +56,6 @@ export function MissionVision() {
               }}
             />
           </motion.div>
-
 
           {/* Vision */}
           <motion.div
@@ -74,15 +67,10 @@ export function MissionVision() {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 rounded-lg bg-primary/10">
-                <Eye
-                  className="w-6 h-6 text-primary"
-                  aria-hidden="true"
-                />
+                <Eye className="w-6 h-6 text-primary" aria-hidden="true" />
               </div>
 
-              <h3 className="text-2xl font-bold">
-                {mv.visionTitle}
-              </h3>
+              <h3 className="text-2xl font-bold">{mv.visionTitle}</h3>
             </div>
 
             <p
@@ -92,7 +80,6 @@ export function MissionVision() {
               }}
             />
           </motion.div>
-
         </div>
       </div>
     </section>

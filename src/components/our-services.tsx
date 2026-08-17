@@ -94,9 +94,9 @@ export function OurServices() {
             Our Services
           </h2>
 
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+          {/* <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
             Comprehensive solutions tailored to your business needs
-          </p>
+          </p> */}
         </motion.div>
 
         <motion.div
