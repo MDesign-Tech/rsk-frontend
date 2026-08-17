@@ -190,6 +190,7 @@ export default function WhoPage() {
                 </div>
               </motion.div>
             </div>
+
             <div className="grid gap-6">
               <motion.div
                 initial={shouldReduceMotion ? {} : { opacity: 0, y: 24 }}
