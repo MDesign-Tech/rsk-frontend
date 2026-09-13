@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useWebsiteStore } from "@/stores/website.store";
+import Image from "next/image";
 import { useEffect, useState, useRef, useCallback } from "react";
 
 export function Hero() {
@@ -30,16 +31,18 @@ export function Hero() {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(2,6,23,0.82),rgba(30,64,175,0.45)_45%,transparent_78%)]" />
         {bgImage && (
-          <div
-            className="absolute inset-0 opacity-85"
-            style={{
-              backgroundImage: `url('${bgImage}')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              filter: "saturate(0.85) contrast(0.9)",
-            }}
-          />
-        )}
+  <Image
+    src={bgImage}
+    alt={`${hero.title} - RSK Associates`}
+    fill
+    priority
+    sizes="100vw"
+    className="object-cover opacity-85"
+    style={{
+      filter: "saturate(0.85) contrast(0.9)",
+    }}
+  />
+)}
 
         <div className="absolute inset-0 bg-linear-to-br from-blue-950/55 via-blue-800/30 to-transparent" />
       </div>
