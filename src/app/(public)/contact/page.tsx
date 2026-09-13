@@ -1,12 +1,6 @@
 import { ContactUs } from "@/components/contact-us";
 import { Navbar } from "@/components/navbar";
 
-export const metadata = {
-  title: "Contact Us - RSK Associates",
-  description:
-    "Get in touch with RSK Associates for professional services and consulting.",
-};
-
 export default function ContactPage() {
   return (
     <main className="relative z-0 min-h-screen bg-background overflow-x-hidden">
