@@ -53,12 +53,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.svg", sizes: "16x16", type: "image/svg+xml" },
-      { url: "/favicon.svg", sizes: "32x32", type: "image/svg+xml" },
-      { url: "/favicon.svg", sizes: "64x64", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "16x16", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "64x64", type: "image/svg+xml" },
     ],
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
   manifest: "/manifest.json",
   metadataBase: new URL(

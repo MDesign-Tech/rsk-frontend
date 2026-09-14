@@ -89,7 +89,7 @@ The root layout includes:
 - **Verification**: Google and Yandex verification tokens
 - **JSON-LD**: Organization and WebSite schemas inline in `<head>`
 - **Viewport**: Proper viewport with theme color
-- **Favicon**: /favicon.svg
+- **Favicon**: /favicon.ico
 
 ### Canonical URLs
 
@@ -226,7 +226,7 @@ Generated dynamically at `/sitemap.xml`:
 Images in this application come from:
 1. **Cloudinary** (via API) — Dynamic URLs for user-uploaded content
 2. **Unsplash** (external) — Used in some components
-3. **Local** — `/rsk-logo.svg`, `/favicon.svg`, `/grade.png`
+3. **Local** — `/rsk-logo.svg`, `/favicon.ico`, `/grade.png`
 
 ### SEO Optimizations Applied
 
