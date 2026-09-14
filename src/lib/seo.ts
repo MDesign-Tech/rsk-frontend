@@ -1,7 +1,3 @@
-/**
- * SEO Utilities & Constants
- * Centralized configuration for the RSK Associates SEO system.
- */
 
 // ─── Site Configuration ────────────────────────────────────────────────
 
@@ -52,7 +48,7 @@ export const NAV_LINKS = [
   { name: "About", href: "/about/who" },
   { name: "Team", href: "/about/team" },
   { name: "Partners", href: "/about/partners" },
-  { name: "Services", href: "/#services" },
+  { name: "Services", href: "/#our-services" },
   { name: "Blog", href: "/blog/news" },
   { name: "Opportunities", href: "/blog/opportunities" },
   { name: "Mentorship", href: "/mentorship" },
