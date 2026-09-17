@@ -17,18 +17,6 @@ function isPublicPath(pathname: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Block public access to /services/* URLs — Services are a homepage section only.
-  // These URLs must return 404, not redirect or pass through.
-  if (pathname.startsWith("/services")) {
-    return new NextResponse(null, {
-      status: 404,
-      headers: {
-        "X-Robots-Tag": "noindex, nofollow",
-        "Cache-Control": "no-store",
-      },
-    });
-  }
-
   if (!pathname.startsWith("/admin")) {
     return NextResponse.next();
   }
@@ -54,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/services/:path*"],
+  matcher: ["/admin/:path*"],
 };
