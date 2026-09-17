@@ -7,8 +7,7 @@ export const API_BASE_URL =
 
 // Absolute backend URL used for SERVER-side fetches (middleware).
 export const SERVER_API_URL =
-  process.env.NEXT_PUBLIC_SERVER_API_URL ||
-  "https://rsk-backend-api.vercel.app/api";
+  process.env.NEXT_PUBLIC_SERVER_API_URL;
 
 // Navigation items for the admin sidebar.
 export interface NavItem {

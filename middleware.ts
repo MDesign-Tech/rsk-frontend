@@ -20,7 +20,13 @@ export async function middleware(request: NextRequest) {
   // Block public access to /services/* URLs — Services are a homepage section only.
   // These URLs must return 404, not redirect or pass through.
   if (pathname.startsWith("/services")) {
-    return new NextResponse(null, { status: 404 });
+    return new NextResponse(null, {
+      status: 404,
+      headers: {
+        "X-Robots-Tag": "noindex, nofollow",
+        "Cache-Control": "no-store",
+      },
+    });
   }
 
   if (!pathname.startsWith("/admin")) {
